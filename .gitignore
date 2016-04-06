@@ -1,0 +1,2 @@
+#ignorer le fichier de configuration bdd
+mysql_config.php

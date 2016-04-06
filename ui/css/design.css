@@ -1,0 +1,132 @@
+#conteneur{
+	display: flex;
+	flex-direction: row;
+}
+nav{
+	padding: 0 3% 0 3%;
+	margin: 0 2% 0 2%;
+	border: 1px solid grey;
+}
+main{
+	padding: 0 3% 0 3%;
+	margin: 0 2% 0 2%;
+	border: 1px solid grey;
+	flex:1;
+}
+header{
+	text-align:center;
+	margin-bottom: 3%;
+}
+footer{
+	padding: 0 3% 0 3%;
+	margin: 2% 2% 0 2%;
+	border: 1px solid grey;
+	height:50px;
+	text-align: center;
+}
+h1{
+	padding: 20px 3% 20px 3%;
+	margin: 0 2% 0 2%;
+	border: 1px solid grey;
+}
+h2{
+	text-align: center;
+}
+
+/*--CSS--Navigation----*/
+#navigation{
+	list-style: none;
+	text-align: center;
+	padding:0;
+}
+/* #contentNav{
+	position:fixed;
+} */
+#navigation li{
+	border: 1px solid grey;
+	margin-bottom: 5px;
+	padding: 5px 0 5px 0;
+}
+#navigation li a{
+	padding:5px 10px 5px 10px;
+}
+/*------------------------------------*/
+/*--CSS--Affichage de tous les articles*/
+#listeDossier{
+	list-style: none;
+	flex-flow: row wrap;
+	justify-content: center;
+	align-items: center;
+	padding:0;
+}
+
+#listeDossier li{
+	display:flex;
+	flex: 1 1 100%;
+	border:1px solid grey;
+	padding:10px 10px 10px 10px;
+}
+#listeDossier li a:first-child{
+	flex:1;
+}
+#listeDossier li a:nth-child(2){
+	flex:0;
+}
+#listeDossier li a:nth-child(3){
+	flex:0;
+}
+/*------------------------------------*/
+/*--CSS--Formulaire de recherche de dossier */
+#formSearch{
+	display: flex;
+	justify-content: center;
+}
+#formSearch label{
+	padding-right: 10px;
+}
+#formSearch #search{
+	width:250px;
+	text-align: center;
+	margin-right: 10px;
+}
+/*------------------------------------*/
+/*--CSS--Formulaire de saisie d'article*/
+#errorFieldDossierForm{
+	width:100%;
+	background: red;
+	text-align: center;
+	font-weight: bold;
+	line-height: 200%;
+}
+.titreFormulaire{
+	padding: 20px 3% 0 3%;
+	margin: 0 2% 0 2%;
+}
+#formSaisieDossier{
+	display:flex;
+	padding:20px 0 20px 0;
+	flex-flow: row wrap;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+#formSaisieDossier label{
+	flex: 1 1 20%;
+}
+#formSaisieDossier input, #formSaisieDossier textarea, #formSaisieDossier select{
+	flex: 1 1 70%;
+	text-align: center;
+}
+#formSaisieDossier #boutonOk{
+	flex: initial;
+	width:20%;
+	margin-top: 20px;
+}
+#formSaisieDossier .dossierFormErrors{
+	font-size: 0.6em;
+	color: red;
+	font-style: italic;
+}
+#formSaisieDossier .errorOnField{
+	color:red;
+}
