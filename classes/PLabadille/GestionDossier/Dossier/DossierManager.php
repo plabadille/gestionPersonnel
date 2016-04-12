@@ -2,8 +2,6 @@
 namespace PLabadille\GestionDossier\Dossier;
 use PLabadille\Common\Bd\DB;
 
-require_once 'classes/PLabadille/GestionDossier/Dossier/Dossier.php';
-
 #Gère les requêtes en BDD, est appelé par le controller.
 class DossierManager
 {
