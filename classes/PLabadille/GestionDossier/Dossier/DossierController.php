@@ -6,9 +6,6 @@ use PLabadille\GestionDossier\Dossier\DossierForm;
 use PLabadille\GestionDossier\Dossier\DossierManager;
 use PLabadille\Common\Controller\Response;
 use PLabadille\Common\Controller\Request;
-#temp
-use PLabadille\GestionDossier\VerificateurCondition\EligibleRetraiteController;
-use PLabadille\GestionDossier\VerificateurCondition\EligiblePromotionController;
 
 #Gère les appels de fonction selon les url post et get
 #Fourni par le routeur.
@@ -26,9 +23,6 @@ class DossierController
     #affiche tout les dossiers
     public function afficherListeDossier() 
     {
-        #temp
-        $retirementRules = EligibleRetraiteController::sendMailToEligiblesRetraite();
-        #--
         $dossier = DossierManager::getAll();
         $prez = DossierHtml::toHtml($dossier);
         $this->response->setPart('contenu', $prez);

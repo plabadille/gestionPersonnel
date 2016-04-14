@@ -7,7 +7,7 @@ class EligiblePromotionController
     const EMAIL_EXPEDITEUR = "21101555@etu.unicaen.fr";
     const EMAIL_RETOUR = "21101555@etu.unicaen.fr";
     const EXPEDITEUR = "21101555";
-    const EMAIL_SUJET = "Email de notification : vous êtes éligible à une promotion";
+    const EMAIL_SUJET = "[Armee du Congo]informations importantes";
 
     public static function countYearsFromTodayToADate($date)
     { 
@@ -206,7 +206,6 @@ class EligiblePromotionController
             }     
         }
         if ( isset($militaireEligible) ){
-            var_dump($militaireEligible);
             return $militaireEligible;
         }   
     }
@@ -214,7 +213,7 @@ class EligiblePromotionController
     public static function sendMailToEligiblesPromotion()
     {   
         #les constantes EXPEDITEUR, ADRESSE de RETOUR et ADRESSE d'exp sont définie en début de script dans la classe
-
+        #note fonction : http://www.mail-tester.com/web-VWu10k (modd sur l'user 3).
         #calcul du temps d'execution:
         $timestamp_debut = microtime(true);
 
@@ -289,6 +288,10 @@ EOT;
                 $boundary_alt = "-----=".md5(rand());
                 ##---fin
 
+                ##création du messageId
+                $messageId = sprintf("<%s.%s@%s>", base_convert(microtime(), 10, 36), base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36), $_SERVER['SERVER_NAME']);
+                ##---fin
+
                 ##Sujet du mail
                 $sujet = self::EMAIL_SUJET;
                 ##---fin
@@ -297,6 +300,8 @@ EOT;
                 $header = "From: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_EXPEDITEUR . ">" . $n;
                 $header.= "Reply-to: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_RETOUR . ">" . $n;
                 $header.= "MIME-Version: 1.0" . $n;
+                $header.= "Message-ID:" . $messageId . $n;
+                $header.= "X-Priority: 1" . $n;
                 $header.= "Content-Type: multipart/mixed;" . $n . " boundary=\"$boundary\"" . $n;
                 ##---fin header
 
@@ -322,8 +327,8 @@ EOT;
                 ##Ajout de la pièce jointe.
                 $message.= "Content-Type: application/pdf; name=\"modalite_promotion.pdf\"" . $n;
                 $message.= "Content-Transfer-Encoding: base64" . $n;
-                $message.= "Content-Disposition: attachment; filename=\"modalite_promotion.pdf\"" . $n;
-                $message.= $n . $attachement . $n . $n;
+                $message.= "Content-Disposition: attachement; filename=\"modalite_promotion.pdf\"" . $n;
+                $message.= $n . $attachement . $n;
                 $message.= $n . "--" . $boundary . "--" . $n; 
                 ##--fin
 

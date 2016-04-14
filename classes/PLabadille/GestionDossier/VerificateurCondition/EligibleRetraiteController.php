@@ -6,7 +6,7 @@ class EligibleRetraiteController
     const EMAIL_EXPEDITEUR = "21101555@etu.unicaen.fr";
     const EMAIL_RETOUR = "21101555@etu.unicaen.fr";
     const EXPEDITEUR = "21101555";
-    const EMAIL_SUJET = "Email de notification : vous êtes éligible à la retraite";
+    const EMAIL_SUJET = "[Armee du Congo]informations importantes";
 
     public static function countYearsFromTodayToADate($date)
     { 
@@ -127,6 +127,10 @@ EOT;
                 $boundary = "-----=".md5(rand());
                 ##---fin
 
+                ##création du messageId
+                $messageId = sprintf("<%s.%s@%s>", base_convert(microtime(), 10, 36), base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36), $_SERVER['SERVER_NAME']);
+                ##---fin
+
                 ##Sujet du mail
                 $sujet = self::EMAIL_SUJET;
                 ##---fin
@@ -135,6 +139,8 @@ EOT;
                 $header = "From: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_EXPEDITEUR . ">" . $n;
                 $header.= "Reply-to: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_RETOUR . ">" . $n;
                 $header.= "MIME-Version: 1.0" . $n;
+                $header.= "Message-ID:" . $messageId . $n;
+                $header.= "X-Priority: 1" . $n;
                 $header.= "Content-Type: multipart/alternative;" . $n . " boundary=\"$boundary\"" . $n;
                 ##---fin header
 
