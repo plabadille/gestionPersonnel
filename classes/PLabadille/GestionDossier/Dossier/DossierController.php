@@ -55,6 +55,21 @@ class DossierController
         return $html;
     }
 
+    public function afficherListeEligiblePromotion()
+    {
+        $dossiersEligibles = DossierManager::getAllEligiblePromotion();
+        $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossiersEligibles);
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function afficherListeEligibleRetraite()
+    {
+        $dossiersEligibles = DossierManager::getAllEligibleRetraite();
+        $prez = DossierHtml::afficheDossiersEligiblesRetraite($dossiersEligibles);
+        $this->response->setPart('contenu', $prez);
+
+    }
+
     #Permet de rechercher par id ou nom
     #formulaire dans le toHtml permettant l'affichage de tout les dossiers
     public function rechercher() 
@@ -62,6 +77,22 @@ class DossierController
         $search = $this->request->getPostAttribute('search');
         $dossier = DossierManager::rechercherIdOrName($search);
         $prez = DossierHtml::toHtml($dossier);
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function rechercherEligiblesRetraite() 
+    {
+        $search = $this->request->getPostAttribute('search');
+        $dossier = DossierManager::rechercherIdOrNameRetraite($search);
+        $prez = DossierHtml::afficheDossiersEligiblesRetraite($dossier);
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function rechercherEligiblesPromotion() 
+    {
+        $search = $this->request->getPostAttribute('search');
+        $dossier = DossierManager::rechercherIdOrNamePromotion($search);
+        $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossier);
         $this->response->setPart('contenu', $prez);
     }
 

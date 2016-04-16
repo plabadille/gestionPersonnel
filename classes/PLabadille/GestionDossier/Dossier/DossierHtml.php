@@ -36,6 +36,56 @@ EOT;
         return $html;
     }
 
+    public static function afficheDossiersEligiblesPromotion($dossier) {
+        $html = <<<EOT
+            <h2>Liste des militaires éligibles à une promotion</h2>
+                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?action=rechercherEligiblesPromotion">
+                    <label for="search">Recherche :</label>
+                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+
+                    <input id="boutonOk" type="submit" value="Envoyer" >
+                </form>
+            <ul id="listeDossier">
+EOT;
+
+        foreach ($dossier as $dossier) {
+            $liste = self::afficheListe($dossier);
+            $html .= <<<EOT
+                <li>
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a>   
+                </li>
+EOT;
+        }
+
+        $html .= "  </ul>\n";
+        return $html;
+    }
+
+    public static function afficheDossiersEligiblesRetraite($dossier) {
+        $html = <<<EOT
+            <h2>Liste des militaires éligibles à la retraite</h2>
+                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?action=rechercherEligiblesRetraite">
+                    <label for="search">Recherche :</label>
+                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+
+                    <input id="boutonOk" type="submit" value="Envoyer" >
+                </form>
+            <ul id="listeDossier">
+EOT;
+
+        foreach ($dossier as $dossier) {
+            $liste = self::afficheListe($dossier);
+            $html .= <<<EOT
+                <li>
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a>   
+                </li>
+EOT;
+        }
+
+        $html .= "  </ul>\n";
+        return $html;
+    } 
+
     #Permet d'afficher uniquement un dossier
     public static function afficheUnDossier($dossier) {
         $html = <<<EOT

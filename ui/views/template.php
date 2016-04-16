@@ -17,6 +17,8 @@
             <ul id="navigation">
                 <li><a href="?objet=article&action=afficherListeDossier">Afficher liste des militaires</a></li>
                 <li><a href="?objet=article&action=creerDossier">Créer un dossier</a></li>
+                <li><a href="?objet=article&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>
+                <li><a href="?objet=article&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>
             </ul>
         </nav>
         <main>

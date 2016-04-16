@@ -24,6 +24,52 @@ class DossierManager
         return $dossier;
     }
 
+    #Reccupère tous les dossiers militaires
+    public static function getAllEligiblePromotion() 
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT * from Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE eligible_promotion = 1
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    #Reccupère tous les dossiers militaires
+    public static function getAllEligibleRetraite() 
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = ' 
+            SELECT * from Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE eligible_retraite = 1
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
     #Permet de réccupérer un dossier spécifique selon son matricule
     public static function getOneFromId($id)
     {
@@ -130,6 +176,62 @@ class DossierManager
         $pdo = DB::getInstance()->getPDO();
 
         $req = 'select * from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    static public function rechercherIdOrNamePromotion($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT * from Militaires
+            WHERE matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_promotion = 1
+            )
+            AND nom like concat("%",:search,"%") OR matricule = :search
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    static public function rechercherIdOrNameRetraite($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req =
+        '
+            SELECT * from Militaires
+            WHERE matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_retraite = 1
+            )
+            AND nom like concat("%",:search,"%") OR matricule = :search
+        ';
         $stmt = $pdo->prepare($req);
         $data = ['search'=>$search];
         $stmt->execute($data);
