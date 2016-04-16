@@ -4,7 +4,11 @@
         if (is_array($errors)){
             $cleanErrors = array_filter($errors); 
             if ($cleanErrors !== null){
-                echo '<div id="errorFieldDossierForm"><p>Il existe des erreurs dans la saisie du formulaire, voir ci-dessous :</p></div>';
+                echo '<div id="errorFieldDossierForm"><p>Il existe des erreurs dans la saisie du formulaire, voir ci-dessous :</p>';
+                if (isset($errors['doublon'])){
+                    echo '<p>' . $errors['doublon'] . '</p>';
+                }
+                echo '</div>';
             }
         } 
     ?>
