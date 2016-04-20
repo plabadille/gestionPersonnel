@@ -1,6 +1,8 @@
 <?php
 namespace PLabadille\GestionDossier\Dossier;
 
+use PLabadille\GestionDossier\Controller\AccessControll;
+
 #Gère l'affichage des Dossiers.
 class DossierHtml {
     #Permet l'affichage de tout les dossiers (ou d'une partie)
@@ -8,7 +10,7 @@ class DossierHtml {
     public static function toHtml($dossier) {
         $html = <<<EOT
             <h2>Liste des militaires</h2>
-                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?action=rechercher">
+                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercher">
                     <label for="search">Recherche :</label>
                     <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
 
@@ -16,12 +18,17 @@ class DossierHtml {
                 </form>
             <ul id="listeDossier">
 EOT;
+        //affichage des boutonsNavigation en fonction des droits:
+        $typeBouton = 'editFolderInformation';
+        $right = AccessControll::afficherBoutonNavigation($typeBouton);
 
         foreach ($dossier as $dossier) {
+            $editBouton = ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+            
             $liste = self::afficheListe($dossier);
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a>   &nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id={$dossier->getMatricule()}">Editer</a>
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$editBouton}
                 </li>
 EOT;
         }
@@ -39,7 +46,7 @@ EOT;
     public static function afficheDossiersEligiblesPromotion($dossier) {
         $html = <<<EOT
             <h2>Liste des militaires éligibles à une promotion</h2>
-                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?action=rechercherEligiblesPromotion">
+                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherEligiblesPromotion">
                     <label for="search">Recherche :</label>
                     <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
 
@@ -64,7 +71,7 @@ EOT;
     public static function afficheDossiersEligiblesRetraite($dossier) {
         $html = <<<EOT
             <h2>Liste des militaires éligibles à la retraite</h2>
-                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?action=rechercherEligiblesRetraite">
+                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherEligiblesRetraite">
                     <label for="search">Recherche :</label>
                     <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
 
@@ -88,12 +95,26 @@ EOT;
 
     #Permet d'afficher uniquement un dossier
     public static function afficheUnDossier($dossier) {
+    //affichage des boutonsNavigation en fonction des droits:
+        //1-edit bouton
+    $typeBouton = 'editFolderInformation';
+    $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+    $editBouton = ($rightEdit) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+        //2-addElement Boutons
+    $typeBouton = 'addElementToAFolder';
+    $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton);
+    $addElementBoutons = null;
+    if ( $rightAddElement ){
+        $addElementBoutons = '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterAffectation&amp;id=' . $dossier->getMatricule() . '">Ajouter une affectation</a>';
+        $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id=' . $dossier->getMatricule() . '">Ajouter un régiment d\'appartenance</a>';
+        $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterGradeDetenu&amp;id=' . $dossier->getMatricule() . '">Ajouter un grade</a>';
+        $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterDiplomePossede&amp;id=' . $dossier->getMatricule() . '">Ajouter un diplôme</a>';
+    }
+
+    //affichage
         $html = <<<EOT
-            <a href="?objet=dossier&amp;action=editerDossier&amp;id={$dossier->getMatricule()}">Editer</a>
-            <a href="?objet=dossier&amp;action=ajouterAffectation&amp;id={$dossier->getMatricule()}">Ajouter une affectation</a>
-            <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id={$dossier->getMatricule()}">Ajouter un régiment d'appartenance</a>
-            <a href="?objet=dossier&amp;action=ajouterGradeDetenu&amp;id={$dossier->getMatricule()}">Ajouter un grade</a>
-            <a href="?objet=dossier&amp;action=ajouterDiplomePossede&amp;id={$dossier->getMatricule()}">Ajouter un diplôme</a>
+            {$editBouton}
+            {$addElementBoutons}
 
             <h3>Dossier de {$dossier->getNom()} {$dossier->getPrenom()}, matricule : {$dossier->getMatricule()}</h3>
                 <p>Date de naissance : {$dossier->getDateNaissance()}</p>
@@ -103,6 +124,7 @@ EOT;
                 <p>Email : {$dossier->getEmail()}</p>
                 <p>Adresse : {$dossier->getAdresse()}</p>
                 <p>Date de recrutement : {$dossier->getDateRecrutement()}</p>
+}
 EOT;
         return $html;
     }

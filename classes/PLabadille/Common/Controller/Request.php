@@ -7,12 +7,14 @@ class Request
     protected $get;
     protected $post;
     protected $files;
+    protected $session;
 
     public function __construct()
     {
         $this->get = $_GET;
         $this->post = $_POST;
         $this->files = $_FILES;
+        $this->session = $_SESSION;
     }
 
     public function getGetAttribute($key)
@@ -53,4 +55,19 @@ class Request
     {
         return $this->files;
     }
+
+    public function getSessionAttribute($key)
+    {
+        if (isset($this->session[$key])){
+            return $this->session[$key];
+        } else {
+            return null;
+        }
+    }
+    public function setSession($key, $value)
+    {
+        $this->session[$key] = $value;
+        $_SESSION[$key] = $value;
+    }
+
 }

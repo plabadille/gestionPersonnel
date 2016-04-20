@@ -1,3 +1,4 @@
+<?php // echo password_hash("test", PASSWORD_DEFAULT); ?> 
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,16 +13,15 @@
         <h1>Application de gestion du personnel d'un service</h1>
     </header>
     <div id="conteneur">
-        <nav>
-            <h2>Compte</h2>
-            <?php echo $prezAuth ?>
-            <h2>Navigation</h2>
-            <ul id="navigation">
-                <?php echo $navigation ?>
-            </ul>
-        </nav>
         <main>
-            <?php echo $prez ?>
+            <h2>Accueil</h2>
+            <p class="pPublicHome">Pour accéder à cette application, l'authentification est obligatoire. <br />Si vous avez oublié votre mot de passe ou vos identifiant, veuillez contacter votre responsable hierarchique.</p>
+            <?php echo $prezAuth ?>
+            <p class="pPublicHome">superAdmin : Login : 111, mdp: test.</p>
+            <p class="pPublicHome">admin : Login : 1, mdp: test.</p>
+            <p class="pPublicHome">cadre : Login : 2, mdp: test.</p>
+            <p class="pPublicHome">secretaire : Login : 3, mdp: test.</p>
+            <p class="pPublicHome">militaire : Login : 4, mdp: test.</p>
         </main>
     </div>
     <footer><p> ~ M1-DNR2i 2015-2016 - Projet tuteuré - Pierre Labadille ~ </p></footer>

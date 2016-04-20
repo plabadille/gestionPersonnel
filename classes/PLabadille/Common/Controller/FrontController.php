@@ -2,6 +2,13 @@
 
 namespace PLabadille\Common\Controller;
 
+use PLabadille\Common\Authentication\AuthenticationManager;
+use PLabadille\Common\Authentication\AuthenticationHtml;
+use PLabadille\GestionDossier\Controller\AccessControll;
+use PLabadille\Common\Cleaner\Cleaner;
+use PLabadille\Common\Cleaner\CleanerTrim;
+use PLabadille\Common\Cleaner\CleanerHtmlTags;
+
 class FrontController
 {
 	protected $request;
@@ -17,6 +24,34 @@ class FrontController
 
 	public function execute()
 	{
+		$authManager = AuthenticationManager::getInstance($this->request);
+		$url = $_SERVER['REQUEST_URI'];
+		$this->response->setPart('loginDisplay', AuthenticationHtml::afficher($url));
+		$this->response->setPart('navigation', AccessControll::afficherNavigation());
+
+        $login = $this->request->getPostAttribute(AuthenticationManager::LOGIN_KEYWORD);
+        $password = $this->request->getPostAttribute(AuthenticationManager::PWD_KEYWORD);
+
+        //netoyage des données reçue (à amméliorer et externaliser si temps)
+        $cleaner = new Cleaner();
+        $cleaner->addStrategy(new CleanerHtmlTags());
+        $cleaner->addStrategy(new CleanerTrim());
+        
+        $login = $cleaner->applyStrategies($login);
+        $password = $cleaner->applyStrategies($password);
+ 		
+ 		 if (!$authManager->isConnected() AND $login !== null) {
+                // donnée POST pour le login => l'utilisateur essaye de se connecter
+                // vérifier le login/pwd
+                $authManager->checkAuthentication($login, $password);
+                if ($authManager->isConnected()) {
+                    // la connexion a réussi
+                    // => modifier loginDisplay pour afficher les infos utilisateur et non le formulaire
+                    $this->response->setPart('loginDisplay', AuthenticationHtml::afficher($url));
+                    $this->response->setPart('navigation', AccessControll::afficherNavigation());
+                }
+         }
+
 		$router = $this->router;
 		$classController = $router->getClassController();
 		$action = $router->getAction();

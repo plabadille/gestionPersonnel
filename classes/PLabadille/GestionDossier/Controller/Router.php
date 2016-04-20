@@ -13,6 +13,12 @@ class Router extends AbstractRouter
 			default:
 				return "\\PLabadille\\GestionDossier\\Dossier\\DossierController";
 			break;
+			case 'home':
+				return "\\PLabadille\\GestionDossier\\Home\\HomeController";
+			break;
+			default:
+				return "\\PLabadille\\GestionDossier\\Home\\HomeController";
+			break;
 		}
 	}
 

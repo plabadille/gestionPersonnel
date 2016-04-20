@@ -33,6 +33,27 @@ h2{
 	text-align: center;
 }
 
+/*--CSS--ChampDeConnexion----*/
+#connexionForm{
+	display: block;
+	width: 30%;
+	margin: auto;
+	margin-bottom: 15px;
+	border: 1px solid black;
+	padding: 1%;
+	text-align:center;
+}
+#connexionForm .connexionChamps{
+	width:40%;
+	padding-bottom:1%;
+	margin-bottom:1%;
+}
+#connexionForm #connexionBouton{
+	padding:1%;
+}
+.pPublicHome{
+	text-align:center;
+}
 /*--CSS--Navigation----*/
 #navigation{
 	list-style: none;
