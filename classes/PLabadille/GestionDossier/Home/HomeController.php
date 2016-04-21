@@ -11,6 +11,13 @@ use PLabadille\Common\Authentication\AuthenticationManager;
 * \class HomeController
 * \brief Sous-Controller gérant la page d'accueil
 */
+
+//--------------------
+//ORGANISATION DU CODE
+//--------------------
+# 0- Module de connexion
+//--------------------
+
 class HomeController 
 {
 	protected $request;

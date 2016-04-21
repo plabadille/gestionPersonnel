@@ -2,9 +2,21 @@
 namespace PLabadille\GestionDossier\Dossier;
 use PLabadille\Common\Bd\DB;
 
+//--------------------
+//ORGANISATION DU CODE
+//--------------------
+# x- Fonctions utilitaires et génériques
+# 1- Module mon dossier
+# 2- Module de gestion et ajout de dossier
+# 3- Module de gestion de promotion et retraite
+//--------------------
+
 #Gère les requêtes en BDD, est appelé par le controller.
 class DossierManager
 {
+    //--------------------
+    //x-Fonctions utilitaires (potentiellement utilisée par n'importe quelle fonction, elle retourne des informations disponibles en bd)
+    //--------------------
     #Reccupère tous les dossiers militaires
     public static function getAll() 
     {
@@ -169,83 +181,6 @@ class DossierManager
         return $result;
     }
 
-    #permet de réccupérer un ou plusieurs dossier correspondant au résultat d'une recherche
-    #formulaire dans le toHtml permettant l'affichage de tous les dossiers.
-    static public function rechercherIdOrName($search)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 'select * from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
-        $stmt = $pdo->prepare($req);
-        $data = ['search'=>$search];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        $dossier = array();
-        foreach ($result as $attributs) {
-            $dossier[] = new Dossier($attributs);
-        }
-        return $dossier;
-    }
-
-    static public function rechercherIdOrNamePromotion($search)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = '
-            SELECT * from Militaires
-            WHERE matricule IN(
-                SELECT matricule
-                FROM Actifs
-                WHERE eligible_promotion = 1
-            )
-            AND nom like concat("%",:search,"%") OR matricule = :search
-        ';
-
-        $stmt = $pdo->prepare($req);
-        $data = ['search'=>$search];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        $dossier = array();
-        foreach ($result as $attributs) {
-            $dossier[] = new Dossier($attributs);
-        }
-        return $dossier;
-    }
-
-    static public function rechercherIdOrNameRetraite($search)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req =
-        '
-            SELECT * from Militaires
-            WHERE matricule IN(
-                SELECT matricule
-                FROM Actifs
-                WHERE eligible_retraite = 1
-            )
-            AND nom like concat("%",:search,"%") OR matricule = :search
-        ';
-        $stmt = $pdo->prepare($req);
-        $data = ['search'=>$search];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        $dossier = array();
-        foreach ($result as $attributs) {
-            $dossier[] = new Dossier($attributs);
-        }
-        return $dossier;
-    }
-
     static public function listeNomCaserne()
     {
         $pdo = DB::getInstance()->getPDO();
@@ -342,6 +277,55 @@ class DossierManager
         return $diplomeName;
     }
 
+    //--------------------
+    //1- Module mon dossier
+    //--------------------
+
+    // 1-1- 'seeOwnFolderModule':
+    #utilises des fonctions génériques situées tout en haut.
+    #to do
+
+    // 1-2- 'editOwnFolderPersonalInformation':
+    #to do
+
+    //--------------------
+    //2- Module de gestion et ajout de dossier
+    //--------------------
+
+    // 2-1- 'listCreatedFolder':
+    #utilises des fonctions génériques situées tout en haut.
+
+    // 2-2- 'listAllFolder':
+    #permet de réccupérer un ou plusieurs dossier correspondant au résultat d'une recherche
+    #formulaire dans le toHtml permettant l'affichage de tous les dossiers.
+    static public function rechercherIdOrName($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select * from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    // 2-3- 'seeCreatedFolder':
+    #utilises des fonctions génériques situées tout en haut.
+    #to do
+    
+    // 2-4- 'seeAllFolder':
+    #utilises des fonctions génériques situées tout en haut.
+
+    // 2-5 'createFolder':
+    #utilises des fonctions génériques situées tout en haut.
     #Permet d'ajouter un dossier en BDD
     public static function ajouterUnDossier($attributs) 
     {
@@ -390,47 +374,8 @@ class DossierManager
         }
     }
 
-    #Permet d'éditer un dossier en BDD
-    public static function editerUnDossier($attributs)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        //requête d'insertion en bdd   
-        $stmt = $pdo->prepare("
-            UPDATE Militaires 
-            SET 
-                nom = :nom, 
-                prenom = :prenom, 
-                date_naissance = :date_naissance, 
-                genre = :genre, 
-                tel1 = :tel1, 
-                tel2 = :tel2,
-                email = :email, 
-                adresse = :adresse, 
-                date_recrutement = :date_recrutement
-            WHERE 
-                matricule = :id
-        ");
-        
-        $stmt->bindParam(':id', $attributs['id']);
-        $stmt->bindParam(':nom', $attributs['nom']);
-        $stmt->bindParam(':prenom', $attributs['prenom']);
-        $stmt->bindParam(':date_naissance', $attributs['date_naissance']);
-        $stmt->bindParam(':genre', $attributs['genre']);
-        $stmt->bindParam(':tel1', $attributs['tel1']);
-        $stmt->bindParam(':tel2', $attributs['tel2']);
-        $stmt->bindParam(':email', $attributs['email']);
-        $stmt->bindParam(':adresse', $attributs['adresse']);
-        $stmt->bindParam(':date_recrutement', $attributs['date_recrutement']);
-        
-        $stmt->execute();
-        $stmt->closeCursor();
-
-        //affichage de l'article créé
-        $dossier = DossierManager::getOneFromId($attributs['id']);
-        return $dossier;
-    }
-
+    // 2-6- 'addElementToAFolder':
+    #utilises des fonctions génériques situées tout en haut
     #Permet d'ajouter une affectation en BDD
     public static function ajouterUneAffectation($attributs) 
     {
@@ -592,4 +537,136 @@ class DossierManager
             return $doublonError;
         }
     }
+
+    // 2-7- 'editInformationIfAuthor':
+    #to do
+
+    // 2-8- 'editInformation':
+    #utilises des fonctions génériques situées tout en haut.
+    #Permet d'éditer un dossier en BDD
+    public static function editerUnDossier($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Militaires 
+            SET 
+                nom = :nom, 
+                prenom = :prenom, 
+                date_naissance = :date_naissance, 
+                genre = :genre, 
+                tel1 = :tel1, 
+                tel2 = :tel2,
+                email = :email, 
+                adresse = :adresse, 
+                date_recrutement = :date_recrutement
+            WHERE 
+                matricule = :id
+        ");
+        
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':nom', $attributs['nom']);
+        $stmt->bindParam(':prenom', $attributs['prenom']);
+        $stmt->bindParam(':date_naissance', $attributs['date_naissance']);
+        $stmt->bindParam(':genre', $attributs['genre']);
+        $stmt->bindParam(':tel1', $attributs['tel1']);
+        $stmt->bindParam(':tel2', $attributs['tel2']);
+        $stmt->bindParam(':email', $attributs['email']);
+        $stmt->bindParam(':adresse', $attributs['adresse']);
+        $stmt->bindParam(':date_recrutement', $attributs['date_recrutement']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        //affichage de l'article créé
+        $dossier = DossierManager::getOneFromId($attributs['id']);
+        return $dossier;
+    }
+
+    // 2-9- 'deleteInformation':
+    #to do
+
+    // 2-10 'useFileToAddFolders':
+    #to do
+
+    //--------------------
+    //3-module gestion promotion et retraite
+    //--------------------
+
+    // 3-1- 'listEligible':
+    #utilises des fonctions génériques situées tout en haut.
+    static public function rechercherIdOrNamePromotion($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT * from Militaires
+            WHERE matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_promotion = 1
+            )
+            AND nom like concat("%",:search,"%") OR matricule = :search
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    static public function rechercherIdOrNameRetraite($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req =
+        '
+            SELECT * from Militaires
+            WHERE matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_retraite = 1
+            )
+            AND nom like concat("%",:search,"%") OR matricule = :search
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+    
+    // 3-2- 'editEligibleCondition':
+    #to do
+
+    // 3-3- 'addEligibleCondition':
+    #to do
+
+    // 3-4- 'canRetireAFolder':
+    #to do
+
+    // 3-5- 'editEligibleEmailContent':
+    #to do
+
+    // 3-6- 'uploadFileForMail':
+    #to do
+
+    // 3-7- 'changePieceJointeForEligibleMail':
+    #to do
 }

@@ -11,53 +11,28 @@ use PLabadille\Common\Validator\ValidatorDateFormat;
 use PLabadille\Common\Validator\ValidatorPhoneNumberFormat;
 use PLabadille\Common\Validator\ValidatorCheckIfDateIsMoreRecent;
 
+//--------------------
+//ORGANISATION DU CODE
+//--------------------
+# x- Fonctions génériques
+# 1- Module mon dossier
+# 2- Module de gestion et ajout de dossier
+# 3- Module de gestion de promotion et retraite
+//--------------------
+
+#Gère le traitement des formulaires (affichage via template)
+#Ainsi que les stratégies de validation et de nettoyage.
 class DossierForm {
     protected $dossier;
     public function __construct($dossier = null) {
         $this->dossier = $dossier;
     }
 
-    public function traitementFormulaireMilitaire($type, $attributs = null, $errors = null) {
-        ob_start();
-        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formMilitaire.php';
-        $prez = ob_get_contents();
-        ob_end_clean();
-        return $prez;
-    }
+    //--------------------
+    //x-Fonctions génériques
+    //--------------------
 
-    public function traitementFormulaireAffectation($type, $attributs, $errors = null) {
-        ob_start();
-        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAffectation.php';
-        $prez = ob_get_contents();
-        ob_end_clean();
-        return $prez;
-    }
-
-    public function traitementFormulaireAppartientRegiment($type, $attributs, $errors = null) {
-        ob_start();
-        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAppartenanceRegiment.php';
-        $prez = ob_get_contents();
-        ob_end_clean();
-        return $prez;
-    }
-
-    public function traitementFormulaireGradeDetenu($type, $attributs, $errors = null) {
-        ob_start();
-        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAjoutGradeDetenu.php';
-        $prez = ob_get_contents();
-        ob_end_clean();
-        return $prez;
-    }
-
-    public function traitementFormulaireDiplomePossede($type, $attributs, $errors = null) {
-        ob_start();
-        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAjoutDiplomePossede.php';
-        $prez = ob_get_contents();
-        ob_end_clean();
-        return $prez;
-    }
-
-    public static function cleaningStrategy()
+        public static function cleaningStrategy()
     {
         $cleaner = new Cleaner();
         $cleaner->addStrategy(new CleanerHtmlTags());
@@ -367,4 +342,85 @@ class DossierForm {
         }
         return $errors;
     }
+
+    //--------------------
+    //1-module mon dossier
+    //--------------------
+    // 1-2- 'editOwnFolderPersonalInformation':
+    #to do
+
+    //--------------------
+    //2-module gestion et ajout de dossier
+    //--------------------
+    // 2-5 'createFolder' & 2-8- 'editInformation':
+
+    public function traitementFormulaireMilitaire($type, $attributs = null, $errors = null) {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formMilitaire.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    // 2-6- 'addElementToAFolder':
+
+    public function traitementFormulaireAffectation($type, $attributs, $errors = null) {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAffectation.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    public function traitementFormulaireAppartientRegiment($type, $attributs, $errors = null) {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAppartenanceRegiment.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    public function traitementFormulaireGradeDetenu($type, $attributs, $errors = null) {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAjoutGradeDetenu.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    public function traitementFormulaireDiplomePossede($type, $attributs, $errors = null) {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAjoutDiplomePossede.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    // 2-7- 'editInformationIfAuthor':
+    #to do
+    
+    // 2-8- 'editInformation':
+    #Géré directement dans la fonction 2-5-CreateFolder
+
+    // 2-10 'useFileToAddFolders':
+    #to do
+
+    //--------------------
+    //3-module gestion promotion et retraite
+    //--------------------
+
+    // 3-2- 'editEligibleCondition':
+    #to do
+
+    // 3-3- 'addEligibleCondition':
+    #to do
+
+    // 3-5- 'editEligibleEmailContent':
+    #to do
+
+    // 3-6- 'uploadFileForMail':
+    #to do
+
+    // 3-7- 'changePieceJointeForEligibleMail':
+    #to do
 }

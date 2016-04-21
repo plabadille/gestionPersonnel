@@ -10,6 +10,13 @@ use PLabadille\Common\Authentication\AuthenticationManager;
 * \class HomeHtml
 * \brief Gère l'affichage HTML de la page d'accueil
 */
+
+//--------------------
+//ORGANISATION DU CODE
+//--------------------
+# 0- Module de connexion
+//--------------------
+
 class HomeHtml
 {
 	/**

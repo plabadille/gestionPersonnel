@@ -1,16 +1,23 @@
 <?php
 namespace PLabadille\GestionDossier\Dossier;
 
-use PLabadille\GestionDossier\Dossier\Dossier;
-use PLabadille\GestionDossier\Dossier\DossierForm;
-use PLabadille\GestionDossier\Dossier\DossierManager;
 use PLabadille\Common\Controller\Response;
 use PLabadille\Common\Controller\Request;
 use PLabadille\GestionDossier\Controller\AccessControll;
 use PLabadille\GestionDossier\Home\HomeHtml;
 
+//--------------------
+//ORGANISATION DU CODE
+//--------------------
+# x- Fonctions utilitaires et génériques
+# 1- Module mon dossier
+# 2- Module de gestion et ajout de dossier
+# 3- Module de gestion de promotion et retraite
+//--------------------
+
 #Gère les appels de fonction selon les url post et get
 #Fourni par le routeur.
+#Pour les modules indiqué ci-dessus.
 class DossierController
 {
     protected $request;
@@ -21,23 +28,16 @@ class DossierController
         $this->request = $request;
         $this->response = $response;
     }
-
-    #affiche tout les dossiers
-    public function afficherListeDossier() 
-    {
-        //sécurité
-        $action = 'listAllFolder';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $dossier = DossierManager::getAll();
-            $prez = DossierHtml::toHtml($dossier);
-        } else{ //pas ok
-            $prez = HomeHtml::toHtml($error);
-        }
-        $this->response->setPart('contenu', $prez);
-    }
+    //--------------------
+    //x-1-Fonctions utilitaires
+    //--------------------
+    #none for now
+    //--------------------
+    //x-2-Fonctions génériques
+    //--------------------
 
     #Gère l'affichage d'un dossier complet
+    #Utilisée en 2-3 et 2-4
     public function afficheDossierComplet($dossier)
     {
         //sécurité
@@ -71,100 +71,9 @@ class DossierController
         }    
     }
 
-    public function afficherListeEligiblePromotion()
-    {
-        //sécurité
-        $action = 'listEligible';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $dossiersEligibles = DossierManager::getAllEligiblePromotion();
-            $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossiersEligibles);
-        } else{ //pas ok
-           $prez = HomeHtml::toHtml($error);
-        }    
-        $this->response->setPart('contenu', $prez);
-    }
-
-    public function afficherListeEligibleRetraite()
-    {
-        //sécurité
-        $action = 'listEligible';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $dossiersEligibles = DossierManager::getAllEligibleRetraite();
-            $prez = DossierHtml::afficheDossiersEligiblesRetraite($dossiersEligibles);
-        } else{ //pas ok
-           $prez = HomeHtml::toHtml($error);
-        } 
-        $this->response->setPart('contenu', $prez);
-
-    }
-
-    #Permet de rechercher par id ou nom
-    #formulaire dans le toHtml permettant l'affichage de tout les dossiers
-    public function rechercher() 
-    {
-        //sécurité
-        $action = 'listAllFolder';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $search = $this->request->getPostAttribute('search');
-            $dossier = DossierManager::rechercherIdOrName($search);
-            $prez = DossierHtml::toHtml($dossier);
-        } else{ //pas ok
-            $prez = HomeHtml::toHtml($error);
-        }
-        $this->response->setPart('contenu', $prez);
-    }
-
-    public function rechercherEligiblesRetraite() 
-    {
-        //sécurité
-        $action = 'listEligible';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $search = $this->request->getPostAttribute('search');
-            $dossier = DossierManager::rechercherIdOrNameRetraite($search);
-            $prez = DossierHtml::afficheDossiersEligiblesRetraite($dossier);
-        } else{ //pas ok
-            $prez = HomeHtml::toHtml($error);
-        }
-        $this->response->setPart('contenu', $prez);
-    }
-
-    public function rechercherEligiblesPromotion() 
-    {
-        //sécurité
-        $action = 'listEligible';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $search = $this->request->getPostAttribute('search');
-            $dossier = DossierManager::rechercherIdOrNamePromotion($search);
-            $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossier);
-        } else{ //pas ok
-            $prez = HomeHtml::toHtml($error);
-        }
-        $this->response->setPart('contenu', $prez);
-    }
-
-    #Permet de voir le contenu d'un dossier
-    public function voir()
-    {
-        //sécurité
-        $action = 'seeAllFolder';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $id = $this->request->getGetAttribute('id');
-            $dossier = DossierManager::getOneFromId($id);
-            $prez = self::afficheDossierComplet($dossier);
-        } else{ //pas ok
-           $prez = HomeHtml::toHtml($error);
-        }
-        $this->response->setPart('contenu', $prez);
-    }
-
     #Permet de lancer les différentes validations d'erreurs de formulaire + verification de doublon 
     #Ajoute et lance l'affichage si tout est ok
+    #Utilisée par les fonctions de création et d'édition
     public function checkErrorThenReturnOrAddAndView($type, $attributs, $edit)
     {
         #definition des éléments changeants selon l'action
@@ -235,6 +144,78 @@ class DossierController
         }
     }
 
+    //--------------------
+    //1-module mon dossier
+    //--------------------
+    // 1-1- 'seeOwnFolderModule':
+    #to do
+
+    // 1-2- 'editOwnFolderPersonalInformation':
+    #to do
+
+    //--------------------
+    //2-module gestion et ajout de dossier
+    //--------------------
+    // 2-1- 'listCreatedFolder':
+    #to do
+
+    // 2-2- 'listAllFolder':
+
+    #affiche tout les dossiers
+    public function afficherListeDossier() 
+    {
+        //sécurité
+        $action = 'listAllFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $dossier = DossierManager::getAll();
+            $prez = DossierHtml::toHtml($dossier);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    #Permet de rechercher par id ou nom
+    #formulaire dans le toHtml permettant l'affichage de tout les dossiers
+    public function rechercher() 
+    {
+        //sécurité
+        $action = 'listAllFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $search = $this->request->getPostAttribute('search');
+            $dossier = DossierManager::rechercherIdOrName($search);
+            $prez = DossierHtml::toHtml($dossier);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    
+    // 2-3- 'seeCreatedFolder':
+    #to do
+    
+    // 2-4- 'seeAllFolder':
+
+    #Permet de voir le contenu d'un dossier
+    #Utilise la fonction générique afficheDossierComplet pour afficher les éléments liés à un dossier
+    public function voir()
+    {
+        //sécurité
+        $action = 'seeAllFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $dossier = DossierManager::getOneFromId($id);
+            $prez = self::afficheDossierComplet($dossier);
+        } else{ //pas ok
+           $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    // 2-5 'createFolder':
+
     #Permet d'afficher le formulaire de création d'un dossier
     public function creerDossier()
     {
@@ -280,65 +261,8 @@ class DossierController
            die($error);
         }
     }
-
-    #Permet d'afficher le formulaire d'édition d'un dossier
-    public function editerDossier()
-    {
-        //sécurité
-        $action = 'editInformation';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            $id = $this->request->getGetAttribute('id');
-            $type = 'sauvegarderEditionDossier';
-            $old_dossier = DossierManager::getOneFromId($id);
-
-            $attributs['nom'] = $old_dossier->getNom();
-            $attributs['prenom'] = $old_dossier->getPrenom();
-            $attributs['date_naissance'] = $old_dossier->getDateNaissance();
-            $attributs['genre'] = $old_dossier->getGenre();
-            $attributs['tel1'] = $old_dossier->getTel1();
-            $attributs['tel2'] = $old_dossier->getTel2();
-            $attributs['email'] = $old_dossier->getEmail();
-            $attributs['adresse'] = $old_dossier->getAdresse();
-            $attributs['date_recrutement'] = $old_dossier->getDateRecrutement();
-            $attributs['id'] = $id;
-
-            $dossier = new Dossier;
-            $form = new DossierForm($dossier);
-
-            $prez = $form->traitementFormulaireMilitaire($type, $attributs);
-        } else{ //pas ok
-           $prez = HomeHtml::toHtml($error);
-        }
-
-        $this->response->setPart('contenu', $prez);
-    }
-
-    #Permet de sauvegarder un dossier édité si correct
-    public function sauvegarderEditionDossier()
-    {   
-        //sécurité
-        $action = 'editInformation';
-        $error = AccessControll::checkRight($action);
-        if ( empty($error) ){ //ok
-            #réccupération des données du formulaire
-            $attributs = $this->request->getPost();
-            #Stratégie de nettoyage des données Post
-            $cleaner = DossierForm::cleaningStrategy();
-            foreach ($attributs as $key => $value) {
-                $attributs[$key] = $cleaner->applyStrategies($value);
-            }
-            
-            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
-            $type = 'militaireForm';
-            $edit = true;
-            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
-            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
-        } else{ //pas ok
-            header("location: index.php");
-           die($error);
-        }  
-    }
+    
+    // 2-6- 'addElementToAFolder':
 
     public function ajouterAffectation()
     {
@@ -562,9 +486,156 @@ class DossierController
         }
     }
 
-    #action par défault si l'url est vide.
-    public function defaultAction()
+    // 2-7- 'editInformationIfAuthor':
+    #to do
+    
+    // 2-8- 'editInformation':
+
+    #Permet d'afficher le formulaire d'édition d'un dossier
+    public function editerDossier()
     {
-        $this->afficherListeDossier();
+        //sécurité
+        $action = 'editInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionDossier';
+            $old_dossier = DossierManager::getOneFromId($id);
+
+            $attributs['nom'] = $old_dossier->getNom();
+            $attributs['prenom'] = $old_dossier->getPrenom();
+            $attributs['date_naissance'] = $old_dossier->getDateNaissance();
+            $attributs['genre'] = $old_dossier->getGenre();
+            $attributs['tel1'] = $old_dossier->getTel1();
+            $attributs['tel2'] = $old_dossier->getTel2();
+            $attributs['email'] = $old_dossier->getEmail();
+            $attributs['adresse'] = $old_dossier->getAdresse();
+            $attributs['date_recrutement'] = $old_dossier->getDateRecrutement();
+            $attributs['id'] = $id;
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+
+            $prez = $form->traitementFormulaireMilitaire($type, $attributs);
+        } else{ //pas ok
+           $prez = HomeHtml::toHtml($error);
+        }
+
+        $this->response->setPart('contenu', $prez);
     }
+
+    #Permet de sauvegarder un dossier édité si correct
+    public function sauvegarderEditionDossier()
+    {   
+        //sécurité
+        $action = 'editInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #réccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #Stratégie de nettoyage des données Post
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'militaireForm';
+            $edit = true;
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }  
+    }
+
+    // 2-9- 'deleteInformation':
+    #to do
+
+    // 2-10 'useFileToAddFolders':
+    #to do
+
+    //--------------------
+    //3-module gestion promotion et retraite
+    //--------------------
+    // 3-1- 'listEligible':
+
+    #affichage de la liste des militaires éligible à la promotion
+    public function afficherListeEligiblePromotion()
+    {
+        //sécurité
+        $action = 'listEligible';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $dossiersEligibles = DossierManager::getAllEligiblePromotion();
+            $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossiersEligibles);
+        } else{ //pas ok
+           $prez = HomeHtml::toHtml($error);
+        }    
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function rechercherEligiblesPromotion() 
+    {
+        //sécurité
+        $action = 'listEligible';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $search = $this->request->getPostAttribute('search');
+            $dossier = DossierManager::rechercherIdOrNamePromotion($search);
+            $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossier);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    #affichage de la liste des militaires éligible à la retraite
+    public function afficherListeEligibleRetraite()
+    {
+        //sécurité
+        $action = 'listEligible';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $dossiersEligibles = DossierManager::getAllEligibleRetraite();
+            $prez = DossierHtml::afficheDossiersEligiblesRetraite($dossiersEligibles);
+        } else{ //pas ok
+           $prez = HomeHtml::toHtml($error);
+        } 
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function rechercherEligiblesRetraite() 
+    {
+        //sécurité
+        $action = 'listEligible';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $search = $this->request->getPostAttribute('search');
+            $dossier = DossierManager::rechercherIdOrNameRetraite($search);
+            $prez = DossierHtml::afficheDossiersEligiblesRetraite($dossier);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    
+    // 3-2- 'editEligibleCondition':
+    #to do
+
+    // 3-3- 'addEligibleCondition':
+    #to do
+
+    // 3-4- 'canRetireAFolder':
+    #to do
+
+    // 3-5- 'editEligibleEmailContent':
+    #to do
+
+    // 3-6- 'uploadFileForMail':
+    #to do
+
+    // 3-7- 'changePieceJointeForEligibleMail':
+    #to do
 }
