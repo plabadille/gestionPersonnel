@@ -223,3 +223,6 @@ CREATE TABLE IF NOT EXISTS `Users` (
 	FOREIGN KEY (`matricule`) REFERENCES Militaires(`matricule`) ON UPDATE CASCADE,
 	FOREIGN KEY (`role`) REFERENCES Droits(`role`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1 ;
+
+ALTER TABLE `Actifs`
+ADD CONSTRAINT `Actifs_ibfk_2` FOREIGN KEY (`saisie_by`) REFERENCES `Militaires` (`matricule`) ON UPDATE CASCADE;

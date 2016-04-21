@@ -45,9 +45,9 @@ class AccessControll
 	        				//--------------------
 	        				//2-module gestion et ajout de dossier
 	        				//--------------------
-	        				// case 'listCreatedFolder':
-	        				// 	$html .='';
-	        				// 	break;
+	        				case 'listCreatedFolder':
+	        					$html .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
+	        					break;
 	        				case 'listAllFolder':
 	        					$html .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
 	        					break;
@@ -140,6 +140,7 @@ class AccessControll
         	} elseif ( $droits['allRights'] == 1 ){
         		//on affiche tous les menus disponibles sans passer par une vérification champ par champ car l'utilisateur à tous les droits.
         		$html = '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
+        		$html .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
             	$html .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
             	$html .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
             	$html .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
@@ -151,7 +152,7 @@ class AccessControll
         return $html;
     }
 
-    public static function afficherBoutonNavigation($typeBouton)
+    public static function afficherBoutonNavigation($typeBouton, $creatorIsLog = null)
     {
     	//gère l'affichage du menu en fonction du statut de l'utilisateur.
     	//retourne true si l'utilisateur à le droit de voir le bouton, false sinon.
@@ -160,7 +161,10 @@ class AccessControll
         	$droits = $auth->getDroits();
         	//1 = true 0 = false
         	//on génère l'affichage du menu en fonction des droits.
-        	if ( $droits['noRights'] == 0 || $droits['allRights'] == 1 ){
+        	if ( $droits['noRights'] == 0 ){
+        		if ( $droits['allRights'] == 1 ){
+        			return true;
+        		}
         		//on regarde si l'utilisateur doit voir le bouton de menu
     			switch ($typeBouton) {
     				//--------------------
@@ -175,17 +179,12 @@ class AccessControll
     				//2-module gestion et ajout de dossier
     				//--------------------
     				case 'addElementToAFolder':
-    					if ( $droits['addElementToAFolder'] == 1 || $droits['allRights'] == 1 ){
+    					if ( $droits['addElementToAFolder'] == 1 || ( $droits['addElementToAFolderCreated'] == 1 && $creatorIsLog ) ){
     						return true;
     					}
     					break;
-    				// case 'editFolderInformationIfAuthor':
-    				// 	if ( $droits['editInformationIfAuthor'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
     				case 'editFolderInformation':
-    					if ( $droits['editInformation'] == 1 || $droits['allRights'] == 1 ){
+    					if ( $droits['editInformation'] == 1 || ( $droits['editInformationIfAuthor'] == 1 && $creatorIsLog ) ){
     						return true;
     					}
     					break;
@@ -250,20 +249,20 @@ class AccessControll
     * \param $auteur string contient le nom de l'auteur d'un article
     * \return $articleAuthorIsLog bool Retourne true si une personne est l'auteur d'un article, sinon false.
     */
-    public static function checkIfConnectedIsAuthor($auteur)
+    public static function checkIfConnectedIsAuthor($createBy)
     {
     	$auth = AuthenticationManager::getInstance();
 		if ($auth->isConnected()){
-			$username = $auth->getLogin();
-			if ($username == $auteur){
-				$articleAuthorIsLog = true;
+			$username = $auth->getMatricule();
+			if ($username == $createBy){
+				$creatorIsLog = true;
 			} else{
-				$articleAuthorIsLog = false;
+				$creatorIsLog = false;
 			}
 		} else{
-			$articleAuthorIsLog = false;
+			$creatorIsLog = false;
 		}
-		return $articleAuthorIsLog;
+		return $creatorIsLog;
     }
 
     /**
@@ -273,7 +272,7 @@ class AccessControll
     * \param $articleAuthorIsLog bool, peut être null, contient true si l'utilisateur est l'auteur d'un article
     * \return null si pas d'erreur et $erreur array si l'utilisateur n'a pas les droits requis pour effectuer une action
     */
-	public static function checkRight($action, $articleAuthorIsLog=null)
+	public static function checkRight($action, $creatorIsLog=null)
 	{
 		//gère les droits d'execution des fonctions (niveau controller).
     	//retourne une erreur si l'utilisateur n'a pas les droits requis.
@@ -306,20 +305,23 @@ class AccessControll
 					//--------------------
 					//2-module gestion et ajout de dossier
 					//--------------------
-					// case 'listCreatedFolder':
-					// 	$html .='';
-					// 	break;
+					case 'listCreatedFolder':
+						if ( $droits['listCreatedFolder'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
 					case 'listAllFolder':
 						if ( $droits['listAllFolder'] == 0 ){
 							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
 						}
 						break;
-					// case 'seeCreatedFolder':
-					// 	$html .='';
-					// 	break;
 					case 'seeAllFolder':
 						if ( $droits['seeAllFolder'] == 0 ){
-							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+							if ( $droits['seeCreatedFolder'] == 1 && $creatorIsLog ){
+								break;
+							} else{
+								return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+							}
 						}
 						break;
 					case 'createFolder':
@@ -329,15 +331,21 @@ class AccessControll
 						break;
 					case 'addElementToAFolder':
 						if ( $droits['addElementToAFolder'] == 0 ){
-							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+							if ( $droits['addElementToAFolderCreated'] == 1 && $creatorIsLog ){
+
+								break;
+							} else{
+								return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+							}
 						}
 						break;
-					// case 'editInformationIfAuthor':
-					// 	$html .='';
-					// 	break;
 					case 'editInformation':
-						if ( $droits['editInformation'] == 0 ){
-							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						if ( $droits['editInformation'] == 0  ){
+							if ( $droits['editInformationIfAuthor'] == 1 && $creatorIsLog ){
+								break;
+							} else{
+								return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+							}
 						}
 						break;
 					// case 'deleteInformation':

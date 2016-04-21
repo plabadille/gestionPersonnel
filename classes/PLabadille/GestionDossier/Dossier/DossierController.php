@@ -5,6 +5,7 @@ use PLabadille\Common\Controller\Response;
 use PLabadille\Common\Controller\Request;
 use PLabadille\GestionDossier\Controller\AccessControll;
 use PLabadille\GestionDossier\Home\HomeHtml;
+use PLabadille\Common\Authentication\AuthenticationManager;
 
 //--------------------
 //ORGANISATION DU CODE
@@ -38,11 +39,11 @@ class DossierController
 
     #Gère l'affichage d'un dossier complet
     #Utilisée en 2-3 et 2-4
-    public function afficheDossierComplet($dossier)
+    public function afficheDossierComplet($dossier, $username=null)
     {
         //sécurité
         $action = 'seeAllFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $username);
         if ( empty($error) ){ //ok
             $matricule = $dossier->getMatricule();
             $aff = DossierManager::getAffectationsById($matricule);
@@ -76,17 +77,19 @@ class DossierController
     #Utilisée par les fonctions de création et d'édition
     public function checkErrorThenReturnOrAddAndView($type, $attributs, $edit)
     {
+        $username = null;
+        if ( isset($attributs['create_by'] ) ){
+            $username = $attributs['create_by'];
+        }
         #definition des éléments changeants selon l'action
         switch ($type) {
             case 'militaireForm':
                 if ($edit == true){
                     $typeFormulaire = 'sauvegarderEditionDossier';
                     $addFunctionNameManager = 'editerUnDossier';
-
                 } else{
                     $typeFormulaire = 'sauvegarderNouveauDossier';
                     $addFunctionNameManager = 'ajouterUnDossier';
-
                 }
                 $nomFonctionFormulaire = 'traitementFormulaireMilitaire';
                 break;
@@ -132,13 +135,13 @@ class DossierController
                     $form = new DossierForm($dossier);
                     $this->response->setPart('contenu', $form->$nomFonctionFormulaire($typeFormulaire, $attributs, $errors));
                 } else{
-                    $prez = self::afficheDossierComplet($dossier);
+                    $prez = self::afficheDossierComplet($dossier, $username);
                     $this->response->setPart('contenu', $prez);
                 }
             } else{
                 #Lors de l'édition on ne verifie pas les doublons
                 $dossier = DossierManager::$addFunctionNameManager($attributs);
-                $prez = self::afficheDossierComplet($dossier);
+                $prez = self::afficheDossierComplet($dossier, $username);
                 $this->response->setPart('contenu', $prez);
             }
         }
@@ -157,7 +160,42 @@ class DossierController
     //2-module gestion et ajout de dossier
     //--------------------
     // 2-1- 'listCreatedFolder':
-    #to do
+    public function afficherListeDossierSiCreateur() 
+    {
+        $auth = AuthenticationManager::getInstance();
+        $username = $auth->getMatricule();
+        //sécurité
+        $action = 'listCreatedFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $dossier = DossierManager::getAllCreatedFolder($username);
+            $prez = DossierHtml::listCreatedFolderHtml($dossier);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    #Permet de rechercher par id ou nom
+    #formulaire dans le toHtml permettant l'affichage de tout les dossiers
+    public function rechercherCreatedFolder() 
+    {
+        $auth = AuthenticationManager::getInstance();
+        $username = $auth->getMatricule();
+        //sécurité
+        $action = 'listCreatedFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $search = $this->request->getPostAttribute('search');
+            $dossier = DossierManager::rechercherIdOrNameCreatedFolder($search, $username);
+            $prez = DossierHtml::listCreatedFolderHtml($dossier);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+
+    // rechercherCreatedFolder
 
     // 2-2- 'listAllFolder':
 
@@ -200,14 +238,18 @@ class DossierController
     #Permet de voir le contenu d'un dossier
     #Utilise la fonction générique afficheDossierComplet pour afficher les éléments liés à un dossier
     public function voir()
-    {
+    {   
+        $id = $this->request->getGetAttribute('id');
+        $dossier = DossierManager::getOneFromId($id);
+
         //sécurité
         $action = 'seeAllFolder';
-        $error = AccessControll::checkRight($action);
+        $createBy = $dossier->getWhoCreateFolder();
+        $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+        $error = AccessControll::checkRight($action, $creatorIsLog);
+
         if ( empty($error) ){ //ok
-            $id = $this->request->getGetAttribute('id');
-            $dossier = DossierManager::getOneFromId($id);
-            $prez = self::afficheDossierComplet($dossier);
+            $prez = self::afficheDossierComplet($dossier, $creatorIsLog);
         } else{ //pas ok
            $prez = HomeHtml::toHtml($error);
         }
@@ -244,6 +286,9 @@ class DossierController
         $action = 'createFolder';
         $error = AccessControll::checkRight($action);
         if ( empty($error) ){ //ok
+            #On regarde qui est le créateur du dossier
+            $auth = AuthenticationManager::getInstance();
+            $createur = $auth->getMatricule();
             #Reccupération des données du formulaire
             $attributs = $this->request->getPost();
             #strategie de nettoyage des données Post:
@@ -251,6 +296,7 @@ class DossierController
             foreach ($attributs as $key => $value) {
                 $attributs[$key] = $cleaner->applyStrategies($value);
             }
+            $attributs['create_by'] = $createur;
             #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
             $type = 'militaireForm';
             $edit = false;
@@ -267,9 +313,12 @@ class DossierController
     public function ajouterAffectation()
     {
         //sécurité
+        $attributs['id'] = $this->request->getGetAttribute('id');
+        $createur = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createur);
         if ( empty($error) ){ //ok
+            #On regarde qui est le créateur du dossier
             $type = 'sauvegarderNouvelleAffectation';
 
             $dossier = new Dossier;
@@ -277,7 +326,6 @@ class DossierController
 
             #on récuppère la liste de selection caserne
             $attributs['listeCaserne'] = DossierManager::listeNomCaserne();
-            $attributs['id'] = $this->request->getGetAttribute('id');
 
             $prez = $form->traitementFormulaireAffectation($type, $attributs);
         } else{ //pas ok
@@ -289,12 +337,17 @@ class DossierController
 
     public function sauvegarderNouvelleAffectation()
     {
+        #Reccupération des données du formulaire
+        $attributs = $this->request->getPost();
         //sécurité
+        $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createurDossier);
         if ( empty($error) ){ //ok
-            #Reccupération des données du formulaire
-            $attributs = $this->request->getPost();
+            $auth = AuthenticationManager::getInstance();
+            $createur = $auth->getMatricule();
+
+            $attributs['create_by'] = $createur;
             #on réccupère le dossier pour avoir la date de recrutement
             $miltDossier = DossierManager::getOneFromId($attributs['id']);
             $affectations = DossierManager::getAffectationsById($attributs['id']);
@@ -322,9 +375,11 @@ class DossierController
 
     public function ajouterAppartenanceRegiment()
     {
+        $attributs['id'] = $this->request->getGetAttribute('id');
         //sécurité
+        $createur = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createur);
         if ( empty($error) ){ //ok
             $type = 'sauvegarderNouvelleAppartenanceRegiment';
 
@@ -333,7 +388,6 @@ class DossierController
 
             #on récuppère la liste de selection caserne
             $attributs['listeRegiment'] = DossierManager::listeNomRegiment();
-            $attributs['id'] = $this->request->getGetAttribute('id');
 
             $prez = $form->traitementFormulaireAppartientRegiment($type, $attributs);
         } else{ //pas ok
@@ -345,12 +399,17 @@ class DossierController
 
     public function sauvegarderNouvelleAppartenanceRegiment()
     {
+        #Reccupération des données du formulaire
+        $attributs = $this->request->getPost();
         //sécurité
+        $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createurDossier);
         if ( empty($error) ){ //ok
-            #Reccupération des données du formulaire
-            $attributs = $this->request->getPost();
+            $auth = AuthenticationManager::getInstance();
+            $createur = $auth->getMatricule();
+
+            $attributs['create_by'] = $createur;
             #on réccupère le dossier pour avoir la date de recrutement
             $miltDossier = DossierManager::getOneFromId($attributs['id']);
             $regiment = DossierManager::getAppartenancesById($attributs['id']);
@@ -378,9 +437,11 @@ class DossierController
 
     public function ajouterGradeDetenu()
     {
+        $attributs['id'] = $this->request->getGetAttribute('id');
         //sécurité
+        $createur = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createur);
         if ( empty($error) ){ //ok
             $type = 'sauvegarderNouveauGradeDetenu';
 
@@ -389,7 +450,6 @@ class DossierController
 
             #on récuppère la liste de selection caserne
             $attributs['listeGrade'] = DossierManager::listeNomGrade();
-            $attributs['id'] = $this->request->getGetAttribute('id');
 
             $prez = $form->traitementFormulaireGradeDetenu($type, $attributs);
         } else{ //pas ok
@@ -401,12 +461,17 @@ class DossierController
 
     public function sauvegarderNouveauGradeDetenu()
     {
+        #Reccupération des données du formulaire
+        $attributs = $this->request->getPost();
         //sécurité
+        $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createurDossier);
         if ( empty($error) ){ //ok
-            #Reccupération des données du formulaire
-            $attributs = $this->request->getPost();
+            $auth = AuthenticationManager::getInstance();
+            $createur = $auth->getMatricule();
+
+            $attributs['create_by'] = $createur;
             #on réccupère le dossier pour avoir la date de recrutement
             $miltDossier = DossierManager::getOneFromId($attributs['id']);
             $grade = DossierManager::getGradesDetenuById($attributs['id']);
@@ -434,9 +499,11 @@ class DossierController
 
     public function ajouterDiplomePossede()
     {
+        $attributs['id'] = $this->request->getGetAttribute('id');
         //sécurité
+        $createur = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createur);
         if ( empty($error) ){ //ok
             $type = 'sauvegarderNouveauDiplomePossede';
 
@@ -445,7 +512,6 @@ class DossierController
 
             #on récuppère la liste de selection caserne
             $attributs['listeDiplome'] = DossierManager::listeNomDiplome();
-            $attributs['id'] = $this->request->getGetAttribute('id');
 
             $prez = $form->traitementFormulaireDiplomePossede($type, $attributs);
         } else{ //pas ok
@@ -457,12 +523,17 @@ class DossierController
 
     public function sauvegarderNouveauDiplomePossede()
     {
+        #Reccupération des données du formulaire
+        $attributs = $this->request->getPost();
         //sécurité
+        $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createurDossier);
         if ( empty($error) ){ //ok
-            #Reccupération des données du formulaire
-            $attributs = $this->request->getPost();
+            $auth = AuthenticationManager::getInstance();
+            $createur = $auth->getMatricule();
+
+            $attributs['create_by'] = $createur;
             #on réccupère le dossier pour avoir la date de recrutement
             $miltDossier = DossierManager::getOneFromId($attributs['id']);
             $diplome = DossierManager::getDiplomesPossedeById($attributs['id']);
@@ -494,25 +565,27 @@ class DossierController
     #Permet d'afficher le formulaire d'édition d'un dossier
     public function editerDossier()
     {
+        $id = $this->request->getGetAttribute('id');
+        $type = 'sauvegarderEditionDossier';
+        $old_dossier = DossierManager::getOneFromId($id);
+
+        $attributs['nom'] = $old_dossier->getNom();
+        $attributs['prenom'] = $old_dossier->getPrenom();
+        $attributs['date_naissance'] = $old_dossier->getDateNaissance();
+        $attributs['genre'] = $old_dossier->getGenre();
+        $attributs['tel1'] = $old_dossier->getTel1();
+        $attributs['tel2'] = $old_dossier->getTel2();
+        $attributs['email'] = $old_dossier->getEmail();
+        $attributs['adresse'] = $old_dossier->getAdresse();
+        $attributs['date_recrutement'] = $old_dossier->getDateRecrutement();
+        $attributs['id'] = $id;
+
         //sécurité
         $action = 'editInformation';
-        $error = AccessControll::checkRight($action);
+        $createBy = $old_dossier->getWhoCreateFolder();
+        $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+        $error = AccessControll::checkRight($action, $creatorIsLog);
         if ( empty($error) ){ //ok
-            $id = $this->request->getGetAttribute('id');
-            $type = 'sauvegarderEditionDossier';
-            $old_dossier = DossierManager::getOneFromId($id);
-
-            $attributs['nom'] = $old_dossier->getNom();
-            $attributs['prenom'] = $old_dossier->getPrenom();
-            $attributs['date_naissance'] = $old_dossier->getDateNaissance();
-            $attributs['genre'] = $old_dossier->getGenre();
-            $attributs['tel1'] = $old_dossier->getTel1();
-            $attributs['tel2'] = $old_dossier->getTel2();
-            $attributs['email'] = $old_dossier->getEmail();
-            $attributs['adresse'] = $old_dossier->getAdresse();
-            $attributs['date_recrutement'] = $old_dossier->getDateRecrutement();
-            $attributs['id'] = $id;
-
             $dossier = new Dossier;
             $form = new DossierForm($dossier);
 
@@ -527,12 +600,14 @@ class DossierController
     #Permet de sauvegarder un dossier édité si correct
     public function sauvegarderEditionDossier()
     {   
+        #réccupération des données du formulaire
+        $attributs = $this->request->getPost();
+
         //sécurité
+        $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'editInformation';
-        $error = AccessControll::checkRight($action);
+        $error = AccessControll::checkRight($action, $createurDossier);
         if ( empty($error) ){ //ok
-            #réccupération des données du formulaire
-            $attributs = $this->request->getPost();
             #Stratégie de nettoyage des données Post
             $cleaner = DossierForm::cleaningStrategy();
             foreach ($attributs as $key => $value) {

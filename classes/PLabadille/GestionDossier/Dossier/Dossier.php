@@ -13,6 +13,7 @@ class Dossier
     protected $email;
     protected $adresse;
     protected $date_recrutement;
+    protected $saisie_by;
 
     public function __construct($attributs = null)
     {
@@ -63,6 +64,11 @@ class Dossier
 
         if (isset($attributs['date_recrutement']))
             $this->date_recrutement=$attributs['date_recrutement'];
+        else
+            $this->date_recrutement="";
+
+        if (isset($attributs['saisie_by']))
+            $this->saisie_by=$attributs['saisie_by'];
         else
             $this->date_recrutement="";
     }  
@@ -146,6 +152,14 @@ class Dossier
     public function setDateRecrutement($date_recrutement)
     {
         $this->date_recrutement = $date_recrutement;
+    }
+    public function getWhoCreateFolder()
+    {
+        return $this->saisie_by;
+    }
+    public function setWhoCreateFolder($saisie_by)
+    {
+        $this->saisie_by = $saisie_by;
     }
 
 }

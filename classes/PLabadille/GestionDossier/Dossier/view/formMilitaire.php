@@ -13,7 +13,7 @@
         } 
     ?>
 </div>
-<form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?action=<?php echo $type ; ?>">
+<form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
     <label for="nom">Nom<span class="dossierFormErrors"><?php echo $errors['nom']; ?></span></label>
     <input type="text" name="nom" id="nom" placeholder="Saisir le nom" value="<?php echo $attributs['nom']; ?>" />
 

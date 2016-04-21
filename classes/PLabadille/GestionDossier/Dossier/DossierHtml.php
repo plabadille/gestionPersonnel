@@ -27,7 +27,37 @@ class DossierHtml {
     //2-module gestion et ajout de dossier
     //--------------------
     // 2-1- 'listCreatedFolder':
-    #to do
+    public static function listCreatedFolderHtml($dossier) {
+        $html = <<<EOT
+            <h2>Liste des militaires que vous avez ajouté</h2>
+                <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherCreatedFolder">
+                    <label for="search">Recherche :</label>
+                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+
+                    <input id="boutonOk" type="submit" value="Envoyer" >
+                </form>
+            <ul id="listeDossier">
+EOT;
+        foreach ($dossier as $dossier) {
+            //affichage des boutonsNavigation en fonction des droits:
+            $typeBouton = 'editFolderInformation';
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            $right = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+
+            $editBouton = ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+            
+            $liste = self::afficheListe($dossier);
+            $html .= <<<EOT
+                <li>
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$editBouton}
+                </li>
+EOT;
+        }
+
+        $html .= "  </ul>\n";
+        return $html;
+    }
 
     // 2-2- 'listAllFolder':
 
@@ -44,11 +74,13 @@ class DossierHtml {
                 </form>
             <ul id="listeDossier">
 EOT;
-        //affichage des boutonsNavigation en fonction des droits:
-        $typeBouton = 'editFolderInformation';
-        $right = AccessControll::afficherBoutonNavigation($typeBouton);
-
         foreach ($dossier as $dossier) {
+            //affichage des boutonsNavigation en fonction des droits:
+            $typeBouton = 'editFolderInformation';
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            $right = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+
             $editBouton = ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
             
             $liste = self::afficheListe($dossier);
@@ -77,14 +109,20 @@ EOT;
     #Permet d'afficher uniquement un dossier
     public static function afficheUnDossier($dossier) {
         //affichage des boutonsNavigation en fonction des droits:
+        $createBy = $dossier->getWhoCreateFolder();
+        $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+
         //1-edit bouton
         $typeBouton = 'editFolderInformation';
-        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
         $editBouton = ($rightEdit) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+        
         //2-addElement Boutons
         $typeBouton = 'addElementToAFolder';
-        $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton);
+        $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
         $addElementBoutons = null;
+
+        //3-Affichage boutons
         if ( $rightAddElement ){
             $addElementBoutons = '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterAffectation&amp;id=' . $dossier->getMatricule() . '">Ajouter une affectation</a>';
             $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id=' . $dossier->getMatricule() . '">Ajouter un régiment d\'appartenance</a>';
@@ -92,7 +130,7 @@ EOT;
             $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterDiplomePossede&amp;id=' . $dossier->getMatricule() . '">Ajouter un diplôme</a>';
         }
 
-        //affichage
+        //4-affichage dossier
         $html = <<<EOT
             {$editBouton}
             {$addElementBoutons}

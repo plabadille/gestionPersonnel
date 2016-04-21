@@ -22,9 +22,37 @@ class DossierManager
     {
         $pdo = DB::getInstance()->getPDO();
 
-        $req = 'select * from Militaires';
+        $req = '
+            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, saisie_by
+            FROM Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+        ';
         $stmt = $pdo->prepare($req);
         $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    public static function getAllCreatedFolder($username) 
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, saisie_by
+            FROM Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE a.saisie_by = :username;
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['username' => $username];
+        $stmt->execute($data);
 
         $result = $stmt->fetchAll();
         $stmt->closeCursor();
@@ -87,7 +115,13 @@ class DossierManager
     {
         $pdo = DB::getInstance()->getPDO();
 
-        $req = 'select * from Militaires where matricule = :matricule';
+        $req = 
+        '
+            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, saisie_by
+            FROM Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            where m.matricule = :matricule
+        ';
         $stmt = $pdo->prepare($req);
         $data = ['matricule' => $id];
         $stmt->execute($data);
@@ -179,6 +213,28 @@ class DossierManager
         $stmt->closeCursor();
 
         return $result;
+    }
+
+    public static function getCreatorById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT saisie_by
+            FROM Actifs
+            WHERE matricule = :matricule
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+
+        $creator = $result['saisie_by'];
+        return $creator;
     }
 
     static public function listeNomCaserne()
@@ -294,6 +350,31 @@ class DossierManager
 
     // 2-1- 'listCreatedFolder':
     #utilises des fonctions génériques situées tout en haut.
+    static public function rechercherIdOrNameCreatedFolder($search, $username)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, a.saisie_by
+            FROM Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE a.saisie_by = :username AND m.nom like concat("%",:search,"%") OR m.matricule = :search
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
 
     // 2-2- 'listAllFolder':
     #permet de réccupérer un ou plusieurs dossier correspondant au résultat d'une recherche
@@ -364,6 +445,19 @@ class DossierManager
             $stmt->execute();
             //lastInsertId retourne l'id de la dernière ligne insérée.
             $matricule = $pdo->lastInsertId();
+
+            //on indique maintenant que le militaire est actif (ainsi que la personne qui l'a enregistré)
+            $stmt = $pdo->prepare("
+                INSERT INTO Actifs 
+                    (matricule, saisie_by) 
+                VALUES
+                    (:matricule, :saisieBy)
+            ");
+            $stmt->bindParam(':matricule', $matricule);
+            $stmt->bindParam(':saisieBy', $attributs['create_by']);
+            
+            $stmt->execute();
+
             $stmt->closeCursor();
             //affichage de l'article créé
             $dossier = DossierManager::getOneFromId($matricule);

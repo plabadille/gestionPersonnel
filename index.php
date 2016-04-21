@@ -36,3 +36,27 @@ if ( !$auth->isConnected() ){
 } else{
 	include_once 'ui/views/template.php';
 }
+
+//--------------------
+//MODULE IMPLEMENTE
+//--------------------
+# x- Module de vérification d'éligibilité (uniquement par CRON)
+#  -> Cf EligibleHandler.php
+# 0- Module de connexion
+#  -> Cf PLabadille\GestionDossier\Home
+# 1- Module mon dossier
+#  -> Cf PLabadille\GestionDossier\Dossier
+# 2- Module de gestion et ajout de dossier
+#  -> Cf PLabadille\GestionDossier\Dossier
+# 3- Module de gestion de promotion et retraite
+#  -> Cf PLabadille\GestionDossier\Dossier
+//--------------------
+//MODULE TO DO
+//--------------------
+# 4- Module de création de compte et de droit
+#  -> Cf PLabadille\GestionDossier\Administration
+# 5- Module de gestion de l'application
+#  -> Cf PLabadille\GestionDossier\Administration
+# 6- Module de sauvegarde et de gestion de crise
+#  -> Cf PLabadille\GestionDossier\Administration ??
+//--------------------

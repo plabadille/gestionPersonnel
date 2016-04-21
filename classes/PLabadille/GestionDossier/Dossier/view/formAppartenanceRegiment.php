@@ -13,7 +13,7 @@
         } 
     ?>
 </div>
-<form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?action=<?php echo $type ; ?>">
+<form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
     <label for="date_appartenance">Date d'appartenance:<span class="dossierFormErrors"><?php echo $errors['date_appartenance']; ?></span></label>
     <input type="text" name="date_appartenance" class="datepicker" value="<?php echo (isset($attributs['date_appartenance']) ? $attributs['date_appartenance'] : null); ?>" />
 

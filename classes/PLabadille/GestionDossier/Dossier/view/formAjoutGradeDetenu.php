@@ -13,7 +13,7 @@
         } 
     ?>
 </div>
-<form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?action=<?php echo $type ; ?>">
+<form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
     <label for="date_promotion">Date de promotion<span class="dossierFormErrors"><?php echo $errors['date_promotion']; ?></span></label>
     <input type="text" name="date_promotion" class="datepicker" value="<?php echo (isset($attributs['date_promotion']) ? $attributs['date_promotion'] : null); ?>" />
 
