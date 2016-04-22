@@ -18,7 +18,24 @@ class DossierHtml {
     //1-module mon dossier
     //--------------------
     // 1-1- 'seeOwnFolderModule':
-    #to do
+    public static function viewUserFolder($dossier){
+        //4-affichage dossier
+        $html = <<<EOT
+            <h3>Dossier de {$dossier['informations']->getNom()} {$dossier['informations']->getPrenom()}, matricule : {$dossier['informations']->getMatricule()}</h3>
+                <p>Date de naissance : {$dossier['informations']->getDateNaissance()}</p>
+                <p>Genre : {$dossier['informations']->getGenre()}</p>
+                <p>Tel1 : {$dossier['informations']->getTel1()}</p>
+                <p>Tel 2 : {$dossier['informations']->getTel2()}</p>
+                <p>Email : {$dossier['informations']->getEmail()}</p>
+                <p>Adresse : {$dossier['informations']->getAdresse()}</p>
+                <p>Date de recrutement : {$dossier['informations']->getDateRecrutement()}</p>\n\n
+EOT;
+        $html .= self::afficheAffectations($dossier['casernes']) . "\n\n";
+        $html .= self::afficheAppartenances($dossier['regiments']) . "\n\n";
+        $html .= self::afficheGradesDetenu($dossier['grades']) . "\n\n";
+        $html .= self::afficheDiplomesPossede($dossier['diplomes']); 
+        return $html;
+    }
 
     // 1-2- 'editOwnFolderPersonalInformation':
     #géré par template dans DossierForm
@@ -223,11 +240,11 @@ EOT;
     }
 
     #Permet d'afficher les diplomes possede liés à un dossier
-    public static function afficheDiplomesPossede($grades) {
+    public static function afficheDiplomesPossede($diplomes) {
         $html = "</br>\n<h3>Liste des diplômes possédés :</h3> \n";
 
-        if (!empty($grades)){
-            foreach ($grades as $key => $liste) {
+        if (!empty($diplomes)){
+            foreach ($diplomes as $key => $liste) {
                 $html .= "<p>" . $liste['intitule'] . " (" . $liste['acronyme'] . ") obtenu le " . $liste['date_obtention'] . "</p> \n";
             }
         } else{

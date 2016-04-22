@@ -52,6 +52,59 @@ class DossierForm {
 
         #switch selon le type de formulaire.
         switch ($type) {
+            case 'sonDossierForm':
+                //initialisation du tableau d'erreur pour éviter les undefined index
+                //dans le form.
+                $errors = [
+                    'tel1' => null,
+                    'tel2' => null,
+                    'email' => null,
+                    'adresse' => null,
+                ];
+
+                //Validateur champ tel1 :
+                //1-Not empty
+                //2-format téléphone
+                $validatorTel1 = new Validator();
+                $validatorTel1->addStrategy($validatorNotEmpty);
+                $validatorTel1->addStrategy($validatorPhoneNumberFormat);
+                $error = $validatorTel1->applyStrategies($attributs['tel1']);
+
+                if($error !== null){
+                    $errors['tel1']=$error;
+                }
+                //Validateur champ tel2 :
+                //1-Not empty
+                //2-format téléphone
+                $validatorTel2 = new Validator();
+                $validatorTel2->addStrategy($validatorNotEmpty);
+                $validatorTel2->addStrategy($validatorPhoneNumberFormat);
+                $error = $validatorTel2->applyStrategies($attributs['tel2']);
+
+                if($error !== null){
+                    $errors['tel2']=$error;
+                }
+                //Validateur champ email :
+                //1-Not empty
+                //2-format email
+                $validatorEmail = new Validator();
+                $validatorEmail->addStrategy($validatorNotEmpty);
+                $validatorEmail->addStrategy($validator_Email);
+                $error = $validatorEmail->applyStrategies($attributs['email']);
+
+                if($error !== null){
+                    $errors['email']=$error;
+                }
+                //Validateur champ adresse :
+                //1-Not empty
+                $validatorAdresse = new Validator();
+                $validatorAdresse->addStrategy($validatorNotEmpty);
+                $error = $validatorAdresse->applyStrategies($attributs['adresse']);
+
+                if($error !== null){
+                    $errors['adresse']=$error;
+                }
+                break;
             case 'militaireForm':
                 //initialisation du tableau d'erreur pour éviter les undefined index
                 //dans le form.
@@ -347,14 +400,22 @@ class DossierForm {
     //1-module mon dossier
     //--------------------
     // 1-2- 'editOwnFolderPersonalInformation':
-    #to do
+    public function traitementFormulaireSonDossier($type, $attributs, $errors = null)
+    {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formPropreDossier.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
 
     //--------------------
     //2-module gestion et ajout de dossier
     //--------------------
     // 2-5 'createFolder' & 2-8- 'editInformation':
 
-    public function traitementFormulaireMilitaire($type, $attributs = null, $errors = null) {
+    public function traitementFormulaireMilitaire($type, $attributs = null, $errors = null) 
+    {
         ob_start();
         include_once 'classes/PLabadille/GestionDossier/Dossier/view/formMilitaire.php';
         $prez = ob_get_contents();
@@ -364,7 +425,8 @@ class DossierForm {
 
     // 2-6- 'addElementToAFolder':
 
-    public function traitementFormulaireAffectation($type, $attributs, $errors = null) {
+    public function traitementFormulaireAffectation($type, $attributs, $errors = null) 
+    {
         ob_start();
         include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAffectation.php';
         $prez = ob_get_contents();
@@ -372,7 +434,8 @@ class DossierForm {
         return $prez;
     }
 
-    public function traitementFormulaireAppartientRegiment($type, $attributs, $errors = null) {
+    public function traitementFormulaireAppartientRegiment($type, $attributs, $errors = null) 
+    {
         ob_start();
         include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAppartenanceRegiment.php';
         $prez = ob_get_contents();
@@ -380,7 +443,8 @@ class DossierForm {
         return $prez;
     }
 
-    public function traitementFormulaireGradeDetenu($type, $attributs, $errors = null) {
+    public function traitementFormulaireGradeDetenu($type, $attributs, $errors = null) 
+    {
         ob_start();
         include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAjoutGradeDetenu.php';
         $prez = ob_get_contents();
@@ -388,7 +452,8 @@ class DossierForm {
         return $prez;
     }
 
-    public function traitementFormulaireDiplomePossede($type, $attributs, $errors = null) {
+    public function traitementFormulaireDiplomePossede($type, $attributs, $errors = null) 
+    {
         ob_start();
         include_once 'classes/PLabadille/GestionDossier/Dossier/view/formAjoutDiplomePossede.php';
         $prez = ob_get_contents();

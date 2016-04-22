@@ -40,6 +40,136 @@ class DossierManager
         return $dossier;
     }
 
+    #Permet de réccupérer un dossier spécifique selon son matricule
+    public static function getOneFromId($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, saisie_by
+            FROM Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            where m.matricule = :matricule
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+        $attributs = $result;
+        $dossier = new Dossier($attributs);
+        return $dossier;
+    }
+
+    //--------------------
+    //1- Module mon dossier
+    //--------------------
+
+    // 1-1- 'seeOwnFolderModule':
+    static public function getUserFullFolder($matricule)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        //on fait toutes les requêtes nécessaires pour obtenir le dossier militaire complet. Une seule requête pour simplifier les choses niveau sécurité.
+        $req = 
+        '
+            SELECT *
+            FROM Militaires
+            where matricule = :matricule
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $matricule];
+        $stmt->execute($data);
+        $informations = $stmt->fetch();
+
+        $req = 
+        '
+            SELECT nom, date_affectation FROM Affectation a
+            INNER JOIN Casernes c ON a.id = c.id
+            WHERE a.matricule = :matricule ORDER BY date_affectation DESC
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $matricule];
+        $stmt->execute($data);
+        $casernes = $stmt->fetchAll();
+
+        $req = 
+        '
+            SELECT id, date_appartenance FROM AppartientRegiment
+            WHERE matricule = :matricule ORDER BY date_appartenance DESC
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $matricule];
+        $stmt->execute($data);
+        $regiments = $stmt->fetchAll();
+
+        $req = 
+        '
+            SELECT grade, date_promotion FROM DetientGrades dg
+            INNER JOIN Grades g ON dg.id = g.id
+            WHERE matricule = :matricule order by date_promotion DESC
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $matricule];
+        $stmt->execute($data);
+        $grades = $stmt->fetchAll();
+
+        $req = 
+        '
+            SELECT acronyme, intitule, date_obtention FROM PossedeDiplomes pd
+            INNER JOIN Diplomes d ON pd.id = d.acronyme
+            WHERE matricule = :matricule order by date_obtention DESC
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $matricule];
+        $stmt->execute($data);
+        $diplomes = $stmt->fetchAll();
+
+        $stmt->closeCursor();
+
+        $dossier['informations'] = new Dossier($informations);
+        $dossier['casernes'] = $casernes;
+        $dossier['regiments'] = $regiments;
+        $dossier['grades'] = $grades;
+        $dossier['diplomes'] = $diplomes;
+
+        return $dossier;
+    }
+
+    // 1-2- 'editOwnFolderPersonalInformation':
+    static public function editerSonDossier($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Militaires 
+            SET 
+                tel1 = :tel1, 
+                tel2 = :tel2,
+                email = :email, 
+                adresse = :adresse
+            WHERE 
+                matricule = :id
+        ");
+        
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':tel1', $attributs['tel1']);
+        $stmt->bindParam(':tel2', $attributs['tel2']);
+        $stmt->bindParam(':email', $attributs['email']);
+        $stmt->bindParam(':adresse', $attributs['adresse']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    //--------------------
+    //2- Module de gestion et ajout de dossier
+    //--------------------
+
+    // 2-1- 'listCreatedFolder':
+
     public static function getAllCreatedFolder($username) 
     {
         $pdo = DB::getInstance()->getPDO();
@@ -64,292 +194,6 @@ class DossierManager
         return $dossier;
     }
 
-    #Reccupère tous les dossiers militaires
-    public static function getAllEligiblePromotion() 
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = '
-            SELECT * from Militaires m
-            INNER JOIN Actifs a ON m.matricule = a.matricule
-            WHERE eligible_promotion = 1
-        ';
-        $stmt = $pdo->prepare($req);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        $dossier = array();
-        foreach ($result as $attributs) {
-            $dossier[] = new Dossier($attributs);
-        }
-        return $dossier;
-    }
-
-    #Reccupère tous les dossiers militaires
-    public static function getAllEligibleRetraite() 
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = ' 
-            SELECT * from Militaires m
-            INNER JOIN Actifs a ON m.matricule = a.matricule
-            WHERE eligible_retraite = 1
-        ';
-        $stmt = $pdo->prepare($req);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        $dossier = array();
-        foreach ($result as $attributs) {
-            $dossier[] = new Dossier($attributs);
-        }
-        return $dossier;
-    }
-
-    #Permet de réccupérer un dossier spécifique selon son matricule
-    public static function getOneFromId($id)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 
-        '
-            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, saisie_by
-            FROM Militaires m
-            INNER JOIN Actifs a ON m.matricule = a.matricule
-            where m.matricule = :matricule
-        ';
-        $stmt = $pdo->prepare($req);
-        $data = ['matricule' => $id];
-        $stmt->execute($data);
-
-        $result = $stmt->fetch();
-        $stmt->closeCursor();
-
-        $attributs = $result;
-        $dossier = new Dossier($attributs);
-        return $dossier;
-    }
-
-    public static function getAffectationsById($id)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 
-        '
-            select nom, date_affectation from Affectation a
-            INNER JOIN Casernes c ON a.id = c.id
-            where a.matricule = :matricule order by date_affectation DESC
-        ';
-        $stmt = $pdo->prepare($req);
-        $data = ['matricule' => $id];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
-    public static function getAppartenancesById($id)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 
-        '
-            select id, date_appartenance from AppartientRegiment
-            where matricule = :matricule order by date_appartenance DESC
-        ';
-        $stmt = $pdo->prepare($req);
-        $data = ['matricule' => $id];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
-    public static function getGradesDetenuById($id)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 
-        '
-            SELECT grade, date_promotion FROM DetientGrades dg
-            INNER JOIN Grades g ON dg.id = g.id
-            WHERE matricule = :matricule order by date_promotion DESC
-        ';
-
-        $stmt = $pdo->prepare($req);
-        $data = ['matricule' => $id];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
-    public static function getDiplomesPossedeById($id)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 
-        '
-            SELECT acronyme, intitule, date_obtention FROM PossedeDiplomes pd
-            INNER JOIN Diplomes d ON pd.id = d.acronyme
-            WHERE matricule = :matricule order by date_obtention DESC
-        ';
-
-        $stmt = $pdo->prepare($req);
-        $data = ['matricule' => $id];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
-    public static function getCreatorById($id)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 
-        '
-            SELECT saisie_by
-            FROM Actifs
-            WHERE matricule = :matricule
-        ';
-
-        $stmt = $pdo->prepare($req);
-        $data = ['matricule' => $id];
-        $stmt->execute($data);
-
-        $result = $stmt->fetch();
-        $stmt->closeCursor();
-
-        $creator = $result['saisie_by'];
-        return $creator;
-    }
-
-    static public function listeNomCaserne()
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 'select id, nom from Casernes';
-        $stmt = $pdo->prepare($req);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        #on associe les clés au nom de caserne
-        foreach ($result as $key => $value) {
-            foreach ($value as $key => $name) {
-                if ($key == "id"){
-                    $id = $name;
-                } else{
-                    $caserneName[$id] = $name;
-                }
-            }
-        }
-        
-        return $caserneName;
-    }
-
-    static public function listeNomRegiment()
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 'select id from Regiment';
-        $stmt = $pdo->prepare($req);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        #on associe les clés au nom de caserne
-        foreach ($result as $key => $value) {
-            foreach ($value as $key => $name) {
-                    $regimentName[] = $name;
-            }
-        }
-        
-        return $regimentName;
-    }
-
-    static public function listeNomGrade()
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 'select id, grade from Grades';
-        $stmt = $pdo->prepare($req);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        #on associe les clés au nom de grade
-        foreach ($result as $key => $value) {
-            foreach ($value as $key => $name) {
-                if ($key == "id"){
-                    $id = $name;
-                } else{
-                    $gradeName[$id] = $name;
-                }
-            }
-        }
-        
-        return $gradeName;
-    }
-
-    static public function listeNomDiplome()
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 'select acronyme, intitule from Diplomes';
-        $stmt = $pdo->prepare($req);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        #on associe les clés au nom de diplome
-        foreach ($result as $key => $value) {
-            foreach ($value as $key => $name) {
-                if ($key == "acronyme"){
-                    $id = $name;
-                } else{
-                    $diplomeName[$id] = $name;
-                }
-            }
-        }
-        
-        return $diplomeName;
-    }
-
-    //--------------------
-    //1- Module mon dossier
-    //--------------------
-
-    // 1-1- 'seeOwnFolderModule':
-    #utilises des fonctions génériques situées tout en haut.
-    #to do
-
-    // 1-2- 'editOwnFolderPersonalInformation':
-    #to do
-
-    //--------------------
-    //2- Module de gestion et ajout de dossier
-    //--------------------
-
-    // 2-1- 'listCreatedFolder':
-    #utilises des fonctions génériques situées tout en haut.
     static public function rechercherIdOrNameCreatedFolder($search, $username)
     {
         $pdo = DB::getInstance()->getPDO();
@@ -471,6 +315,53 @@ class DossierManager
     // 2-6- 'addElementToAFolder':
     #utilises des fonctions génériques situées tout en haut
     #Permet d'ajouter une affectation en BDD
+
+    // 2-6-1- Affectation (casernes)
+    public static function getAffectationsById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            select nom, date_affectation from Affectation a
+            INNER JOIN Casernes c ON a.id = c.id
+            where a.matricule = :matricule order by date_affectation DESC
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function listeNomCaserne()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select id, nom from Casernes';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        #on associe les clés au nom de caserne
+        foreach ($result as $key => $value) {
+            foreach ($value as $key => $name) {
+                if ($key == "id"){
+                    $id = $name;
+                } else{
+                    $caserneName[$id] = $name;
+                }
+            }
+        }
+        
+        return $caserneName;
+    }
+
     public static function ajouterUneAffectation($attributs) 
     {
         $pdo = DB::getInstance()->getPDO();
@@ -509,6 +400,47 @@ class DossierManager
             return $doublonError;
         }
         
+    }
+
+    // 2-6-2- Appartenances (régiments)
+    public static function getAppartenancesById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            select id, date_appartenance from AppartientRegiment
+            where matricule = :matricule order by date_appartenance DESC
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function listeNomRegiment()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select id from Regiment';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        #on associe les clés au nom de caserne
+        foreach ($result as $key => $value) {
+            foreach ($value as $key => $name) {
+                    $regimentName[] = $name;
+            }
+        }
+        
+        return $regimentName;
     }
 
     #Permet d'ajouter une appartenance regiment en BDD
@@ -551,6 +483,53 @@ class DossierManager
         }
     }
 
+    // 2-6-3- Detient (grades)
+    public static function getGradesDetenuById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT grade, date_promotion FROM DetientGrades dg
+            INNER JOIN Grades g ON dg.id = g.id
+            WHERE matricule = :matricule order by date_promotion DESC
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function listeNomGrade()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select id, grade from Grades';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        #on associe les clés au nom de grade
+        foreach ($result as $key => $value) {
+            foreach ($value as $key => $name) {
+                if ($key == "id"){
+                    $id = $name;
+                } else{
+                    $gradeName[$id] = $name;
+                }
+            }
+        }
+        
+        return $gradeName;
+    }
+
     #Permet d'ajouter un grade detenu en BDD
     public static function ajouterUnGradeDetenu($attributs) 
     {
@@ -589,6 +568,53 @@ class DossierManager
             $doublonError = 'Système anti-doublon : cette entrée existe déjà dans la base de donnée, impossible de la mettre à nouveau';
             return $doublonError;
         }
+    }
+
+    // 2-6-4- Possede (diplomes)
+    public static function getDiplomesPossedeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT acronyme, intitule, date_obtention FROM PossedeDiplomes pd
+            INNER JOIN Diplomes d ON pd.id = d.acronyme
+            WHERE matricule = :matricule order by date_obtention DESC
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function listeNomDiplome()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select acronyme, intitule from Diplomes';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        #on associe les clés au nom de diplome
+        foreach ($result as $key => $value) {
+            foreach ($value as $key => $name) {
+                if ($key == "acronyme"){
+                    $id = $name;
+                } else{
+                    $diplomeName[$id] = $name;
+                }
+            }
+        }
+        
+        return $diplomeName;
     }
 
     #Permet d'ajouter un diplome possédé en BDD
@@ -633,7 +659,28 @@ class DossierManager
     }
 
     // 2-7- 'editInformationIfAuthor':
-    #to do
+    
+    public static function getCreatorById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT saisie_by
+            FROM Actifs
+            WHERE matricule = :matricule
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+
+        $creator = $result['saisie_by'];
+        return $creator;
+    }
 
     // 2-8- 'editInformation':
     #utilises des fonctions génériques situées tout en haut.
@@ -690,6 +737,30 @@ class DossierManager
 
     // 3-1- 'listEligible':
     #utilises des fonctions génériques situées tout en haut.
+
+        #Reccupère tous les dossiers militaires
+    public static function getAllEligiblePromotion() 
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT * from Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE eligible_promotion = 1
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
     static public function rechercherIdOrNamePromotion($search)
     {
         $pdo = DB::getInstance()->getPDO();
@@ -707,6 +778,29 @@ class DossierManager
         $stmt = $pdo->prepare($req);
         $data = ['search'=>$search];
         $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        $dossier = array();
+        foreach ($result as $attributs) {
+            $dossier[] = new Dossier($attributs);
+        }
+        return $dossier;
+    }
+
+    #Reccupère tous les dossiers militaires
+    public static function getAllEligibleRetraite() 
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = ' 
+            SELECT * from Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE eligible_retraite = 1
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
 
         $result = $stmt->fetchAll();
         $stmt->closeCursor();

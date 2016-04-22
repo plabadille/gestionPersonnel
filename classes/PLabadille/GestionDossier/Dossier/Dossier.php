@@ -70,7 +70,7 @@ class Dossier
         if (isset($attributs['saisie_by']))
             $this->saisie_by=$attributs['saisie_by'];
         else
-            $this->date_recrutement="";
+            $this->saisie_by="";
     }  
 
     public function getMatricule()

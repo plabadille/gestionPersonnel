@@ -113,6 +113,11 @@ class DossierController
                 $nomFonctionFormulaire = 'traitementFormulaireDiplomePossede';
                 $addFunctionNameManager = 'ajouterUnDiplomePossede';
                 break;
+            case 'sonDossierForm':
+                $typeFormulaire = 'sauvegardeEditionSonDossier';
+                $addFunctionNameManager = 'editerSonDossier';
+                $nomFonctionFormulaire = 'traitementFormulaireSonDossier';
+                break;
         }
 
         $errors = DossierForm::validatingStrategy($attributs, $type);
@@ -141,8 +146,13 @@ class DossierController
             } else{
                 #Lors de l'édition on ne verifie pas les doublons
                 $dossier = DossierManager::$addFunctionNameManager($attributs);
-                $prez = self::afficheDossierComplet($dossier, $username);
-                $this->response->setPart('contenu', $prez);
+                //exception pour l'édit de son dossier
+                if ( $typeFormulaire == 'sauvegardeEditionSonDossier' ){
+                    $prez = self::afficherSonDossier();
+                } else{
+                    $prez = self::afficheDossierComplet($dossier, $username);
+                    $this->response->setPart('contenu', $prez);
+                }
             }
         }
     }
@@ -151,10 +161,84 @@ class DossierController
     //1-module mon dossier
     //--------------------
     // 1-1- 'seeOwnFolderModule':
-    #to do
-
+    public function afficherSonDossier()
+    {
+        //rappel : l'username = matricule
+        $auth = AuthenticationManager::getInstance();
+        $matricule = $auth->getMatricule();
+        //sécurité
+        $action = 'seeOwnFolderModule';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $dossier = DossierManager::getUserFullFolder($matricule);
+            $prez = DossierHtml::viewUserFolder($dossier);
+        } else{
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    
     // 1-2- 'editOwnFolderPersonalInformation':
-    #to do
+    public function editerSonDossier()
+    {
+        $auth = AuthenticationManager::getInstance();
+        $matricule = $auth->getMatricule();
+        //sécurité
+        $action = 'editOwnFolderPersonalInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $old_dossier = DossierManager::getOneFromId($matricule);
+            $attributs['nom'] = $old_dossier->getNom();
+            $attributs['prenom'] = $old_dossier->getPrenom();
+            $attributs['date_naissance'] = $old_dossier->getDateNaissance();
+            $attributs['genre'] = $old_dossier->getGenre();
+            $attributs['tel1'] = $old_dossier->getTel1();
+            $attributs['tel2'] = $old_dossier->getTel2();
+            $attributs['email'] = $old_dossier->getEmail();
+            $attributs['adresse'] = $old_dossier->getAdresse();
+            $attributs['date_recrutement'] = $old_dossier->getDateRecrutement();
+            $attributs['id'] = $matricule;
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+            $type = 'sauvegardeEditionSonDossier';
+
+            $prez = $form->traitementFormulaireSonDossier($type, $attributs);
+        } else{
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegardeEditionSonDossier()
+    {   
+        //sécurité
+        $action = 'editOwnFolderPersonalInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #réccupération des données du formulaire potentiellement différente
+            $data = $this->request->getPost();
+            $attributs['tel1'] = $data['tel1'];
+            $attributs['tel2'] = $data['tel2'];
+            $attributs['email'] = $data['email'];
+            $attributs['adresse'] = $data['adresse'];
+            $attributs['id'] = $data['id'];
+            #Stratégie de nettoyage des données Post
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'sonDossierForm';
+            $edit = true;
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }  
+    }
 
     //--------------------
     //2-module gestion et ajout de dossier
@@ -558,7 +642,7 @@ class DossierController
     }
 
     // 2-7- 'editInformationIfAuthor':
-    #to do
+    #géré directement
     
     // 2-8- 'editInformation':
 

@@ -36,12 +36,12 @@ class AccessControll
 	        				//--------------------
 	        				//1-module mon dossier
 	        				//--------------------
-	        				// case 'seeOwnFolderModule':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'editOwnFolderPersonalInformation':
-	        				// 	$html .='';
-	        				// 	break;
+	        				case 'seeOwnFolderModule':
+	        					$html .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
+	        					break;
+	        				case 'editOwnFolderPersonalInformation':
+	        					$html .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
+	        					break;
 	        				//--------------------
 	        				//2-module gestion et ajout de dossier
 	        				//--------------------
@@ -139,7 +139,9 @@ class AccessControll
         		}
         	} elseif ( $droits['allRights'] == 1 ){
         		//on affiche tous les menus disponibles sans passer par une vérification champ par champ car l'utilisateur à tous les droits.
-        		$html = '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
+        		$html = '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
+        		$html .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
+        		$html .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
         		$html .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
             	$html .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
             	$html .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
