@@ -169,14 +169,23 @@ EOT;
         $html = "</br>\n<h3>Liste des affectations :</h3> \n";
 
         if (!empty($affectations)){
+            //sécurité bouton suprimer grade:
+            $typeBouton = 'deleteFolderInformation';
+            $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+            //bouton grade actuel (avec lien JS pour demander confirmation)
+            $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette affectation de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprAffectation&amp;id=' . $affectations['0']['nb'] . '\'">Supprimer Affectation</a>'  : null;
+
             $html .= "<h4>Affectation actuelle :</h4> \n";
-            $html .= "<p>Caserne " . $affectations['0']['nom'] . " depuis le " . $affectations['0']['date_affectation'] . "</p> \n";
+            $html .= "<p>Caserne " . $affectations['0']['nom'] . " depuis le " . $affectations['0']['date_affectation'] . $suprBouton . "</p> \n";
 
             $html .= "<h4>Ancienne(s) affectation(s) :</h4> \n";
             if (isset($affectations['1'])){
                 foreach ($affectations as $key => $liste) {
                     if ($key > 0){
-                        $html .= "<p>Caserne " . $liste['nom'] . " le " . $liste['date_affectation'] . "</p> \n";
+                        //bouton anciens grades
+                        $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette affectation de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprAffectation&amp;id=' . $affectations[$key]['nb'] . '\'">Supprimer Affectation</a>' : null;
+
+                        $html .= "<p>Caserne " . $liste['nom'] . " le " . $liste['date_affectation'] . $suprBouton . "</p> \n";
                     }
                 }
             } else{
@@ -192,16 +201,25 @@ EOT;
     #Permet d'afficher les régiments d'appartenances liées à un dossier
     public static function afficheAppartenances($appartenances) {
         $html = "</br>\n<h3>Liste des régiments d'appartenances :</h3> \n";
-
         if (!empty($appartenances)){
+            //sécurité bouton suprimer grade:
+            $typeBouton = 'deleteFolderInformation';
+            $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+
+            //bouton grade actuel (avec lien JS pour demander confirmation)
+            $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprRegimentAppartenance&amp;id=' . $appartenances['0']['nb'] . '\'">Supprimer régiment</a>'  : null;
+
             $html .= "<h4>Appartenance actuelle :</h4> \n";
-            $html .= "<p>Régiment: " . $appartenances['0']['id'] . " depuis le " . $appartenances['0']['date_appartenance'] . "</p> \n";
+            $html .= "<p>Régiment: " . $appartenances['0']['id'] . " depuis le " . $appartenances['0']['date_appartenance'] . $suprBouton . "</p> \n";
 
             $html .= "<h4>Ancienne(s) appartenance(s) :</h4> \n";
             if (isset($appartenances['1'])){
                 foreach ($appartenances as $key => $liste) {
                     if ($key > 0){
-                        $html .= "<p>Régiment: " . $liste['id'] . " le " . $liste['date_appartenance'] . "</p> \n";
+                        //bouton anciens grades
+                        $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprRegimentAppartenance&amp;id=' . $appartenances[$key]['nb'] . '\'">Supprimer régiment</a>' : null;
+
+                        $html .= "<p>Régiment: " . $liste['id'] . " le " . $liste['date_appartenance'] . $suprBouton . "</p> \n";
                     }
                 }
             } else{
@@ -217,16 +235,24 @@ EOT;
     #Permet d'afficher les grades detenu liés à un dossier
     public static function afficheGradesDetenu($grades) {
         $html = "</br>\n<h3>Liste des grades du militaire :</h3> \n";
-
         if (!empty($grades)){
+            //sécurité bouton suprimer grade:
+            $typeBouton = 'deleteFolderInformation';
+            $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+            //bouton grade actuel (avec lien JS pour demander confirmation)
+            $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprGradeDetenu&amp;id=' . $grades['0']['num'] . '\'">Supprimer Grade</a>'  : null;
+
             $html .= "<h4>Grade actuel :</h4> \n";
-            $html .= "<p>Grade: " . $grades['0']['grade'] . " depuis le " . $grades['0']['date_promotion'] . "</p> \n";
+            $html .= "<p>Grade: " . $grades['0']['grade'] . " depuis le " . $grades['0']['date_promotion'] . $suprBouton . "</p> \n";
 
             $html .= "<h4>Ancien(s) grade(s) :</h4> \n";
             if (isset($grades['1'])){
                 foreach ($grades as $key => $liste) {
                     if ($key > 0){
-                        $html .= "<p>Grade: " . $liste['grade'] . " le " . $liste['date_promotion'] . "</p> \n";
+                        //bouton anciens grades
+                        $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprGradeDetenu&amp;id=' . $grades[$key]['num'] . '\'">Supprimer Grade</a>' : null;
+
+                        $html .= "<p>Grade: " . $liste['grade'] . " le " . $liste['date_promotion'] . $suprBouton . "</p> \n";
                     }
                 }
             } else{
@@ -244,8 +270,14 @@ EOT;
         $html = "</br>\n<h3>Liste des diplômes possédés :</h3> \n";
 
         if (!empty($diplomes)){
+            //sécurité bouton suprimer grade:  (avec lien JS pour demander confirmation)
+            $typeBouton = 'deleteFolderInformation';
+            $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+
             foreach ($diplomes as $key => $liste) {
-                $html .= "<p>" . $liste['intitule'] . " (" . $liste['acronyme'] . ") obtenu le " . $liste['date_obtention'] . "</p> \n";
+                $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce diplome de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprDiplomePossede&amp;id=' . $diplomes[$key]['num'] . '\'">Supprimer Diplome</a>' : null;
+
+                $html .= "<p>" . $liste['intitule'] . " (" . $liste['acronyme'] . ") obtenu le " . $liste['date_obtention'] . $suprBouton . "</p> \n";
             }
         } else{
             $html .= "<p>Aucun diplôme</p> \n";
@@ -267,7 +299,7 @@ EOT;
     #géré par template dans DossierForm
 
     // 2-9- 'deleteInformation':
-    #to do?
+    #directement en 2-4-
 
     // 2-10 'useFileToAddFolders':
     #géré par template dans DossierForm

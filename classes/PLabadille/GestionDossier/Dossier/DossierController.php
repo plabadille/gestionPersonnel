@@ -32,7 +32,24 @@ class DossierController
     //--------------------
     //x-1-Fonctions utilitaires
     //--------------------
-    #none for now
+    #Ajoute dans un fichier de log une entrée par élément de dossier supprimé avec le contenu suppr, la date et le nom de l'utilisateur qui a effectué la suppression.
+    public function logDeletedInformation($data, $username, $type)
+    {
+        #date après le lancement du script (avec  heure, minute et seconde)
+        $today=date('Y-m-d-H-i-s');
+
+        ##On stock les informations d'executions dans un fichier pour faire un récap.
+        #contenu à ajouter au fichier
+        $content = "\n" . $today . ' ' . $username . ' ' . $type;
+        foreach ($data as $key => $value) {
+            $content .= ' ' . $key . ':' . $value;
+        }
+        $monfichier = fopen('media/infos/logDeletedFolderInformations.txt', 'r+');
+        #on se positionne à la fin du fichier
+        fseek($monfichier, 0, SEEK_END);
+        fputs($monfichier, $content);
+        fclose($monfichier);
+    }
     //--------------------
     //x-2-Fonctions génériques
     //--------------------
@@ -323,7 +340,6 @@ class DossierController
     }
     
     // 2-3- 'seeCreatedFolder':
-    #to do
     
     // 2-4- 'seeAllFolder':
 
@@ -718,8 +734,114 @@ class DossierController
     }
 
     // 2-9- 'deleteInformation':
-    #to do
 
+    // 2-9-1 supprimer une affectation:
+    public function suprAffectation()
+    {
+        //sécurité :
+        $action = 'deleteFolderInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère l'id à supr (clée primaire)
+            $id = $this->request->getGetAttribute('id');
+            //ajout d'une entrée dans le fichier de log
+            $data = DossierManager::getAffectationByClef($id);
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            $type = 'affectationCaserne';
+            self::logDeletedInformation($data, $username, $type);
+            //on supprime (retourne le matricule)
+            $matricule = DossierManager::suprAffectationById($id);
+            //on réaffiche le dossier actualisé
+            $dossier = DossierManager::getOneFromId($matricule);
+            $prez = self::afficheDossierComplet($dossier);
+            $this->response->setPart('contenu', $prez);
+        } else{
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 2-9-2 supprimer une appartenance:
+    public function suprRegimentAppartenance()
+    {
+        //sécurité :
+        $action = 'deleteFolderInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère l'id à supr (clée primaire)
+            $id = $this->request->getGetAttribute('id');
+            //ajout d'une entrée dans le fichier de log
+            $data = DossierManager::getAppartenanceByClef($id);
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            $type = 'appartenanceRegiment';
+            self::logDeletedInformation($data, $username, $type);
+            //on supprime (retourne le matricule)
+            $matricule = DossierManager::suprRegimentAppartenanceById($id);
+            //on réaffiche le dossier actualisé
+            $dossier = DossierManager::getOneFromId($matricule);
+            $prez = self::afficheDossierComplet($dossier);
+            $this->response->setPart('contenu', $prez);
+        } else{
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 2-9-3 supprimer un grade detenu:
+    public function suprGradeDetenu()
+    {
+        //sécurité :
+        $action = 'deleteFolderInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère l'id à supr (clée primaire)
+            $id = $this->request->getGetAttribute('id');
+            //ajout d'une entrée dans le fichier de log
+            $data = DossierManager::getDetenuByClef($id);
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            $type = 'detientGrade';
+            self::logDeletedInformation($data, $username, $type);
+            //on supprime (retourne le matricule)
+            $matricule = DossierManager::suprGradeDetenuById($id);
+            //on réaffiche le dossier actualisé
+            $dossier = DossierManager::getOneFromId($matricule);
+            $prez = self::afficheDossierComplet($dossier);
+            $this->response->setPart('contenu', $prez);
+        } else{
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 2-9-4 supprimer un diplome:
+    public function suprDiplomePossede()
+    {
+        //sécurité :
+        $action = 'deleteFolderInformation';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère l'id à supr (clée primaire)
+            $id = $this->request->getGetAttribute('id');
+            //ajout d'une entrée dans le fichier de log
+            $data = DossierManager::getPossedeByClef($id);
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            $type = 'possedeDiplome';
+            self::logDeletedInformation($data, $username, $type);
+            //on supprime (retourne le matricule)
+            $matricule = DossierManager::suprDiplomePossedeById($id);
+            //on réaffiche le dossier actualisé
+            $dossier = DossierManager::getOneFromId($matricule);
+            $prez = self::afficheDossierComplet($dossier);
+            $this->response->setPart('contenu', $prez);
+        } else{
+            header("location: index.php");
+            die($error);
+        }
+    }
     // 2-10 'useFileToAddFolders':
     #to do
 

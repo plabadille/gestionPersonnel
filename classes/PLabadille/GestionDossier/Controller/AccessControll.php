@@ -191,11 +191,7 @@ class AccessControll
     				//--------------------
     				//1-module mon dossier
     				//--------------------
-    				// case 'editOwnFolderPersonalInformation':
-    				// 	if ( $droits['editOwnFolderPersonalInformation'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
+    				#pas de bouton
     				//--------------------
     				//2-module gestion et ajout de dossier
     				//--------------------
@@ -209,11 +205,11 @@ class AccessControll
     						return true;
     					}
     					break;
-    				// case 'deleteFolderInformation':
-    				// 	if ( $droits['deleteInformation'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
+    				case 'deleteFolderInformation':
+    					if ( $droits['deleteInformation'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
     				//--------------------
     				//3-module gestion promotion et retraite
     				//--------------------

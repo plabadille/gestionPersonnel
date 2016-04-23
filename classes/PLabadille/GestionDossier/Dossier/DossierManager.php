@@ -322,7 +322,7 @@ class DossierManager
 
         $req = 
         '
-            select nom, date_affectation from Affectation a
+            select nom, date_affectation, nb from Affectation a
             INNER JOIN Casernes c ON a.id = c.id
             where a.matricule = :matricule order by date_affectation DESC
         ';
@@ -408,7 +408,7 @@ class DossierManager
 
         $req = 
         '
-            select id, date_appartenance from AppartientRegiment
+            select id, date_appartenance, nb from AppartientRegiment
             where matricule = :matricule order by date_appartenance DESC
         ';
         $stmt = $pdo->prepare($req);
@@ -489,7 +489,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT grade, date_promotion FROM DetientGrades dg
+            SELECT grade, date_promotion, num FROM DetientGrades dg
             INNER JOIN Grades g ON dg.id = g.id
             WHERE matricule = :matricule order by date_promotion DESC
         ';
@@ -588,7 +588,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT acronyme, intitule, date_obtention FROM PossedeDiplomes pd
+            SELECT acronyme, intitule, date_obtention, num FROM PossedeDiplomes pd
             INNER JOIN Diplomes d ON pd.id = d.acronyme
             WHERE matricule = :matricule order by date_obtention DESC
         ';
@@ -737,7 +737,202 @@ class DossierManager
     }
 
     // 2-9- 'deleteInformation':
-    #to do
+
+    // 2-9-1 delete affectation:
+    public static function suprAffectationById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT matricule from Affectation WHERE nb = :nb';
+        $stmt = $pdo->prepare($req);
+        $data = ['nb'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+
+        //on supprime le grade detenu
+        $req = 'DELETE FROM Affectation WHERE nb = :nb';
+        $stmt = $pdo->prepare($req);
+        $data = ['nb'=>$id];
+        $stmt->execute($data);
+
+        //Set Eligible retraite et promotion à false (on a changé le grade donc il faut revérifier les conditions)
+        $stmt = $pdo->prepare(
+        "
+            UPDATE Actifs 
+            SET 
+                eligible_retraite = 0, 
+                eligible_promotion = 0 
+            WHERE matricule = :id
+        ");
+        $stmt->bindParam(':id', $result['matricule']);
+        $stmt->execute();
+
+        $stmt->closeCursor();
+        $matricule = $result['matricule'];
+
+        return $matricule;
+    }
+    #Permet de réccupérer l'affectation par le biais de la clé primaire
+    public static function getAffectationByClef($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT * from Affectation WHERE nb = :nb';
+        $stmt = $pdo->prepare($req);
+        $data = ['nb'=>$id];
+        $stmt->execute($data);
+        $affectation = $stmt->fetch();
+
+        return $affectation;
+    }
+
+    // 2-9-2 delete appartenance:
+    public static function suprRegimentAppartenanceById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT matricule from AppartientRegiment WHERE nb = :nb';
+        $stmt = $pdo->prepare($req);
+        $data = ['nb'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+
+        //on supprime le grade detenu
+        $req = 'DELETE FROM AppartientRegiment WHERE nb = :nb';
+        $stmt = $pdo->prepare($req);
+        $data = ['nb'=>$id];
+        $stmt->execute($data);
+
+        //Set Eligible promotion à false (on a changé le grade donc il faut revérifier les conditions)
+        $stmt = $pdo->prepare(
+        "
+            UPDATE Actifs 
+            SET eligible_promotion = 0 
+            WHERE matricule = :id
+        ");
+        $stmt->bindParam(':id', $result['matricule']);
+        $stmt->execute();
+
+        $stmt->closeCursor();
+        $matricule = $result['matricule'];
+
+        return $matricule;
+    }
+    #Permet de réccupérer l'appartenance par le biais de la clé primaire
+    public static function getAppartenanceByClef($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT * from AppartientRegiment WHERE nb = :nb';
+        $stmt = $pdo->prepare($req);
+        $data = ['nb'=>$id];
+        $stmt->execute($data);
+        $appartenance = $stmt->fetch();
+
+        return $appartenance;
+    }
+
+    // 2-9-3 delete grade detenu:
+    public static function suprGradeDetenuById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT matricule from DetientGrades WHERE num = :num';
+        $stmt = $pdo->prepare($req);
+        $data = ['num'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+
+        //on supprime le grade detenu
+        $req = 'DELETE FROM DetientGrades WHERE num = :num';
+        $stmt = $pdo->prepare($req);
+        $data = ['num'=>$id];
+        $stmt->execute($data);
+
+        //Set Eligible retraite et promotion à false (on a changé le grade donc il faut revérifier les conditions)
+        $stmt = $pdo->prepare(
+        "
+            UPDATE Actifs 
+            SET 
+                eligible_retraite = 0, 
+                eligible_promotion = 0 
+            WHERE matricule = :id
+        ");
+        $stmt->bindParam(':id', $result['matricule']);
+        $stmt->execute();
+
+        $stmt->closeCursor();
+        $matricule = $result['matricule'];
+
+        return $matricule;
+    }
+    #Permet de réccupérer le grade detenu par le biais de la clé primaire
+    public static function getDetenuByClef($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT * from DetientGrades WHERE num = :num';
+        $stmt = $pdo->prepare($req);
+        $data = ['num'=>$id];
+        $stmt->execute($data);
+        $detenu = $stmt->fetch();
+
+        return $detenu;
+    }
+
+    // 2-9-4 delete diplome possédé:
+    public static function suprDiplomePossedeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT matricule from PossedeDiplomes WHERE num = :num';
+        $stmt = $pdo->prepare($req);
+        $data = ['num'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+
+        //on supprime le grade detenu
+        $req = 'DELETE FROM PossedeDiplomes WHERE num = :num';
+        $stmt = $pdo->prepare($req);
+        $data = ['num'=>$id];
+        $stmt->execute($data);
+
+        //Set Eligible promotion à false (on a changé le grade donc il faut revérifier les conditions)
+        $stmt = $pdo->prepare(
+        "
+            UPDATE Actifs 
+            SET eligible_promotion = 0 
+            WHERE matricule = :id
+        ");
+        $stmt->bindParam(':id', $result['matricule']);
+        $stmt->execute();
+
+        $stmt->closeCursor();
+        $matricule = $result['matricule'];
+
+        return $matricule;
+    }
+    #Permet de réccupérer le diplome par le biais de la clé primaire
+    public static function getPossedeByClef($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT * from PossedeDiplomes WHERE num = :num';
+        $stmt = $pdo->prepare($req);
+        $data = ['num'=>$id];
+        $stmt->execute($data);
+        $possede = $stmt->fetch();
+
+        return $possede;
+    }
 
     // 2-10 'useFileToAddFolders':
     #to do
