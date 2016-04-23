@@ -216,7 +216,7 @@ class DossierController
         $action = 'editOwnFolderPersonalInformation';
         $error = AccessControll::checkRight($action);
         if ( empty($error) ){ //ok
-            #réccupération des données du formulaire potentiellement différente
+            #réccupération des données du formulaire
             $data = $this->request->getPost();
             $attributs['tel1'] = $data['tel1'];
             $attributs['tel2'] = $data['tel2'];
@@ -229,6 +229,14 @@ class DossierController
                 $attributs[$key] = $cleaner->applyStrategies($value);
             }
             
+            #réccupération des données originales qui ne changent pas
+            $old_dossier = DossierManager::getOneFromId($attributs['id']);
+            $attributs['nom'] = $old_dossier->getNom();
+            $attributs['prenom'] = $old_dossier->getPrenom();
+            $attributs['date_naissance'] = $old_dossier->getDateNaissance();
+            $attributs['genre'] = $old_dossier->getGenre();
+            $attributs['date_recrutement'] = $old_dossier->getDateRecrutement();
+
             #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
             $type = 'sonDossierForm';
             $edit = true;

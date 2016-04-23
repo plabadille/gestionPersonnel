@@ -101,10 +101,11 @@ class EligiblePromotionController
                 for ($i=0; $i <= $nbRegimentRestant; $i++) {
                     for ($y=0; $y <= $nbRegimentRestant; $y++) {
                         if ($i != $y){
-                            if ($dossiers[$matricule]['regiments'][$i]['id'] == $dossiers[$matricule]['regiments'][$y]['id']){
-                                $dossiers[$matricule]['regiments'][$i]['serviceRegiment'] = $dossiers[$matricule]['regiments'][$i]['serviceRegiment'] + $dossiers[$matricule]['regiments'][$y]['serviceRegiment'];
-                                unset($dossiers[$matricule]['regiments'][$y]);
-                                $nbRegimentRestant--;
+                            if ( isset($dossiers[$matricule]['regiments'][$y]) && isset($dossiers[$matricule]['regiments'][$i])){
+                                if ($dossiers[$matricule]['regiments'][$i]['id'] == $dossiers[$matricule]['regiments'][$y]['id']){
+                                    $dossiers[$matricule]['regiments'][$i]['serviceRegiment'] = $dossiers[$matricule]['regiments'][$i]['serviceRegiment'] + $dossiers[$matricule]['regiments'][$y]['serviceRegiment'];
+                                    unset($dossiers[$matricule]['regiments'][$y]);
+                                }
                             }
                         }
                     }

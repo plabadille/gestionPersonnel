@@ -14,13 +14,13 @@
     ?>
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
-    <label for="nom">Nom<span class="dossierFormErrors"><?php echo $errors['nom']; ?></span></label>
+    <label for="nom">Nom</label>
     <input type="text" name="nom" id="nom" placeholder="Saisir le nom" value="<?php echo $attributs['nom']; ?>" disabled/>
 
-    <label for="prenom">Prénom<span class="dossierFormErrors"><?php echo $errors['prenom']; ?></span></label>
+    <label for="prenom">Prénom</label>
     <input type="text" name="prenom" id="prenom" placeholder="Saisir le prénom" value="<?php echo $attributs['prenom']; ?>" disabled/>
 
-    <label for="date_naissance">Date de naissance<span class="dossierFormErrors"><?php echo $errors['date_naissance']; ?></span></label>
+    <label for="date_naissance">Date de naissance</label>
     <input type="text" name="date_naissance" class="datepicker" value="<?php echo $attributs['date_naissance']; ?>" disabled/>
 
     <label for="genre">Genre:</label><br />
@@ -41,7 +41,7 @@
     <label for="adresse">Adresse postale<span class="dossierFormErrors"><?php echo $errors['adresse']; ?></span></label>
     <input type="text" name="adresse" id="adresse" placeholder="format : numéro, rue, code postal, ville" value="<?php echo $attributs['adresse']; ?>" />
     
-    <label for="date_recrutement">Date de recrutement<span class="dossierFormErrors"><?php echo $errors['date_recrutement']; ?></span></label>
+    <label for="date_recrutement">Date de recrutement</label>
     <input type="text" name="date_recrutement" class="datepicker" value="<?php echo $attributs['date_recrutement']; ?>" disabled/>
     
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->
