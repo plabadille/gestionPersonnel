@@ -60,15 +60,23 @@ h2{
 	text-align: center;
 	padding:0;
 }
-/* #contentNav{
-	position:fixed;
-} */
-#navigation li{
+#navigation .moduleConteneur{
+	border: 1px solid black;
+	margin-bottom: 10px;
+	padding:5px;
+}
+
+.moduleConteneur .module{
+	list-style: none;
+	text-align: center;
+	padding:5px;
+}
+.moduleConteneur .module li{
 	border: 1px solid grey;
 	margin-bottom: 5px;
 	padding: 5px 0 5px 0;
 }
-#navigation li a{
+.moduleConteneur .module li a{
 	padding:5px 10px 5px 10px;
 }
 /*------------------------------------*/

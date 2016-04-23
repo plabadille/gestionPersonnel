@@ -244,7 +244,6 @@ class DossierManager
 
     // 2-3- 'seeCreatedFolder':
     #utilises des fonctions génériques situées tout en haut.
-    #to do
     
     // 2-4- 'seeAllFolder':
     #utilises des fonctions génériques situées tout en haut.
@@ -559,7 +558,19 @@ class DossierManager
             $stmt->bindParam(':date_promotion', $attributs['date_promotion']);
             
             $stmt->execute();
-            //lastInsertId retourne l'id de la dernière ligne insérée.
+
+            //Set Eligible retraite et promotion à false (on a changé le grade donc il faut revérifier les conditions)
+            $stmt = $pdo->prepare(
+            "
+                UPDATE Actifs 
+                SET 
+                    eligible_retraite = 0, 
+                    eligible_promotion = 0 
+                WHERE matricule = :id
+            ");
+            $stmt->bindParam(':id', $attributs['id']);
+            $stmt->execute();
+
             $stmt->closeCursor();
             //affichage de l'article créé
             $dossier = DossierManager::getOneFromId($attributs['id']);
@@ -659,7 +670,7 @@ class DossierManager
     }
 
     // 2-7- 'editInformationIfAuthor':
-    
+
     public static function getCreatorById($id)
     {
         $pdo = DB::getInstance()->getPDO();

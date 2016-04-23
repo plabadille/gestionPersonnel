@@ -19,7 +19,11 @@ class AccessControll
     */
 	//classe de gestion des droits et des affichages relatifs : gestions des erreurs, de la navigation...
 	public static function afficherNavigation()
-    {	//page affichées pour tous
+    {	//Init navigation par module
+    	$module1 = '';
+    	$module2 = '';
+    	$module3 = '';
+
     	$html = '';
     	//gère l'affichage du menu en fonction du statut de l'utilisateur.
         $auth = AuthenticationManager::getInstance();
@@ -37,19 +41,19 @@ class AccessControll
 	        				//1-module mon dossier
 	        				//--------------------
 	        				case 'seeOwnFolderModule':
-	        					$html .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
+	        					$module1 .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
 	        					break;
 	        				case 'editOwnFolderPersonalInformation':
-	        					$html .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
+	        					$module1 .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
 	        					break;
 	        				//--------------------
 	        				//2-module gestion et ajout de dossier
 	        				//--------------------
 	        				case 'listCreatedFolder':
-	        					$html .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
+	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
 	        					break;
 	        				case 'listAllFolder':
-	        					$html .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
+	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
 	        					break;
 	        				// case 'seeCreatedFolder':
 	        				// 	$html .='';
@@ -58,7 +62,7 @@ class AccessControll
 	        				// 	$html .='';
 	        				// 	break;
 	        				case 'createFolder':
-	        					$html .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
+	        					$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
 	        					break;
 	        				// case 'addElementToAFolder':
 	        				// 	$html .='';
@@ -79,8 +83,8 @@ class AccessControll
 	        				//3-module gestion promotion et retraite
 	        				//--------------------
 	        				case 'listEligible':
-	        					$html .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
-            					$html .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
+	        					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
+            					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
 	        					break;
 	        				// case 'editEligibleCondition':
 	        				// 	$html .='';
@@ -139,18 +143,33 @@ class AccessControll
         		}
         	} elseif ( $droits['allRights'] == 1 ){
         		//on affiche tous les menus disponibles sans passer par une vérification champ par champ car l'utilisateur à tous les droits.
-        		$html = '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
-        		$html .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
-        		$html .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
-        		$html .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
-            	$html .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
-            	$html .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
-            	$html .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
+        		$module1 .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
+        		$module1 .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
+        		$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
+        		$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
+            	$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
+            	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
+            	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
         	} else{
         		//ici les droits ont été passé à noRights, situation d'urgence enclenchée.
         		$html = '<p>système hors ligne, veuillez vous déconnecter</p>';
         	}
         }
+
+        //Nom module navigation et affichage si non vide
+        if ( !empty($module1) ){
+        	$nameModule = '<div class="moduleConteneur"><h3>Module mon dossier</h3><ul class="module">';
+        	$html .= $nameModule . $module1 . '</ul></div>';
+        }
+        if ( !empty($module2) ){
+        	$nameModule = '<div class="moduleConteneur"><h3>Module gestion et ajout de dossier</h3><ul class="module">';
+        	$html .= $nameModule . $module2 . '</ul></div>';
+        }
+        if ( !empty($module3) ){
+        	$nameModule = '<div class="moduleConteneur"><h3>Module gestion promotion et retraite</h3><ul class="module">';
+        	$html .= $nameModule . $module3 . '</ul></div>';
+        }
+
         return $html;
     }
 
@@ -432,3 +451,5 @@ class AccessControll
 		return null;
 	}
 }
+
+
