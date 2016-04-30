@@ -1,0 +1,3 @@
+date type username deletedContent(n column)
+2016-04-30-12-39-17 111 conditionPromotion id:24 idGrade:1 annees_service_FA:5 annees_service_GN:0 annees_service_SOE:0 annees_service_grade:0 diplome:BAT diplomeSup1: diplomeSup2:
+2016-04-30-12-39-45 111 conditionRetraite id:24 idGrade:1 service_effectif:1 age:50

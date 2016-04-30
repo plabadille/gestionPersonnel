@@ -50,6 +50,70 @@ class DossierController
         fputs($monfichier, $content);
         fclose($monfichier);
     }
+
+    public function logArchivedFolder($username, $matricule)
+    {
+        #date après le lancement du script (avec  heure, minute et seconde)
+        $today=date('Y-m-d-H-i-s');
+
+        ##On stock les informations d'executions dans un fichier pour faire un récap.
+        #contenu à ajouter au fichier
+        $content = "\n" . $today . ' ' . $username . ' ' . $matricule;
+
+        $monfichier = fopen('media/infos/logArchivedFolderInformations.txt', 'r+');
+        #on se positionne à la fin du fichier
+        fseek($monfichier, 0, SEEK_END);
+        fputs($monfichier, $content);
+        fclose($monfichier);
+    }
+
+    public function logRetiredFolder($username, $matricule)
+    {
+        #date après le lancement du script (avec  heure, minute et seconde)
+        $today=date('Y-m-d-H-i-s');
+
+        ##On stock les informations d'executions dans un fichier pour faire un récap.
+        #contenu à ajouter au fichier
+        $content = "\n" . $today . ' ' . $username . ' ' . $matricule;
+
+        $monfichier = fopen('media/infos/logRetiredFolderInformations.txt', 'r+');
+        #on se positionne à la fin du fichier
+        fseek($monfichier, 0, SEEK_END);
+        fputs($monfichier, $content);
+        fclose($monfichier);
+    }
+
+    public function logDeletedConditionsEligible($data, $username, $type)
+    {
+        if (!empty($data)){ #on evite les logs de rechargement de page avec l'action de supression.
+            #date après le lancement du script (avec  heure, minute et seconde)
+            $today=date('Y-m-d-H-i-s');
+
+            ##On stock les informations d'executions dans un fichier pour faire un récap.
+            #contenu à ajouter au fichier
+            $content = "\n" . $today . ' ' . $username . ' ' . $type;
+            foreach ($data as $key => $value) {
+                $content .= ' ' . $key . ':' . $value;
+            }
+            $monfichier = fopen('media/infos/logDeletedConditionsEligible.txt', 'r+');
+            #on se positionne à la fin du fichier
+            fseek($monfichier, 0, SEEK_END);
+            fputs($monfichier, $content);
+            fclose($monfichier);
+        }
+        
+    }
+    
+    public function autoComplete()
+    {
+        $search = $this->request->getGetAttribute('search');
+        if (!empty($search)){
+            $result = DossierManager::ajaxRechercherName($search);
+            $json = json_encode($result);
+            $this->response->setPart('contenu', $json);
+        }
+    }
+
     //--------------------
     //x-2-Fonctions génériques
     //--------------------
@@ -135,6 +199,36 @@ class DossierController
                 $addFunctionNameManager = 'editerSonDossier';
                 $nomFonctionFormulaire = 'traitementFormulaireSonDossier';
                 break;
+            case 'archivageForm':
+                $typeFormulaire = 'sauvegarderArchivageDossier';
+                $addFunctionNameManager = 'archiverUnDossier';
+                $nomFonctionFormulaire = 'traitementFormulaireArchiveDossier';
+                break;
+            case 'retraiteForm':
+                $typeFormulaire = 'sauvegarderRetraiterDossier';
+                $addFunctionNameManager = 'retraiterUnDossier';
+                $nomFonctionFormulaire = 'traitementFormulaireRetraiterDossier';
+                break;
+            case 'editConditionRetraite':
+                $typeFormulaire = 'sauvegarderEditionConditionRetraite';
+                $addFunctionNameManager = 'EditerConditionsRetraite';
+                $nomFonctionFormulaire = 'traitementFormulaireConditionRetraite';
+                break;
+            case 'editConditionPromotion':
+                $typeFormulaire = 'sauvegarderEditionConditionPromotion';
+                $addFunctionNameManager = 'EditerConditionsPromotion';
+                $nomFonctionFormulaire = 'traitementFormulaireConditionPromotion';
+                break;
+            case 'ajouterConditionRetraite':
+                $typeFormulaire = 'sauvegarderAjouterConditionRetraite';
+                $addFunctionNameManager = 'ajouterConditionsRetraite';
+                $nomFonctionFormulaire = 'traitementFormulaireConditionRetraite';
+                break;
+            case 'ajouterConditionPromotion':
+                $typeFormulaire = 'sauvegarderAjouterConditionPromotion';
+                $addFunctionNameManager = 'ajouterConditionsPromotion';
+                $nomFonctionFormulaire = 'traitementFormulaireConditionPromotion';
+                break;
         }
 
         $errors = DossierForm::validatingStrategy($attributs, $type);
@@ -156,6 +250,10 @@ class DossierController
                     $errors['doublon'] = $dossier;
                     $form = new DossierForm($dossier);
                     $this->response->setPart('contenu', $form->$nomFonctionFormulaire($typeFormulaire, $attributs, $errors));
+                } elseif ( $typeFormulaire == 'sauvegarderArchivageDossier' || $typeFormulaire == 'sauvegarderRetraiterDossier' ){
+                    $prez = self::afficherListeDossier();
+                } elseif ( $typeFormulaire == 'sauvegarderAjouterConditionRetraite' || $typeFormulaire == 'sauvegarderAjouterConditionPromotion' ){
+                    $prez = self::afficherListeConditionsEligibilites();
                 } else{
                     $prez = self::afficheDossierComplet($dossier, $username);
                     $this->response->setPart('contenu', $prez);
@@ -166,6 +264,8 @@ class DossierController
                 //exception pour l'édit de son dossier
                 if ( $typeFormulaire == 'sauvegardeEditionSonDossier' ){
                     $prez = self::afficherSonDossier();
+                } elseif ( $typeFormulaire == 'sauvegarderEditionConditionRetraite' || $typeFormulaire == 'sauvegarderEditionConditionPromotion' ){
+                    $prez = self::afficherListeConditionsEligibilites();
                 } else{
                     $prez = self::afficheDossierComplet($dossier, $username);
                     $this->response->setPart('contenu', $prez);
@@ -845,6 +945,61 @@ class DossierController
     // 2-10 'useFileToAddFolders':
     #to do
 
+    // 2-11- 'canArchiveAFolder':
+    public function archiverDossier()
+    {
+        //sécurité
+        $action = 'canArchiveAFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderArchivageDossier';
+            $matricule = $this->request->getGetAttribute('id');
+            $dossier = DossierManager::getOneFromId($matricule);
+            $attributs['id'] = $matricule;
+            $attributs['nom'] = $dossier->getNom();
+            $attributs['prenom'] = $dossier->getPrenom();
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+
+            $prez = $form->traitementFormulaireArchiveDossier($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderArchivageDossier()
+    {
+        //sécurité
+        $action = 'canArchiveAFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+
+            // $auth = AuthenticationManager::getInstance();
+            // $createur = $auth->getMatricule();
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            //ajout d'une entrée dans le fichier de log
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            self::logArchivedFolder($username, $attributs['id']);
+            #strategie de nettoyage des données Post:
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'archivageForm';
+            $edit = false;
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
     //--------------------
     //3-module gestion promotion et retraite
     //--------------------
@@ -911,13 +1066,326 @@ class DossierController
     }
     
     // 3-2- 'editEligibleCondition':
-    #to do
+    #fonction d'affichage de la liste (avec boutons édit)
+    public function afficherListeConditionsEligibilites()
+    {
+        //sécurité
+        $action = 'listEligible';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $conditionsPromotion = DossierManager::getAllConditionsPromotion();
+            $conditionsRetraite = DossierManager::getAllConditionsRetraite();
+            $liste['nomGrade'] = DossierManager::listeNomGrade();
+            $liste['nomDiplome'] = DossierManager::listeNomDiplome();
+            $prez = DossierHtml::viewConditionsList($conditionsPromotion, $conditionsRetraite, $liste);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function editConditionRetraite()
+    {
+        //sécurité
+        $action = 'editEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionConditionRetraite';
+            $attributs = DossierManager::getConditionRetraiteFromId($id);
+            #on récuppère la liste de selection de grade
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+
+            $prez = $form->traitementFormulaireConditionRetraite($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionConditionRetraite()
+    {
+        //sécurité
+        $action = 'editEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'editConditionRetraite';
+            $edit = true;
+            #on récuppère la liste de selection de grade
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)        
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    public function suprConditionRetraite()
+    {
+        //sécurité
+        $action = 'suprEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère l'id à supr (clée primaire)
+            $id = $this->request->getGetAttribute('id');
+
+            // //ajout d'une entrée dans le fichier de log
+            $data = DossierManager::getRetraiteConditionsByClef($id);
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            $type = 'conditionRetraite';
+            self::logDeletedConditionsEligible($data, $username, $type);
+
+            DossierManager::suprEligibleConditionRetraite($id);
+            //on réaffiche la liste des conditions actualisée
+            self::afficherListeConditionsEligibilites();
+
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+    }
+
+    public function suprConditionPromotion()
+    {
+        //sécurité
+        $action = 'suprEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère l'id à supr (clée primaire)
+            $id = $this->request->getGetAttribute('id');
+
+            // //ajout d'une entrée dans le fichier de log
+            $data = DossierManager::getPromotionConditionsByClef($id);
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            $type = 'conditionPromotion';
+            self::logDeletedConditionsEligible($data, $username, $type);
+
+            DossierManager::suprEligibleConditionPromotion($id);
+            //on réaffiche la liste des conditions actualisée
+            self::afficherListeConditionsEligibilites();
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+    }
+
+    public function editConditionPromotion()
+    {
+        //sécurité
+        $action = 'editEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionConditionPromotion';
+            $attributs = DossierManager::getConditionPromotionFromId($id);
+
+            #on récuppère la liste de selection de diplome & grade
+            $attributs['listeDiplome'] = DossierManager::listeNomDiplome();
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+
+            $form = new DossierForm();
+            $prez = $form->traitementFormulaireConditionPromotion($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionConditionPromotion()
+    {
+        //sécurité
+        $action = 'editEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'editConditionPromotion';
+            $edit = true;
+            #on récuppère la liste de selection de diplome & grade
+            $attributs['listeDiplome'] = DossierManager::listeNomDiplome();
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)        
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    
 
     // 3-3- 'addEligibleCondition':
-    #to do
+    public function ajouterConditionRetraite()
+    {
+        //sécurité
+        $action = 'addEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderAjouterConditionRetraite';
+
+            #on récuppère la liste de selection de grade
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+
+            $prez = $form->traitementFormulaireConditionRetraite($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderAjouterConditionRetraite()
+    {
+        //sécurité
+        $action = 'addEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'ajouterConditionRetraite';
+            $edit = false;
+            #on récuppère la liste de selection de grade
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+    }
+
+
+    public function ajouterConditionPromotion()
+    {
+        //sécurité
+        $action = 'addEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderAjouterConditionPromotion';
+
+            #on récuppère la liste de selection de diplome & grade
+            $attributs['listeDiplome'] = DossierManager::listeNomDiplome();
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+
+            $prez = $form->traitementFormulaireConditionPromotion($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderAjouterConditionPromotion()
+    {
+        //sécurité
+        $action = 'addEligibleCondition';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #on récuppère la liste de selection de diplome & grade
+            $attributs['listeDiplome'] = DossierManager::listeNomDiplome();
+            $attributs['listeGrade'] = DossierManager::listeNomGrade();
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'ajouterConditionPromotion';
+            $edit = false;
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+    }
 
     // 3-4- 'canRetireAFolder':
-    #to do
+    public function retraiterDossier()
+    {
+        //sécurité
+        $action = 'canRetireAFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderRetraiterDossier';
+            $matricule = $this->request->getGetAttribute('id');
+            $dossier = DossierManager::getOneFromId($matricule);
+            $attributs['id'] = $matricule;
+            $attributs['nom'] = $dossier->getNom();
+            $attributs['prenom'] = $dossier->getPrenom();
+
+            $dossier = new Dossier;
+            $form = new DossierForm($dossier);
+
+            $prez = $form->traitementFormulaireRetraiterDossier($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderRetraiterDossier()
+    {
+        //sécurité
+        $action = 'canRetireAFolder';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+
+            // $auth = AuthenticationManager::getInstance();
+            // $createur = $auth->getMatricule();
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            //ajout d'une entrée dans le fichier de log
+            $auth = AuthenticationManager::getInstance();
+            $username = $auth->getMatricule();
+            self::logRetiredFolder($username, $attributs['id']);
+            #strategie de nettoyage des données Post:
+            $cleaner = DossierForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #variables nécessaires pour l'identification de l'action dans la fonction générique de vérification:
+            $type = 'retraiteForm';
+            $edit = false;
+            #fonction générique de vérification (validation + protection contre doublon + affichage et ajout quand ok)
+            self::checkErrorThenReturnOrAddAndView($type, $attributs, $edit);
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
 
     // 3-5- 'editEligibleEmailContent':
     #to do

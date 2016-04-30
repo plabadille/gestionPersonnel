@@ -25,17 +25,30 @@ $router = new Router($request);
 $frontController = new FrontController($request, $response, $router);
 $frontController->execute();
 
+
 $prezAuth = $response->getPart('loginDisplay');
 $prez = $response->getPart('contenu');
 $navigation = $response->getPart('navigation');
-
 //Quand l'utilisateur n'est pas connecté on est forcément sur une page de connexion (on utilise un changement de template pour ce faire).
 $auth = AuthenticationManager::getInstance();
 if ( !$auth->isConnected() ){
-	include_once 'ui/views/templateConnexion.php';
+    include_once 'ui/views/templateConnexion.php';
 } else{
-	include_once 'ui/views/template.php';
+    if ($request->isAjax()){
+        echo $response->getPart('contenu');
+    } else {
+        include_once 'ui/views/template.php';
+    }
 }
+//     if ($request->isAjax()){
+//         echo $response->getPart('contenu');
+//     } else {
+//         $prezAuth = $response->getPart('loginDisplay');
+//         $navigation = $response->getPart('navigation');
+//         $prez = $response->getPart('contenu');
+//         include_once 'ui/pages/template.php';
+//     }
+// }
 
 //--------------------
 //MODULE IMPLEMENTE

@@ -23,7 +23,6 @@ class Request
             return $this->get[$key];
         } else{
             return null;
-//            die('Paramètre ' . $key . ' inconnu');
         }
     }
     public function getPostAttribute($key)
@@ -32,7 +31,6 @@ class Request
             return $this->post[$key];
         } else{
             return null;
-            //die('Paramètre ' . $key . ' inconnu');
         }
     }
     public function getFilesAttributes($key)
@@ -68,6 +66,11 @@ class Request
     {
         $this->session[$key] = $value;
         $_SESSION[$key] = $value;
+    }
+
+    public function isAjax()
+    {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }
 
 }

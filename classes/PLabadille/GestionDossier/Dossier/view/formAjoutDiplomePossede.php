@@ -15,7 +15,7 @@
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
 
-    <label for="diplomeId">Grade:</label><br />
+    <label for="diplomeId">Diplome:</label><br />
     <select name="diplomeId" id="diplomeId">
     <?php
         foreach ($attributs['listeDiplome'] as $id => $nom) {

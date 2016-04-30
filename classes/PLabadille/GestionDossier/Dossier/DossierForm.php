@@ -10,6 +10,7 @@ use PLabadille\Common\Validator\ValidatorTitleMinLength;
 use PLabadille\Common\Validator\ValidatorDateFormat;
 use PLabadille\Common\Validator\ValidatorPhoneNumberFormat;
 use PLabadille\Common\Validator\ValidatorCheckIfDateIsMoreRecent;
+use PLabadille\Common\Validator\ValidatorIsNumber;
 
 //--------------------
 //ORGANISATION DU CODE
@@ -49,6 +50,7 @@ class DossierForm {
         $validatorDateFormat = new ValidatorDateFormat();
         $validatorPhoneNumberFormat = new ValidatorPhoneNumberFormat();
         $validatorCheckIfDateIsMoreRecent = new ValidatorCheckIfDateIsMoreRecent();
+        $validatorIsNumber = new ValidatorIsNumber();
 
         #switch selon le type de formulaire.
         switch ($type) {
@@ -392,6 +394,152 @@ class DossierForm {
                         $errors['date_obtention']=$error;
                     }
                     break;
+                case 'archivageForm':
+                    //initialisation du tableau d'erreur pour éviter les undefined index
+                    //dans le form.
+                    $errors = [
+                        'date_deces' => null,
+                        'cause_deces' => null
+                    ];
+
+                    //1-Not empty
+                    //2-Bon format yyyy-mm-jj
+                    $validatorDateDeces = new Validator();
+                    $validatorDateDeces->addStrategy($validatorNotEmpty);
+                    $validatorDateDeces->addStrategy($validatorDateFormat);
+                    $error = $validatorDateDeces->applyStrategies($attributs['date_deces']);
+
+                    if($error !== null){
+                        $errors['date_deces']=$error;
+                    }
+
+                    //Validateur champ cause :
+                    //1-Not empty
+                    $validatorCauseDeces = new Validator();
+                    $validatorCauseDeces->addStrategy($validatorNotEmpty);
+                    $error = $validatorCauseDeces->applyStrategies($attributs['cause_deces']);
+
+                    if($error !== null){
+                        $errors['cause_deces']=$error;
+                    }
+                    break;
+                case 'retraiteForm':
+                    //initialisation du tableau d'erreur pour éviter les undefined index
+                    //dans le form.
+                    $errors = [
+                        'date_retraite' => null
+                    ];
+
+                    //1-Not empty
+                    //2-Bon format yyyy-mm-jj
+                    $validatorDateRetraite = new Validator();
+                    $validatorDateRetraite->addStrategy($validatorNotEmpty);
+                    $validatorDateRetraite->addStrategy($validatorDateFormat);
+                    $error = $validatorDateRetraite->applyStrategies($attributs['date_retraite']);
+
+                    if($error !== null){
+                        $errors['date_dretraite']=$error;
+                    }
+
+                    break;
+                case 'editConditionRetraite':
+                case 'ajouterConditionRetraite':
+                    //initialisation du tableau d'erreur pour éviter les undefined index
+                    //dans le form.
+                    $errors = [
+                        'idGrade' => null,
+                        'service_effectif' => null,
+                        'age' => null
+                    ];
+
+                    //1-Not empty
+                    $validatorIdGrade = new Validator();
+                    $validatorIdGrade->addStrategy($validatorNotEmpty);
+                    $error = $validatorIdGrade->applyStrategies($attributs['idGrade']);
+
+                    if($error !== null){
+                        $errors['idGrade']=$error;
+                    }
+
+                    //1-Not empty
+                    $validatorServiceEffectif = new Validator();
+                    $validatorServiceEffectif->addStrategy($validatorNotEmpty);
+                    $error = $validatorServiceEffectif->applyStrategies($attributs['service_effectif']);
+
+                    if($error !== null){
+                        $errors['service_effectif']=$error;
+                    }
+
+                    //1-Not empty
+                    //2-Is number
+                    $validatorAge = new Validator();
+                    $validatorAge->addStrategy($validatorNotEmpty);
+                    $validatorAge->addStrategy($validatorIsNumber);
+                    $error = $validatorAge->applyStrategies($attributs['age']);
+
+                    if($error !== null){
+                        $errors['age']=$error;
+                    }
+
+                    break;
+                case 'editConditionPromotion':
+                case 'ajouterConditionPromotion':
+                    //initialisation du tableau d'erreur pour éviter les undefined index
+                    //dans le form.
+                    $errors = [
+                        'idGrade' => null,
+                        'annees_service_FA' => null,
+                        'annees_service_GN' => null,
+                        'annees_service_SOE' => null,
+                        'annees_service_grade' => null
+                    ];
+
+                    //1-Not empty
+                    $validatorIdGrade = new Validator();
+                    $validatorIdGrade->addStrategy($validatorNotEmpty);
+                    $error = $validatorIdGrade->applyStrategies($attributs['idGrade']);
+
+                    if($error !== null){
+                        $errors['idGrade']=$error;
+                    }
+
+                    //2-Is number
+                    $validatorServiceFA = new Validator();
+                    $validatorServiceFA->addStrategy($validatorIsNumber);
+                    $error = $validatorServiceFA->applyStrategies($attributs['annees_service_FA']);
+
+                    if($error !== null){
+                        $errors['annees_service_FA']=$error;
+                    }
+
+                    //2-Is number
+                    $validatorServiceSOE = new Validator();
+                    $validatorServiceSOE->addStrategy($validatorIsNumber);
+                    $error = $validatorServiceSOE->applyStrategies($attributs['annees_service_SOE']);
+
+                    if($error !== null){
+                        $errors['annees_service_SOE']=$error;
+                    }
+
+                    //2-Is number
+                    $validatorServiceGN = new Validator();
+                    $validatorServiceGN->addStrategy($validatorIsNumber);
+                    $error = $validatorServiceGN->applyStrategies($attributs['annees_service_GN']);
+
+                    if($error !== null){
+                        $errors['annees_service_GN']=$error;
+                    }
+
+                    //2-Is number
+                    $validatorServiceGrade = new Validator();
+                    $validatorServiceGrade->addStrategy($validatorIsNumber);
+                    $error = $validatorServiceGrade->applyStrategies($attributs['annees_service_grade']);
+
+                    if($error !== null){
+                        $errors['annees_service_grade']=$error;
+                    }
+
+                    break;
         }
         return $errors;
     }
@@ -460,6 +608,44 @@ class DossierForm {
         ob_end_clean();
         return $prez;
     }
+
+    public function traitementFormulaireArchiveDossier($type, $attributs = null, $errors = null) 
+    {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formArchiverUnDossier.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    public function traitementFormulaireRetraiterDossier($type, $attributs = null, $errors = null) 
+    {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formRetraiterUnDossier.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    public function traitementFormulaireConditionPromotion($type, $attributs, $errors = null) 
+    {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formConditionPromotion.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+
+    public function traitementFormulaireConditionRetraite($type, $attributs, $errors = null) 
+    {
+        ob_start();
+        include_once 'classes/PLabadille/GestionDossier/Dossier/view/formConditionRetraite.php';
+        $prez = ob_get_contents();
+        ob_end_clean();
+        return $prez;
+    }
+    
+    
 
     // 2-7- 'editInformationIfAuthor':
     #to do

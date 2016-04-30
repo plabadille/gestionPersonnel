@@ -85,7 +85,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT nom, date_affectation FROM Affectation a
+            SELECT nom, date_affectation, nb FROM Affectation a
             INNER JOIN Casernes c ON a.id = c.id
             WHERE a.matricule = :matricule ORDER BY date_affectation DESC
         ';
@@ -96,7 +96,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT id, date_appartenance FROM AppartientRegiment
+            SELECT id, date_appartenance, nb FROM AppartientRegiment
             WHERE matricule = :matricule ORDER BY date_appartenance DESC
         ';
         $stmt = $pdo->prepare($req);
@@ -106,7 +106,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT grade, date_promotion FROM DetientGrades dg
+            SELECT grade, date_promotion, num FROM DetientGrades dg
             INNER JOIN Grades g ON dg.id = g.id
             WHERE matricule = :matricule order by date_promotion DESC
         ';
@@ -117,7 +117,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT acronyme, intitule, date_obtention FROM PossedeDiplomes pd
+            SELECT acronyme, intitule, date_obtention, num FROM PossedeDiplomes pd
             INNER JOIN Diplomes d ON pd.id = d.acronyme
             WHERE matricule = :matricule order by date_obtention DESC
         ';
@@ -164,6 +164,21 @@ class DossierManager
         $stmt->closeCursor();
     }
 
+    static public function ajaxRechercherName($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select nom, prenom from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
     //--------------------
     //2- Module de gestion et ajout de dossier
     //--------------------
@@ -203,7 +218,7 @@ class DossierManager
             SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, a.saisie_by
             FROM Militaires m
             INNER JOIN Actifs a ON m.matricule = a.matricule
-            WHERE a.saisie_by = :username AND m.nom like concat("%",:search,"%") OR m.matricule = :search
+            WHERE a.saisie_by = :username AND m.nom like concat("%",:search,"%") OR a.saisie_by = :username AND m.matricule = :search
         ';
         $stmt = $pdo->prepare($req);
         $stmt->bindParam(':username', $username);
@@ -227,10 +242,16 @@ class DossierManager
     {
         $pdo = DB::getInstance()->getPDO();
 
-        $req = 'select * from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
+        $req = 
+        '
+            SELECT matricule, nom, prenom
+            FROM Militaires
+            where nom like concat("%",:search,"%") OR matricule = :search
+           
+        ';
         $stmt = $pdo->prepare($req);
-        $data = ['search'=>$search];
-        $stmt->execute($data);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
 
         $result = $stmt->fetchAll();
         $stmt->closeCursor();
@@ -937,6 +958,30 @@ class DossierManager
     // 2-10 'useFileToAddFolders':
     #to do
 
+    // 2-11- 'canArchiveAFolder':
+    public static function archiverUnDossier($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd
+        $stmt = $pdo->prepare("
+            INSERT INTO Archives 
+                (matricule, date_deces, cause_deces) 
+            VALUES
+                (:matricule, :date_deces, :cause_deces)
+        ");
+        $stmt->bindParam(':matricule', $attributs['id']);
+        $stmt->bindParam(':date_deces', $attributs['date_deces']);
+        $stmt->bindParam(':cause_deces', $attributs['cause_deces']);
+        $stmt->execute();
+
+        //on supprime l'entrée dans la table actif'
+        $req = 'DELETE FROM Actifs WHERE matricule = :matricule';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule'=>$attributs['id']];
+        $stmt->execute($data);
+    }
+
     //--------------------
     //3-module gestion promotion et retraite
     //--------------------
@@ -977,8 +1022,12 @@ class DossierManager
                 SELECT matricule
                 FROM Actifs
                 WHERE eligible_promotion = 1
-            )
-            AND nom like concat("%",:search,"%") OR matricule = :search
+            ) AND nom like concat("%",:search,"%") 
+            OR matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_promotion = 1
+            ) AND matricule = :search
         ';
 
         $stmt = $pdo->prepare($req);
@@ -1029,8 +1078,12 @@ class DossierManager
                 SELECT matricule
                 FROM Actifs
                 WHERE eligible_retraite = 1
-            )
-            AND nom like concat("%",:search,"%") OR matricule = :search
+            ) AND nom like concat("%",:search,"%") 
+            OR matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_retraite = 1
+            ) AND matricule = :search
         ';
         $stmt = $pdo->prepare($req);
         $data = ['search'=>$search];
@@ -1047,13 +1100,285 @@ class DossierManager
     }
     
     // 3-2- 'editEligibleCondition':
-    #to do
+    public static function getAllConditionsPromotion()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'SELECT * from ConditionsPromotions';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $conditionsPromotion = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $conditionsPromotion;
+    }
+
+    public static function getConditionPromotionFromId($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'SELECT * FROM ConditionsPromotions WHERE id = :id ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+
+        $conditionPromotion= $stmt->fetch();
+        $stmt->closeCursor();
+
+        return $conditionPromotion;
+    }
+
+    public static function editerConditionsPromotion($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE ConditionsPromotions 
+            SET
+                idGrade = :idGrade,
+                annees_service_FA = :annees_service_FA,
+                annees_service_GN = :annees_service_GN,
+                annees_service_SOE = :annees_service_SOE,
+                annees_service_grade = :annees_service_grade, 
+                diplome = :diplome,
+                diplomeSup1 = :diplomeSup1, 
+                diplomeSup2 = :diplomeSup2
+            WHERE 
+                id = :id
+        ");
+        
+        //pour éviter des erreurs de foreign key constraint, on remplace une chaine vide par null si on veut set à null. 
+        $attributs['diplome'] = (!empty($attributs['diplome'])) ? $attributs['diplome'] : null ;
+        $attributs['diplomeSup1'] = (!empty($attributs['diplomeSup1'])) ? $attributs['diplomeSup1'] : null ;
+        $attributs['diplomeSup2'] = (!empty($attributs['diplomeSup2'])) ? $attributs['diplomeSup2'] : null ;
+
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':idGrade', $attributs['idGrade']);
+        $stmt->bindParam(':annees_service_FA', $attributs['annees_service_FA']);
+        $stmt->bindParam(':annees_service_GN', $attributs['annees_service_GN']);
+        $stmt->bindParam(':annees_service_SOE', $attributs['annees_service_SOE']);
+        $stmt->bindParam(':annees_service_grade', $attributs['annees_service_grade']);
+        $stmt->bindParam(':diplome', $attributs['diplome']);
+        $stmt->bindParam(':diplomeSup1', $attributs['diplomeSup1']);
+        $stmt->bindParam(':diplomeSup2', $attributs['diplomeSup2']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+
+    public static function getAllConditionsRetraite()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'SELECT * from ConditionsRetraites';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $conditionsRetraite = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $conditionsRetraite;
+    }
+
+    public static function getConditionRetraiteFromId($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'SELECT * FROM ConditionsRetraites WHERE id = :id ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+
+        $conditionRetraite= $stmt->fetch();
+        $stmt->closeCursor();
+
+        return $conditionRetraite;
+    }
+
+    public static function EditerConditionsRetraite($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE ConditionsRetraites 
+            SET 
+                idGrade = :idGrade, 
+                service_effectif = :service_effectif,
+                age = :age
+            WHERE 
+                id = :id
+        ");
+        
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':idGrade', $attributs['idGrade']);
+        $stmt->bindParam(':service_effectif', $attributs['service_effectif']);
+        $stmt->bindParam(':age', $attributs['age']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
 
     // 3-3- 'addEligibleCondition':
-    #to do
+    
+    public static function ajouterConditionsRetraite($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM ConditionsRetraites
+            WHERE idGrade = :idGrade AND service_effectif = :service_effectif AND age = :age 
+        ");
+        $stmt->bindParam(':idGrade', $attributs['idGrade']);
+        $stmt->bindParam(':service_effectif', $attributs['service_effectif']);
+        $stmt->bindParam(':age', $attributs['age']);
+        
+        $stmt->execute();
+        $result = $stmt->fetch();
+
+        if ($result == false){
+            //requête d'insertion en bdd
+            $stmt = $pdo->prepare("
+                INSERT INTO ConditionsRetraites 
+                    (idGrade, service_effectif, age) 
+                VALUES
+                    (:idGrade, :service_effectif, :age)
+            ");
+            $stmt->bindParam(':idGrade', $attributs['idGrade']);
+            $stmt->bindParam(':service_effectif', $attributs['service_effectif']);
+            $stmt->bindParam(':age', $attributs['age']);
+            
+            $stmt->execute();
+        } else{
+            $doublonError = 'Système anti-doublon : cette entrée existe déjà dans la base de donnée, impossible de la mettre à nouveau';
+            return $doublonError;
+        }
+    }
+
+    public static function ajouterConditionsPromotion($attributs)
+    {
+        //pour éviter des erreurs de foreign key constraint, on remplace une chaine vide par null si on veut set à null. 
+        $attributs['diplome'] = (!empty($attributs['diplome'])) ? $attributs['diplome'] : null ;
+        $attributs['diplomeSup1'] = (!empty($attributs['diplomeSup1'])) ? $attributs['diplomeSup1'] : null ;
+        $attributs['diplomeSup2'] = (!empty($attributs['diplomeSup2'])) ? $attributs['diplomeSup2'] : null ;
+        
+        $pdo = DB::getInstance()->getPDO();
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM ConditionsPromotions
+            WHERE idGrade = :idGrade AND annees_service_FA = :annees_service_FA AND annees_service_GN = :annees_service_GN AND annees_service_SOE = :annees_service_SOE AND annees_service_grade = :annees_service_grade AND diplome = :diplome AND diplomeSup1 = :diplomeSup1 AND diplomeSup2 = :diplomeSup2
+        ");
+        $stmt->bindParam(':idGrade', $attributs['idGrade']);
+        $stmt->bindParam(':annees_service_FA', $attributs['annees_service_FA']);
+        $stmt->bindParam(':annees_service_GN', $attributs['annees_service_GN']);
+        $stmt->bindParam(':annees_service_SOE', $attributs['annees_service_SOE']);
+        $stmt->bindParam(':annees_service_grade', $attributs['annees_service_grade']);
+        $stmt->bindParam(':diplome', $attributs['diplome']);
+        $stmt->bindParam(':diplomeSup1', $attributs['diplomeSup1']);
+        $stmt->bindParam(':diplomeSup2', $attributs['diplomeSup2']);
+        
+        $stmt->execute();
+        $result = $stmt->fetch();
+
+        if ($result == false){
+            //requête d'insertion en bdd
+            $stmt = $pdo->prepare("
+                INSERT INTO ConditionsPromotions 
+                    (idGrade, annees_service_FA, annees_service_GN, annees_service_SOE, annees_service_grade, diplome, diplomeSup1, diplomeSup2) 
+                VALUES
+                    (:idGrade, :annees_service_FA, :annees_service_GN, :annees_service_SOE, :annees_service_grade, :diplome, :diplomeSup1, :diplomeSup2)
+            ");
+            $stmt->bindParam(':idGrade', $attributs['idGrade']);
+            $stmt->bindParam(':annees_service_FA', $attributs['annees_service_FA']);
+            $stmt->bindParam(':annees_service_GN', $attributs['annees_service_GN']);
+            $stmt->bindParam(':annees_service_SOE', $attributs['annees_service_SOE']);
+            $stmt->bindParam(':annees_service_grade', $attributs['annees_service_grade']);
+            $stmt->bindParam(':diplome', $attributs['diplome']);
+            $stmt->bindParam(':diplomeSup1', $attributs['diplomeSup1']);
+            $stmt->bindParam(':diplomeSup2', $attributs['diplomeSup2']);
+            
+            $stmt->execute();
+        } else{
+            $doublonError = 'Système anti-doublon : cette entrée existe déjà dans la base de donnée, impossible de la mettre à nouveau';
+            return $doublonError;
+        }
+    }
+
+    //Delete eligible condition
+    public static function suprEligibleConditionRetraite($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'DELETE FROM ConditionsRetraites WHERE id = :id';
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+    }
+
+     #Permet de réccupérer le diplome par le biais de la clé primaire
+    public static function getRetraiteConditionsByClef($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT * from ConditionsRetraites WHERE id = :id';
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+        $possede = $stmt->fetch();
+
+        return $possede;
+    }
+
+    public static function suprEligibleConditionPromotion($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'DELETE FROM ConditionsPromotions WHERE id = :id';
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+    }
+
+     #Permet de réccupérer le diplome par le biais de la clé primaire
+    public static function getPromotionConditionsByClef($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //on réccupère le matricule
+        $req = 'SELECT * from ConditionsPromotions WHERE id = :id';
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+        $possede = $stmt->fetch();
+
+        return $possede;
+    }
 
     // 3-4- 'canRetireAFolder':
-    #to do
+    public static function retraiterUnDossier($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd
+        $stmt = $pdo->prepare("
+            INSERT INTO Retraites 
+                (matricule, date_retraite) 
+            VALUES
+                (:matricule, :date_retraite)
+        ");
+        $stmt->bindParam(':matricule', $attributs['id']);
+        $stmt->bindParam(':date_retraite', $attributs['date_retraite']);
+        $stmt->execute();
+
+        //on supprime l'entrée dans la table actif'
+        $req = 'DELETE FROM Actifs WHERE matricule = :matricule';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule'=>$attributs['id']];
+        $stmt->execute($data);
+    }
 
     // 3-5- 'editEligibleEmailContent':
     #to do

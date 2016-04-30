@@ -55,27 +55,9 @@ class AccessControll
 	        				case 'listAllFolder':
 	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
 	        					break;
-	        				// case 'seeCreatedFolder':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'seeAllFolder':
-	        				// 	$html .='';
-	        				// 	break;
 	        				case 'createFolder':
 	        					$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
 	        					break;
-	        				// case 'addElementToAFolder':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'editInformationIfAuthor':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'editInformation':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'deleteInformation':
-	        				// 	$html .='';
-	        				// 	break;
 	        				// case 'useFileToAddFolders':
 	        				// 	$html .='';
 	        				// 	break;
@@ -85,16 +67,12 @@ class AccessControll
 	        				case 'listEligible':
 	        					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
             					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
+                                $module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>';
 	        					break;
-	        				// case 'editEligibleCondition':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'addEligibleCondition':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'canRetireAFolder':
-	        				// 	$html .='';
-	        				// 	break;
+	        				case 'addEligibleCondition':
+	        					$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>';
+                                $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
+	        					break;
 	        				// case 'editEligibleEmailContent':
 	        				// 	$html .='';
 	        				// 	break;
@@ -150,6 +128,9 @@ class AccessControll
             	$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
             	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
             	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
+				$module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>';
+				$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>';
+                $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
         	} else{
         		//ici les droits ont été passé à noRights, situation d'urgence enclenchée.
         		$html = '<p>système hors ligne, veuillez vous déconnecter</p>';
@@ -210,19 +191,29 @@ class AccessControll
     						return true;
     					}
     					break;
+    					case 'canArchiveAFolder':
+    					if ( $droits['canArchiveAFolder'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
     				//--------------------
     				//3-module gestion promotion et retraite
     				//--------------------
-    				// case 'editEligibleCondition':
-    				// 	if ( $droits['editEligibleCondition'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
-    				// case 'canRetireAFolder':
-    				// 	if ( $droits['canRetireAFolder'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
+    				case 'canRetireAFolder':
+    					if ( $droits['canRetireAFolder'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
+                    case 'editEligibleCondition':
+                        if ( $droits['editEligibleCondition'] == 1 || $droits['allRights'] == 1 ){
+                             return true;
+                            }
+                        break;
+                    case 'suprEligibleCondition':
+                        if ( $droits['suprEligibleCondition'] == 1 || $droits['allRights'] == 1 ){
+                            return true;
+                        }
+                        break;
     				//--------------------
     				//4-module creation de compte et droit
     				//--------------------
@@ -313,12 +304,16 @@ class AccessControll
 					//--------------------
 					//1-module mon dossier
 					//--------------------
-					// case 'seeOwnFolderModule':
-					// 	$html .='';
-					// 	break;
-					// case 'editOwnFolderPersonalInformation':
-					// 	$html .='';
-					// 	break;
+					case 'seeOwnFolderModule':
+						if ( $droits['seeOwnFolderModule'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
+					case 'editOwnFolderPersonalInformation':
+						if ( $droits['editOwnFolderPersonalInformation'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
 					//--------------------
 					//2-module gestion et ajout de dossier
 					//--------------------
@@ -365,9 +360,16 @@ class AccessControll
 							}
 						}
 						break;
-					// case 'deleteInformation':
-					// 	$html .='';
-					// 	break;
+					case 'deleteInformation':
+						if ( $droits['deleteInformation'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
+					case 'canArchiveAFolder':
+						if ( $droits['canArchiveAFolder'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
 					// case 'useFileToAddFolders':
 					// 	$html .='';
 					// 	break;
@@ -379,15 +381,26 @@ class AccessControll
 							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
 						}
 						break;
-					// case 'editEligibleCondition':
-					// 	$html .='';
-					// 	break;
-					// case 'addEligibleCondition':
-					// 	$html .='';
-					// 	break;
-					// case 'canRetireAFolder':
-					// 	$html .='';
-					// 	break;
+					case 'editEligibleCondition':
+						if ( $droits['editEligibleCondition'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
+					case 'addEligibleCondition':
+						if ( $droits['addEligibleCondition'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
+                    case 'suprEligibleCondition':
+                        if ( $droits['suprEligibleCondition'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+                        break;
+					case 'canRetireAFolder':
+						if ( $droits['canRetireAFolder'] == 0 ){
+							return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+						}
+						break;
 					// case 'editEligibleEmailContent':
 					// 	$html .='';
 					// 	break;

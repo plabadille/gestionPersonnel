@@ -26,7 +26,7 @@
     </div>
     <footer><p> ~ M1-DNR2i 2015-2016 - Projet tuteuré - Pierre Labadille ~ </p></footer>
 
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/jquery-2.2.3.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <!-- Champ date auto pour les formulaires -->
     <!-- https://jqueryui.com/datepicker/#date-formats -->
@@ -35,5 +35,6 @@
         $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
     });
     </script>
+    <script src="ui/js/autoCompleteListDossier.js"></script>
 </body>
 </html> 

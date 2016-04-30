@@ -6,6 +6,7 @@ use PLabadille\GestionDossier\Controller\AccessControll;
 //--------------------
 //ORGANISATION DU CODE
 //--------------------
+# 0- Fonctions génériques
 # 1- Module mon dossier
 # 2- Module de gestion et ajout de dossier
 # 3- Module de gestion de promotion et retraite
@@ -13,12 +14,41 @@ use PLabadille\GestionDossier\Controller\AccessControll;
 
 #Gère l'affichage des Dossiers.
 #Attention, la gestion d'affichage des formulaires est gérées directement par DossierForm par le biais de templates.
-class DossierHtml {
+class DossierHtml 
+{
+    //--------------------
+    //1-Fonctions génériques
+    //--------------------
+    #Fonction générique utilisée par les générateurs de liste de dossier, elle renvoit les boutons de navigation supp selon les droits de l'utilisateur.
+    public static function commonListBouton($dossier)
+    {
+            $boutons = '';
+            $typeBouton = 'editFolderInformation';
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            $right = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+
+            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+            
+            $typeBouton = 'canArchiveAFolder';
+            $right = AccessControll::afficherBoutonNavigation($typeBouton);
+
+            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=archiverDossier&amp;id=' . $dossier->getMatricule() . '">Archiver</a>' : null;
+
+            $typeBouton = 'canRetireAFolder';
+            $right = AccessControll::afficherBoutonNavigation($typeBouton);
+
+            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=retraiterDossier&amp;id=' . $dossier->getMatricule() . '">Retraiter</a>' : null;
+
+            return $boutons;
+    }
+
     //--------------------
     //1-module mon dossier
     //--------------------
     // 1-1- 'seeOwnFolderModule':
-    public static function viewUserFolder($dossier){
+    public static function viewUserFolder($dossier)
+    {
         //4-affichage dossier
         $html = <<<EOT
             <h3>Dossier de {$dossier['informations']->getNom()} {$dossier['informations']->getPrenom()}, matricule : {$dossier['informations']->getMatricule()}</h3>
@@ -44,7 +74,8 @@ EOT;
     //2-module gestion et ajout de dossier
     //--------------------
     // 2-1- 'listCreatedFolder':
-    public static function listCreatedFolderHtml($dossier) {
+    public static function listCreatedFolderHtml($dossier) 
+    {
         $html = <<<EOT
             <h2>Liste des militaires que vous avez ajouté</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherCreatedFolder">
@@ -57,17 +88,12 @@ EOT;
 EOT;
         foreach ($dossier as $dossier) {
             //affichage des boutonsNavigation en fonction des droits:
-            $typeBouton = 'editFolderInformation';
-            $createBy = $dossier->getWhoCreateFolder();
-            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
-            $right = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+            $boutonsNav = self::commonListBouton($dossier);
 
-            $editBouton = ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
-            
             $liste = self::afficheListe($dossier);
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$editBouton}
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$boutonsNav}
                 </li>
 EOT;
         }
@@ -80,12 +106,13 @@ EOT;
 
     #Permet l'affichage de tout les dossiers (ou d'une partie)
     #appel afficheListe pour les afficher.
-    public static function toHtml($dossier) {
+    public static function toHtml($dossier) 
+    {
         $html = <<<EOT
             <h2>Liste des militaires</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercher">
                     <label for="search">Recherche :</label>
-                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+                    <input type="text" name="search" autocomplete="off" id="searchListDossier" placeholder="Saisir un matricule ou un nom"/>
 
                     <input id="boutonOk" type="submit" value="Envoyer" >
                 </form>
@@ -93,17 +120,12 @@ EOT;
 EOT;
         foreach ($dossier as $dossier) {
             //affichage des boutonsNavigation en fonction des droits:
-            $typeBouton = 'editFolderInformation';
-            $createBy = $dossier->getWhoCreateFolder();
-            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
-            $right = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
-
-            $editBouton = ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+            $boutonsNav = self::commonListBouton($dossier);
             
             $liste = self::afficheListe($dossier);
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$editBouton}
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$boutonsNav}
                 </li>
 EOT;
         }
@@ -113,7 +135,8 @@ EOT;
     }
 
     #appelé par toHtml pour afficher tous les dossier
-    public static function afficheListe($dossier) {
+    public static function afficheListe($dossier) 
+    {
         $html = $dossier->getNom() . ' ' . $dossier->getPrenom();
         return $html;
     }
@@ -124,7 +147,8 @@ EOT;
     // 2-4- 'seeAllFolder':
 
     #Permet d'afficher uniquement un dossier
-    public static function afficheUnDossier($dossier) {
+    public static function afficheUnDossier($dossier) 
+    {
         //affichage des boutonsNavigation en fonction des droits:
         $createBy = $dossier->getWhoCreateFolder();
         $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
@@ -165,7 +189,8 @@ EOT;
     }
 
     #Permet d'afficher les affectations liées à un dossier
-    public static function afficheAffectations($affectations) {
+    public static function afficheAffectations($affectations) 
+    {
         $html = "</br>\n<h3>Liste des affectations :</h3> \n";
 
         if (!empty($affectations)){
@@ -199,7 +224,8 @@ EOT;
     }
 
     #Permet d'afficher les régiments d'appartenances liées à un dossier
-    public static function afficheAppartenances($appartenances) {
+    public static function afficheAppartenances($appartenances) 
+    {
         $html = "</br>\n<h3>Liste des régiments d'appartenances :</h3> \n";
         if (!empty($appartenances)){
             //sécurité bouton suprimer grade:
@@ -233,7 +259,8 @@ EOT;
     }
 
     #Permet d'afficher les grades detenu liés à un dossier
-    public static function afficheGradesDetenu($grades) {
+    public static function afficheGradesDetenu($grades) 
+    {
         $html = "</br>\n<h3>Liste des grades du militaire :</h3> \n";
         if (!empty($grades)){
             //sécurité bouton suprimer grade:
@@ -266,7 +293,8 @@ EOT;
     }
 
     #Permet d'afficher les diplomes possede liés à un dossier
-    public static function afficheDiplomesPossede($diplomes) {
+    public static function afficheDiplomesPossede($diplomes) 
+    {
         $html = "</br>\n<h3>Liste des diplômes possédés :</h3> \n";
 
         if (!empty($diplomes)){
@@ -309,7 +337,8 @@ EOT;
     //--------------------
     // 3-1- 'listEligible':
 
-    public static function afficheDossiersEligiblesPromotion($dossier) {
+    public static function afficheDossiersEligiblesPromotion($dossier) 
+    {
         $html = <<<EOT
             <h2>Liste des militaires éligibles à une promotion</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherEligiblesPromotion">
@@ -322,10 +351,14 @@ EOT;
 EOT;
 
         foreach ($dossier as $dossier) {
+            //affichage des boutons selon droits:
+            $boutonsNav = self::commonListBouton($dossier);
+
             $liste = self::afficheListe($dossier);
+
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a>   
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$boutonsNav}  
                 </li>
 EOT;
         }
@@ -334,7 +367,8 @@ EOT;
         return $html;
     }
 
-    public static function afficheDossiersEligiblesRetraite($dossier) {
+    public static function afficheDossiersEligiblesRetraite($dossier) 
+    {
         $html = <<<EOT
             <h2>Liste des militaires éligibles à la retraite</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherEligiblesRetraite">
@@ -347,10 +381,14 @@ EOT;
 EOT;
 
         foreach ($dossier as $dossier) {
+            //affichage des boutons selon droits:
+            $boutonsNav = self::commonListBouton($dossier);
+
             $liste = self::afficheListe($dossier);
+
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a>   
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$boutonsNav}  
                 </li>
 EOT;
         }
@@ -361,7 +399,88 @@ EOT;
 
     // 3-2- 'editEligibleCondition':
     #géré par template dans DossierForm
+    public static function viewConditionsList($conditionsPromotion, $conditionsRetraite, $liste)
+    {
+        //1-Affichage Conditions
+        $html = <<<EOT
+            <h2>Liste des conditions d'éligibilité</h2>
 
+            <h3>Conditions de retraite:</h3>
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>#</th>
+                    <th>Grade</th>      
+                    <th>Service effectif</th>
+                    <th>Âge</th>
+                    <th>Action</th>
+                </tr>
+EOT;
+        foreach ($conditionsRetraite as $key => $tab) {
+            $html .= '<tr>' . "\n";
+            foreach ($tab as $key => $value) {
+                //Boutons
+                $typeBouton = 'editEligibleCondition';
+                $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+                $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editConditionRetraite&amp;id=' . $tab['id'] . '" alt="édition de la condition de retraite">Edit</a>' : null;
+
+                $typeBouton = 'suprEligibleCondition';
+                $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette condition de retraite ?\')) document.location.href=\'?objet=dossier&amp;action=suprConditionRetraite&amp;id=' . $tab['id'] . '\'" alt="supression de la condition de retraite">Supr</a>' : null;
+
+                $denominationGrade = ( $key == 'idGrade' ? ': ' . $liste['nomGrade'][$value] : null );
+                $html .= '<td>' . $value . $denominationGrade . '</td>' . "\n";
+            }
+
+            $html .= '<td>' . $editBouton . ' - ' . $suprBouton . '</td>' . "\n";
+            $html .= '</tr>' . "\n";
+        }
+        $html .= '</table>' . "\n";
+
+        $html .= <<<EOT
+            <h3>Conditions de promotion:</h3>
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>#</th>
+                    <th>Grade</th>
+                    <th>Service FA</th>      
+                    <th>Service GN</th>
+                    <th>Service SOE</th>
+                    <th>Service grade</th>
+                    <th>Diplôme</th>
+                    <th>Diplôme Sup1</th>
+                    <th>Diplôme Sup2</th>
+                    <th>Action</th>
+                </tr>
+EOT;
+        foreach ($conditionsPromotion as $key => $tab) {
+            $html .= '<tr>' . "\n";
+            foreach ($tab as $key => $value) {
+                //Boutons
+                $typeBouton = 'editEligibleCondition';
+                $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+                $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editConditionPromotion&amp;id=' . $tab['id'] . '" alt="Edition de la condition de promotion">Edit</a>' : null;
+
+                $typeBouton = 'suprEligibleCondition';
+                $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette condition de promotion ?\')) document.location.href=\'?objet=dossier&amp;action=suprConditionPromotion&amp;id=' . $tab['id'] . '\'" alt="supression de la condition de promotion">Supr</a>' : null;
+
+                $denominationGrade = ( $key == 'idGrade' ? ': ' . $liste['nomGrade'][$value] : null );
+                if ( $key == 'diplome' || $key == 'diplomeSup1' || $key == 'diplomeSup2' ){
+                    $denominationDiplome = (!empty($value) ?  ': ' . $liste['nomDiplome'][$value] : null);
+                } else{
+                    $denominationDiplome = null;
+                }
+                $html .= '<td>' . $value . $denominationGrade . $denominationDiplome . '</td>' . "\n";
+            }
+
+            $html .= '<td>' . $editBouton . ' - ' . $suprBouton . '</td>' . "\n";
+            $html .= '</tr>' . "\n";
+        }
+        $html .= '</table>' . "\n";
+
+        return $html;
+
+    }
     // 3-3- 'addEligibleCondition':
     #géré par template dans DossierForm
 
