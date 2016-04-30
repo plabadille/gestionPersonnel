@@ -226,3 +226,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
 
 ALTER TABLE `Actifs`
 ADD CONSTRAINT `Actifs_ibfk_2` FOREIGN KEY (`saisie_by`) REFERENCES `Militaires` (`matricule`) ON UPDATE CASCADE;
+
+UPDATE `Actifs`
+SET `eligible_retraite`=0
+WHERE `eligible_retraite`=1;

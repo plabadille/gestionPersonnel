@@ -1,13 +1,9 @@
 <?php
 namespace PLabadille\GestionDossier\VerificateurCondition;
+require_once('EligibleMailer.php');
 
 class EligibleRetraiteController
 {
-    const EMAIL_EXPEDITEUR = "21101555@etu.unicaen.fr";
-    const EMAIL_RETOUR = "21101555@etu.unicaen.fr";
-    const EXPEDITEUR = "21101555";
-    const EMAIL_SUJET = "[Armee du Congo]informations importantes";
-
     public static function countYearsFromTodayToADate($date)
     { 
         $today=date('Y-m-d');
@@ -72,25 +68,24 @@ class EligibleRetraiteController
 
         #on réccupère les informations sur les militaires éligibles (info concernant uniquement l'éligibilité)
         $militairesEligibles = self::checkMilitairesEligiblesRetraite();
+
+        $timestamp_finEligible = microtime(true);
+        $i = 0;
         #si $militairesEligibles n'est pas set, alors personne n'est éligible.
         if (isset($militairesEligibles)){
             foreach ($militairesEligibles as $matricule => $info) {
+                $i++;
                 #on réccupère les dossiers militaires dans $dossier.
                 #$info lui contient l'age, les années de service et le grade
                 $dossier = EligibleRetraiteManager::getFolderByMatricule($matricule);
                 #on ajoute la dénomination du grade aux infos.
                 $info['grade'] = EligibleRetraiteManager::getGradeDenominationById($info['idGrade']);
                 
-                #on passe maintenant à la fonction de MAIL
-                ##adresse d'envois :
-                $mail = $dossier['email'];
-
-                ##pour les serveurs qui ne respectent pas la norme :
-                if (!preg_match("#^[a-z0-9._-]+@(hotmail|live|msn).[a-z]{2,4}$#", $mail)) {
-                    $n = "\r\n";
-                } else{
-                    $n = "\n";
-                }
+                #prepa des variables nécessaires :
+                $sendTo['email'] = $dossier['email'];
+                $sendTo['prenom'] = $dossier['prenom'];
+                $sendTo['nom'] = $dossier['nom'];
+                $n = "\r\n";
 
                 ##Déclaration du message en HTML et PlainText
                 $message_txt = <<<EOT
@@ -121,55 +116,18 @@ EOT;
                     </body>
                 </html>
 EOT;
-                ##---fin message
+                //on envoit le mail à l'aide de la fonction adequate situé dans le fichier inclu ci-dessus (pas de classe car conflit d'autoloader...)
+                $send = sendMailWhenEligibleRetraite($message_html, $message_txt, $sendTo);
 
-                ##Création de la boundary
-                $boundary = "-----=".md5(rand());
-                ##---fin
-
-                ##création du messageId
-                $messageId = sprintf("<%s.%s@%s>", base_convert(microtime(), 10, 36), base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36), $_SERVER['SERVER_NAME']);
-                ##---fin
-
-                ##Sujet du mail
-                $sujet = self::EMAIL_SUJET;
-                ##---fin
-
-                ##header
-                $header = "From: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_EXPEDITEUR . ">" . $n;
-                $header.= "Reply-to: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_RETOUR . ">" . $n;
-                $header.= "MIME-Version: 1.0" . $n;
-                $header.= "Message-ID:" . $messageId . $n;
-                $header.= "X-Priority: 1" . $n;
-                $header.= "Content-Type: multipart/alternative;" . $n . " boundary=\"$boundary\"" . $n;
-                ##---fin header
-
-                ##création du message
-                $message = $n . "--" . $boundary . $n;
-                ###Ajout du message au format texte.
-                $message.= "Content-Type: text/plain; charset=\"UTF-8\"" .$n;
-                $message.= "Content-Transfer-Encoding: 8bit" . $n;
-                $message.= $n . $message_txt . $n;
-                ###---
-                $message.= $n . "--" . $boundary . $n;
-                ###Ajout du message au format HTML
-                $message.= "Content-Type: text/html; charset=\"UTF-8\"" . $n;
-                $message.= "Content-Transfer-Encoding: 8bit" . $n;
-                $message.= $n . $message_html . $n;
-                ###---
-                $message.= $n . "--" . $boundary . "--" . $n;
-                $message.= $n . "--" . $boundary . "--" . $n;
-                ##--fin
-                 
-                #Envoi de l'e-mail.
-                mail($mail,$sujet,$message,$header);
                 #On set à true éligiblité retraite en bdd
                 EligibleRetraiteManager::setEligibleRetraiteByMatricule($matricule);
             } 
         }
         #on retourne le temps d'execution total du script pour le handler
         $timestamp_fin = microtime(true);
-        $difference_ms = $timestamp_fin - $timestamp_debut;
+        $difference_ms['eligible'] = $timestamp_finEligible - $timestamp_debut;
+        $difference_ms['mailAndAlter'] = $timestamp_fin - $timestamp_debut;
+        $difference_ms['nb'] = $i;
 
         return $difference_ms; 
     }

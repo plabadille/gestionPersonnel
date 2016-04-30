@@ -1,14 +1,9 @@
 <?php
 namespace PLabadille\GestionDossier\VerificateurCondition;
+require_once('EligibleMailer.php');
 
 class EligiblePromotionController
 {
-    #constantes de classe de mailing
-    const EMAIL_EXPEDITEUR = "21101555@etu.unicaen.fr";
-    const EMAIL_RETOUR = "21101555@etu.unicaen.fr";
-    const EXPEDITEUR = "21101555";
-    const EMAIL_SUJET = "[Armee du Congo]informations importantes";
-
     public static function countYearsFromTodayToADate($date)
     { 
         $today=date('Y-m-d');
@@ -213,16 +208,19 @@ class EligiblePromotionController
 
     public static function sendMailToEligiblesPromotion()
     {   
-        #les constantes EXPEDITEUR, ADRESSE de RETOUR et ADRESSE d'exp sont définie en début de script dans la classe
         #note fonction : http://www.mail-tester.com/web-VWu10k (modd sur l'user 3).
         #calcul du temps d'execution:
         $timestamp_debut = microtime(true);
 
         #on réccupère les informations sur les militaires éligibles
         $militairesEligibles = self::checkMilitairesEligiblesPromotion();
+
+        $timestamp_finEligible = microtime(true);
+        $i = 0;
         #si $militairesEligibles n'est pas set, alors personne n'est éligible.
         if (isset($militairesEligibles)){
             foreach ($militairesEligibles as $matricule => $info) {
+                $i++;
                 #on ajoute le dossier :
                 $info['infos']['matricule'] = $matricule;
                 $dossier = $info['infos'];
@@ -233,14 +231,10 @@ class EligiblePromotionController
 
                 #on passe maintenant à la fonction de MAIL
                 ##adresse d'envois :
-                $mail = $dossier['email'];
-
-                ##pour les serveurs qui ne respectent pas la norme :
-                if (!preg_match("#^[a-z0-9._-]+@(hotmail|live|msn).[a-z]{2,4}$#", $mail)) {
-                    $n = "\r\n";
-                } else{
-                    $n = "\n";
-                }
+                $sendTo['email'] = $dossier['email'];
+                $sendTo['prenom'] = $dossier['prenom'];
+                $sendTo['nom'] = $dossier['nom'];
+                $n = "\r\n";
 
                 ##Déclaration du message en HTML et PlainText
                 $message_txt = <<<EOT
@@ -273,75 +267,20 @@ EOT;
                     </body>
                 </html>
 EOT;
-                ##---fin message
+                $attachment = './media/promotion_files/modalite_promotion.pdf';
+                //on envoit le mail à l'aide de la fonction adequate situé dans le fichier inclu ci-dessus (pas de classe car conflit d'autoloader...)
+                $send = sendMailWhenEligiblePromotion($message_html, $message_txt, $attachment, $sendTo);
 
-                //=====Lecture et mise en forme de la pièce jointe.
-
-                $fichier   = fopen("./media/promotion_files/modalite_promotion.pdf", "r");
-                $attachement = fread($fichier, filesize("./media/promotion_files/modalite_promotion.pdf"));
-                $attachement = chunk_split(base64_encode($attachement));
-                fclose($fichier);
-
-                //==========
-
-                ##Création de la boundary
-                $boundary = "-----=".md5(rand());
-                $boundary_alt = "-----=".md5(rand());
-                ##---fin
-
-                ##création du messageId
-                $messageId = sprintf("<%s.%s@%s>", base_convert(microtime(), 10, 36), base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36), $_SERVER['SERVER_NAME']);
-                ##---fin
-
-                ##Sujet du mail
-                $sujet = self::EMAIL_SUJET;
-                ##---fin
-
-                ##header
-                $header = "From: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_EXPEDITEUR . ">" . $n;
-                $header.= "Reply-to: \"" . self::EXPEDITEUR . "\"<" . self::EMAIL_RETOUR . ">" . $n;
-                $header.= "MIME-Version: 1.0" . $n;
-                $header.= "Message-ID:" . $messageId . $n;
-                $header.= "X-Priority: 1" . $n;
-                $header.= "Content-Type: multipart/mixed;" . $n . " boundary=\"$boundary\"" . $n;
-                ##---fin header
-
-                ##création du message
-                $message = $n . "--" . $boundary . $n;
-                $message.= "Content-Type: multipart/alternative;" . $n . " boundary=\"$boundary_alt\"" . $n;
-                $message.= $n . "--" . $boundary_alt . $n;
-                ###Ajout du message au format texte.
-                $message.= "Content-Type: text/plain; charset=\"UTF-8\"" .$n;
-                $message.= "Content-Transfer-Encoding: 8bit" . $n;
-                $message.= $n . $message_txt . $n;
-                ###---
-                $message.= $n . "--" . $boundary_alt . $n;
-                ###Ajout du message au format HTML
-                $message.= "Content-Type: text/html; charset=\"UTF-8\"" . $n;
-                $message.= "Content-Transfer-Encoding: 8bit" . $n;
-                $message.= $n . $message_html . $n;
-                ###---
-                $message.= $n . "--" . $boundary_alt . "--" . $n;
-                $message.= $n . "--" . $boundary . "--" . $n;
-                ##--fin
-
-                ##Ajout de la pièce jointe.
-                $message.= "Content-Type: application/pdf; name=\"modalite_promotion.pdf\"" . $n;
-                $message.= "Content-Transfer-Encoding: base64" . $n;
-                $message.= "Content-Disposition: attachement; filename=\"modalite_promotion.pdf\"" . $n;
-                $message.= $n . $attachement . $n;
-                $message.= $n . "--" . $boundary . "--" . $n; 
-                ##--fin
-
-                #Envoi de l'e-mail.
-                mail($mail,$sujet,$message,$header);
-                #On set à true éligiblité retraite en bdd
+                // #On set à true éligiblité retraite en bdd
                 EligiblePromotionManager::setEligiblePromotionByMatricule($dossier['matricule']);
             } 
         } 
         #on retourne le temps d'execution total du script pour le handler
         $timestamp_fin = microtime(true);
-        $difference_ms = $timestamp_fin - $timestamp_debut;
+        $difference_ms['eligible'] = $timestamp_finEligible - $timestamp_debut;
+        $difference_ms['mailAndAlter'] = $timestamp_fin - $timestamp_debut;
+        $difference_ms['nb'] = $i;
+
         return $difference_ms;
     }
 
