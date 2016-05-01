@@ -107,8 +107,37 @@ class DossierController
     public function autoComplete()
     {
         $search = $this->request->getGetAttribute('search');
+        $type = $this->request->getGetAttribute('type');
         if (!empty($search)){
-            $result = DossierManager::ajaxRechercherName($search);
+            switch ($type) {
+                case 'listDossier':
+                    $result = DossierManager::ajaxRechercherName($search);
+                    break;
+                case 'listCreatedDossier':
+                    $auth = AuthenticationManager::getInstance();
+                    $username = $auth->getMatricule();
+                    $result = DossierManager::ajaxRechercherCreatedName($search, $username);
+                    break;
+                case 'listEligibleRetraite':
+                    $result = DossierManager::ajaxRechercherEligibleRetraite($search);
+                    break;
+                case 'listEligiblePromotion':
+                    $result = DossierManager::ajaxRechercherEligiblePromotion($search);
+                    break;
+                case 'listeNomGrade':
+                    $result = DossierManager::ajaxListeNomGrade($search);
+                    break;
+                case 'listeNomCaserne':
+                    $result = DossierManager::ajaxListeNomCaserne($search);
+                    break; 
+                case 'listeNomDiplome':
+                    $result = DossierManager::ajaxListeNomDiplome($search);
+                    break; 
+                case 'listeNomRegiment':
+                    $result = DossierManager::ajaxListeNomRegiment($search);
+                    break; 
+            }
+            
             $json = json_encode($result);
             $this->response->setPart('contenu', $json);
         }
@@ -547,6 +576,9 @@ class DossierController
     {
         #Reccupération des données du formulaire
         $attributs = $this->request->getPost();
+        //pour l'ajax on explode le grade pour conserver que l'id
+        $explode = explode(' ', $attributs['caserneId']);
+        $attributs['caserneId'] = $explode['0'];
         //sécurité
         $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
@@ -671,6 +703,9 @@ class DossierController
     {
         #Reccupération des données du formulaire
         $attributs = $this->request->getPost();
+        //pour l'ajax on explode le grade pour conserver que l'id
+        $explode = explode(' ', $attributs['gradeId']);
+        $attributs['gradeId'] = $explode['0'];
         //sécurité
         $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';
@@ -733,6 +768,9 @@ class DossierController
     {
         #Reccupération des données du formulaire
         $attributs = $this->request->getPost();
+        //pour l'ajax on explode le grade pour conserver que l'id
+        $explode = explode(' ', $attributs['diplomeId']);
+        $attributs['diplomeId'] = $explode['0'];
         //sécurité
         $createurDossier = DossierManager::getCreatorById($attributs['id']);
         $action = 'addElementToAFolder';

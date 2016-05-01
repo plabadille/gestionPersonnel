@@ -164,21 +164,6 @@ class DossierManager
         $stmt->closeCursor();
     }
 
-    static public function ajaxRechercherName($search)
-    {
-        $pdo = DB::getInstance()->getPDO();
-
-        $req = 'select nom, prenom from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
-        $stmt = $pdo->prepare($req);
-        $data = ['search'=>$search];
-        $stmt->execute($data);
-
-        $result = $stmt->fetchAll();
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
     //--------------------
     //2- Module de gestion et ajout de dossier
     //--------------------
@@ -211,11 +196,15 @@ class DossierManager
 
     static public function rechercherIdOrNameCreatedFolder($search, $username)
     {
+        //on ne conserve que le nom en cas d'Ajax
+        $search = explode(' ', $search);
+        $search = $search[0];
+
         $pdo = DB::getInstance()->getPDO();
 
         $req = 
         '
-            SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, a.saisie_by
+            SELECT nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, a.saisie_by
             FROM Militaires m
             INNER JOIN Actifs a ON m.matricule = a.matricule
             WHERE a.saisie_by = :username AND m.nom like concat("%",:search,"%") OR a.saisie_by = :username AND m.matricule = :search
@@ -235,11 +224,36 @@ class DossierManager
         return $dossier;
     }
 
+    static public function ajaxRechercherCreatedName($search, $username)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT nom, prenom
+            FROM Militaires m
+            INNER JOIN Actifs a ON m.matricule = a.matricule
+            WHERE a.saisie_by = :username AND m.nom like concat("%",:search,"%") OR a.saisie_by = :username AND m.matricule = :search
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
     // 2-2- 'listAllFolder':
     #permet de réccupérer un ou plusieurs dossier correspondant au résultat d'une recherche
     #formulaire dans le toHtml permettant l'affichage de tous les dossiers.
     static public function rechercherIdOrName($search)
     {
+        //on ne conserve que le nom en cas d'Ajax
+        $search = explode(' ', $search);
+        $search = $search[0];
+
         $pdo = DB::getInstance()->getPDO();
 
         $req = 
@@ -261,6 +275,21 @@ class DossierManager
             $dossier[] = new Dossier($attributs);
         }
         return $dossier;
+    }
+
+    static public function ajaxRechercherName($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'select nom, prenom from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
+        $stmt = $pdo->prepare($req);
+        $data = ['search'=>$search];
+        $stmt->execute($data);
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
     }
 
     // 2-3- 'seeCreatedFolder':
@@ -382,6 +411,26 @@ class DossierManager
         return $caserneName;
     }
 
+    static public function ajaxListeNomCaserne($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            select id, nom
+            from Casernes
+            WHERE id like concat("%",:search,"%")
+                OR nom like concat ("%",:search,"%")
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
     public static function ajouterUneAffectation($attributs) 
     {
         $pdo = DB::getInstance()->getPDO();
@@ -461,6 +510,25 @@ class DossierManager
         }
         
         return $regimentName;
+    }
+
+    static public function ajaxListeNomRegiment($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            select id
+            from Regiment
+            WHERE id like concat("%",:search,"%")
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
     }
 
     #Permet d'ajouter une appartenance regiment en BDD
@@ -548,6 +616,26 @@ class DossierManager
         }
         
         return $gradeName;
+    }
+
+    static public function ajaxListeNomGrade($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            select id, grade
+            from Grades
+            WHERE grade like concat("%",:search,"%")
+                OR id like concat ("%",:search,"%")
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
     }
 
     #Permet d'ajouter un grade detenu en BDD
@@ -647,6 +735,26 @@ class DossierManager
         }
         
         return $diplomeName;
+    }
+
+    static public function ajaxListeNomDiplome($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            select acronyme, intitule
+            from Diplomes
+            WHERE acronyme like concat("%",:search,"%")
+                OR intitule like concat ("%",:search,"%")
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
     }
 
     #Permet d'ajouter un diplome possédé en BDD
@@ -1014,6 +1122,10 @@ class DossierManager
 
     static public function rechercherIdOrNamePromotion($search)
     {
+        //on ne conserve que le nom en cas d'Ajax
+        $search = explode(' ', $search);
+        $search = $search[0];
+
         $pdo = DB::getInstance()->getPDO();
 
         $req = '
@@ -1044,6 +1156,33 @@ class DossierManager
         return $dossier;
     }
 
+    static public function ajaxRechercherEligiblePromotion($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT nom, prenom from Militaires
+            WHERE matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_promotion = 1
+            ) AND nom like concat("%",:search,"%") 
+            OR matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_promotion = 1
+            ) AND matricule = :search
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
     #Reccupère tous les dossiers militaires
     public static function getAllEligibleRetraite() 
     {
@@ -1069,6 +1208,10 @@ class DossierManager
 
     static public function rechercherIdOrNameRetraite($search)
     {
+        //on ne conserve que le nom en cas d'Ajax
+        $search = explode(' ', $search);
+        $search = $search[0];
+
         $pdo = DB::getInstance()->getPDO();
 
         $req =
@@ -1097,6 +1240,33 @@ class DossierManager
             $dossier[] = new Dossier($attributs);
         }
         return $dossier;
+    }
+
+    static public function ajaxRechercherEligibleRetraite($search)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT nom, prenom from Militaires
+            WHERE matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_retraite = 1
+            ) AND nom like concat("%",:search,"%") 
+            OR matricule IN(
+                SELECT matricule
+                FROM Actifs
+                WHERE eligible_retraite = 1
+            ) AND matricule = :search
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->bindParam(':search', $search);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
     }
     
     // 3-2- 'editEligibleCondition':

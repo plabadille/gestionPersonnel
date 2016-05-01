@@ -16,21 +16,7 @@
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
 
     <label for="diplomeId">Diplome:</label><br />
-    <select name="diplomeId" id="diplomeId">
-    <?php
-        foreach ($attributs['listeDiplome'] as $id => $nom) {
-            if (isset($attributs['diplomeId'])){
-                if($attributs['diplomeId'] == $id){
-                    echo '<option value="' . $id . '" selected>' . $id . ': ' . $nom . '</option>';
-                } else{
-                    echo '<option value="' . $id . '" required>' . $id . ': ' . $nom . '</option>';
-                }
-            } else{
-                echo '<option value="' . $id . '" required>' . $id . ': ' . $nom . '</option>'; 
-            }   
-        }        
-    ?>
-    </select>
+    <input type="text" name="diplomeId" autocomplete="off" id="searchDiplome" value="<?php echo (isset($attributs['diplomeId']) ? $attributs['diplomeId'] . ' : ' . $attributs['listeDiplome'][$attributs['diplomeId']] : null); ?>" />
 
     <label for="date_obtention">Date d'obtention:<span class="dossierFormErrors"><?php echo $errors['date_obtention']; ?></span></label>
     <input type="text" name="date_obtention" class="datepicker" value="<?php echo (isset($attributs['date_obtention']) ? $attributs['date_obtention'] : null); ?>" />

@@ -80,7 +80,7 @@ EOT;
             <h2>Liste des militaires que vous avez ajouté</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherCreatedFolder">
                     <label for="search">Recherche :</label>
-                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+                    <input type="text" name="search" autocomplete="off" id="searchListCreatedDossier" placeholder="Saisir un matricule ou un nom"/>
 
                     <input id="boutonOk" type="submit" value="Envoyer" >
                 </form>
@@ -116,6 +116,7 @@ EOT;
 
                     <input id="boutonOk" type="submit" value="Envoyer" >
                 </form>
+                <div id="test"></div>
             <ul id="listeDossier">
 EOT;
         foreach ($dossier as $dossier) {
@@ -343,7 +344,7 @@ EOT;
             <h2>Liste des militaires éligibles à une promotion</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherEligiblesPromotion">
                     <label for="search">Recherche :</label>
-                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+                    <input type="text" name="search" autocomplete="off" id="searchListEligiblePromotion" placeholder="Saisir un matricule ou un nom"/>
 
                     <input id="boutonOk" type="submit" value="Envoyer" >
                 </form>
@@ -373,7 +374,7 @@ EOT;
             <h2>Liste des militaires éligibles à la retraite</h2>
                 <form id="formSearch" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=rechercherEligiblesRetraite">
                     <label for="search">Recherche :</label>
-                    <input type="text" name="search" id="search" placeholder="Saisir un matricule ou un nom"/>
+                    <input type="text" name="search" autocomplete="off" id="searchListEligibleRetraite" placeholder="Saisir un matricule ou un nom"/>
 
                     <input id="boutonOk" type="submit" value="Envoyer" >
                 </form>

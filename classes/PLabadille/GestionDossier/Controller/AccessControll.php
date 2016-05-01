@@ -23,6 +23,7 @@ class AccessControll
     	$module1 = '';
     	$module2 = '';
     	$module3 = '';
+        $module4 = '';
 
     	$html = '';
     	//gère l'affichage du menu en fonction du statut de l'utilisateur.
@@ -85,21 +86,15 @@ class AccessControll
 	        				//--------------------
 	        				//4-module creation de compte et droit
 	        				//--------------------
-	        				// case 'seeAllFolderWithoutAccount':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'seeAllAccount':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'createAccount':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'alterMdp':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'alterAccountRight':
-	        				// 	$html .='';
-	        				// 	break;
+	        				case 'seeAllFolderWithoutAccount':
+	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les dossiers sans compte utilisateur</a></li>';
+	        					break;
+	        				case 'seeAllAccount':
+	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher tous les comptes utilisateurs</a></li>';
+	        					break;
+	        				case 'createAccount':
+	        					$module4 .= '<li><a href="?objet=administration&action=creerCompteUtilisateur">Créer un compte utilisateur</a></li>';
+                                break;
 	        				//--------------------
 	        				//5-module gestion de l'application
 	        				//--------------------
@@ -131,6 +126,9 @@ class AccessControll
 				$module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>';
 				$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>';
                 $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les dossiers sans compte utilisateur</a></li>';
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher tous les comptes utilisateurs</a></li>';
+                $module4 .= '<li><a href="?objet=administration&action=creerCompteUtilisateur">Créer un compte utilisateur</a></li>';
         	} else{
         		//ici les droits ont été passé à noRights, situation d'urgence enclenchée.
         		$html = '<p>système hors ligne, veuillez vous déconnecter</p>';
@@ -149,6 +147,10 @@ class AccessControll
         if ( !empty($module3) ){
         	$nameModule = '<div class="moduleConteneur"><h3>Module gestion promotion et retraite</h3><ul class="module">';
         	$html .= $nameModule . $module3 . '</ul></div>';
+        }
+        if ( !empty($module4) ){
+            $nameModule = '<div class="moduleConteneur"><h3>Module de création de compte et de droit</h3><ul class="module">';
+            $html .= $nameModule . $module4 . '</ul></div>';
         }
 
         return $html;

@@ -1,68 +1,117 @@
-// kingRayhan : https://gist.github.com/kingRayhan/32b0675a1917b7b6738ab70fa8a40e36
-(function($){
-
-    $.fn.extend({
-
-        donetyping: function(callback,timeout){
-
-            timeout = timeout || 1e3; // 1 second default timeout
-
-            var timeoutReference,
-
-                doneTyping = function(el){
-
-                    if (!timeoutReference) return;
-                    timeoutReference = null;
-                    callback.call(el);
-                };
-            return this.each(function(i,el){
-                var $el = $(el);
-                // Chrome Fix (Use keyup over keypress to detect backspace)
-                // thank you @palerdot
-                $el.is(':input') && $el.on('keyup keypress paste',function(e){
-                    // This catches the backspace button in chrome, but also prevents
-                    // the event from triggering too preemptively. Without this line,
-                    // using tab/shift+tab will make the focused element fire the callback.
-                    if (e.type=='keyup' && e.keyCode!=8) return;
-                    
-                    // Check if timeout has been set. If it has, "reset" the clock and
-                    // start over again.
-                    if (timeoutReference) clearTimeout(timeoutReference);
-                    timeoutReference = setTimeout(function(){
-                        // if we made it here, our timeout has elapsed. Fire the
-                        // callback
-                        doneTyping(el);
-                    }, timeout);
-                }).on('blur',function(){
-                    // If we can, fire the event since we're leaving the field
-                    doneTyping(el);
-                });
+$('#searchListDossier').autocomplete({
+    source: function(term, response){
+        // console.log(term);
+        $.getJSON('?objet=dossier&action=autoComplete&type=listDossier&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                console.log(field.nom);
             });
+            response(noms);
+         });
         }
-    });
-})(jQuery);
+});
 
-function ajaxRequest(){
-
-    var $search = $('#searchListDossier');
-    var request = '?objet=dossier&action=autoComplete&search='+$search.val();
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', request);
-    xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
-    xhr.responseType = 'json';
-    xhr.addEventListener('load', function(){
-        //crea tableau
-        var noms = new Array();
-        for (var i=0; i<this.response.length; i++) {
-            noms.push(this.response[i].nom);        
+$('#searchListCreatedDossier').autocomplete({
+    source: function(term, response){
+        // console.log(term);
+        $.getJSON('?objet=dossier&action=autoComplete&type=listCreatedDossier&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                // console.log(field.nom);
+            });
+            response(noms);
+         });
         }
-        console.log($search.val());
-        console.log(noms);
-        $('#searchListDossier').autocomplete({
-            source: noms
-        });
-    });
-    xhr.send();
-}
+});
 
-$('#searchListDossier').donetyping(ajaxRequest);
+$('#searchListEligiblePromotion').autocomplete({
+    source: function(term, response){
+        // console.log(term);
+        $.getJSON('?objet=dossier&action=autoComplete&type=listEligiblePromotion&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                // console.log(field.nom);
+            });
+            response(noms);
+         });
+        }
+});
+
+$('#searchListEligibleRetraite').autocomplete({
+    source: function(term, response){
+        // console.log(term);
+        $.getJSON('?objet=dossier&action=autoComplete&type=listEligibleRetraite&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                // console.log(field.nom);
+            });
+            response(noms);
+         });
+        }
+});
+
+$('#searchListEligibleRetraite').autocomplete({
+    source: function(term, response){
+        // console.log(term);
+        $.getJSON('?objet=dossier&action=autoComplete&type=listEligibleRetraite&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                // console.log(field.nom);
+            });
+            response(noms);
+         });
+        }
+});
+
+$('#searchGrade').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=dossier&action=autoComplete&type=listeNomGrade&search='+term.term, function(data){ 
+            var grades = new Array();
+            $.each(data, function(i, field){
+                grades.push(field.id+" : "+field.grade);
+            });
+            response(grades);
+         });
+        }
+});
+
+$('#searchDiplome').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=dossier&action=autoComplete&type=listeNomDiplome&search='+term.term, function(data){ 
+            var diplomes = new Array();
+            $.each(data, function(i, field){
+                diplomes.push(field.acronyme+" : "+field.intitule);
+            });
+            response(diplomes);
+         });
+        }
+});
+
+$('#searchCaserne').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=dossier&action=autoComplete&type=listeNomCaserne&search='+term.term, function(data){ 
+            var casernes = new Array();
+            $.each(data, function(i, field){
+                casernes.push(field.id+" : "+field.nom);
+            });
+            response(casernes);
+         });
+        }
+});
+
+$('#searchRegiment').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=dossier&action=autoComplete&type=listeNomRegiment&search='+term.term, function(data){ 
+            var regiments = new Array();
+            $.each(data, function(i, field){
+                regiments.push(field.id);
+            });
+            response(regiments);
+         });
+        }
+});

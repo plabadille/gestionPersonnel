@@ -10,7 +10,7 @@
                 }
                 echo '</div>';
             }
-        } 
+        }
     ?>
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
@@ -18,21 +18,7 @@
     <input type="text" name="date_affectation" class="datepicker" value="<?php echo (isset($attributs['date_affectation']) ? $attributs['date_affectation'] : null); ?>" />
 
     <label for="caserneId">Nom de la caserne:</label><br />
-    <select name="caserneId" id="caserneId">
-    <?php
-        foreach ($attributs['listeCaserne'] as $id => $nom) {
-            if (isset($attributs['caserneId'])){
-                if($attributs['caserneId'] == $id){
-                    echo '<option value="' . $id . '" selected>' . $nom . '</option>';
-                } else{
-                    echo '<option value="' . $id . '">' . $nom . '</option>';
-                }
-            } else{
-                echo '<option value="' . $id . '">' . $nom . '</option>'; 
-            }   
-        }        
-    ?>
-    </select>
+    <input type="text" name="caserneId" autocomplete="off" id="searchCaserne" value="<?php echo (isset($attributs['caserneId']) ? $attributs['caserneId'] . ' : ' . $attributs['listeCaserne'][$attributs['caserneId']] : null); ?>" />
     
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->
     <input type='hidden' name='id' value="<?php echo (isset($attributs['id']) ? $attributs['id'] : null); ?>">

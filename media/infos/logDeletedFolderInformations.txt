@@ -7,3 +7,17 @@ date username deletedContent(n column)
 2016-04-23-18-54-30 111 appartenanceRegiment nb:122 matricule:12 id:Ecole Militaire date_appartenance:2016-04-01
 2016-04-23-19-10-55 111 possedeDiplome num:85 matricule:44 id:CPOS date_obtention:2016-04-01 pays_obtention:machinland organisme_formateur:trucland
 2016-04-24-21-26-34 1 affectationCaserne nb:129 matricule:8 id:18 date_affectation:2016-04-01
+2016-05-01-18-21-22 111 detientGrade num:114 matricule:6 id:2.6.1 date_promotion:2016-05-02
+2016-05-01-18-34-06 111 detientGrade
+2016-05-01-19-19-51 111 detientGrade num:116 matricule:6 id:1 date_promotion:2016-05-05
+2016-05-01-19-29-05 111 detientGrade
+2016-05-01-19-29-08 111 detientGrade
+2016-05-01-19-31-46 111 detientGrade num:115 matricule:6 id:2.6.1 date_promotion:2016-05-02
+2016-05-01-19-33-08 111 detientGrade num:121 matricule:6 id:1 date_promotion:2016-05-09
+2016-05-01-19-45-39 111 possedeDiplome num:84 matricule:6 id:CAT1 date_obtention:2016-05-01 pays_obtention:france organisme_formateur:tatazf
+2016-05-01-19-49-02 111 affectationCaserne nb:125 matricule:6 id:7 date_affectation:2016-05-01
+2016-05-01-19-50-46 111 affectationCaserne
+2016-05-01-19-51-35 111 appartenanceRegiment nb:121 matricule:3 id:Forces Armées date_appartenance:2016-05-01
+2016-05-01-19-56-21 111 affectationCaserne nb:126 matricule:3 id:7 date_affectation:2016-05-01
+2016-05-01-19-58-12 111 affectationCaserne
+2016-05-01-19-58-17 111 affectationCaserne

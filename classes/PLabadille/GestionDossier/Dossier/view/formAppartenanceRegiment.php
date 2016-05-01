@@ -18,21 +18,7 @@
     <input type="text" name="date_appartenance" class="datepicker" value="<?php echo (isset($attributs['date_appartenance']) ? $attributs['date_appartenance'] : null); ?>" />
 
     <label for="regimentId">Nom du régiment:</label><br />
-    <select name="regimentId" id="regimentId">
-    <?php
-        foreach ($attributs['listeRegiment'] as $id => $nom) {
-            if (isset($attributs['regimentId'])){
-                if($attributs['regimentId'] == $nom){
-                    echo '<option value="' . $nom . '" selected>' . $nom . '</option>';
-                } else{
-                    echo '<option value="' . $nom . '">' . $nom . '</option>';
-                }
-            } else{
-                echo '<option value="' . $nom . '">' . $nom . '</option>'; 
-            }   
-        }        
-    ?>
-    </select>
+    <input type="text" name="regimentId" autocomplete="off" id="searchRegiment" value="<?php echo (isset($attributs['regimentId']) ? $attributs['regimentId'] : null); ?>" />
     
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->
     <input type='hidden' name='id' value="<?php echo (isset($attributs['id']) ? $attributs['id'] : null); ?>">
