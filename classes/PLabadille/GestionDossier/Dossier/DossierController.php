@@ -437,7 +437,7 @@ class DossierController
 
     // 2-2- 'listAllFolder':
 
-    #affiche tout les dossiers
+    #affiche tous les dossiers
     public function afficherListeDossier() 
     {
         //sécurité

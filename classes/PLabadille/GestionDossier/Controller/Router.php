@@ -17,7 +17,7 @@ class Router extends AbstractRouter
 				return "\\PLabadille\\GestionDossier\\Home\\HomeController";
 			break;
 			case 'administration':
-				return "\\PLabadille\\GestionDossier\\Administration\\AdmninistrationController";
+				return "\\PLabadille\\GestionDossier\\Administration\\AdministrationController";
 			break;
 			default:
 				return "\\PLabadille\\GestionDossier\\Home\\HomeController";

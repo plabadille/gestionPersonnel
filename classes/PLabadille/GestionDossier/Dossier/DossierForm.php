@@ -23,7 +23,8 @@ use PLabadille\Common\Validator\ValidatorIsNumber;
 
 #Gère le traitement des formulaires (affichage via template)
 #Ainsi que les stratégies de validation et de nettoyage.
-class DossierForm {
+class DossierForm 
+{
     protected $dossier;
     public function __construct($dossier = null) {
         $this->dossier = $dossier;
@@ -33,7 +34,7 @@ class DossierForm {
     //x-Fonctions génériques
     //--------------------
 
-        public static function cleaningStrategy()
+    public static function cleaningStrategy()
     {
         $cleaner = new Cleaner();
         $cleaner->addStrategy(new CleanerHtmlTags());

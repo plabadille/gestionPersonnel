@@ -115,3 +115,29 @@ $('#searchRegiment').autocomplete({
          });
         }
 });
+
+$('#searchDossierWithOutAccount').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=administration&action=autoComplete&type=listeSansCompte&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                console.log(field.nom);
+            });
+            response(noms);
+         });
+        }
+});
+
+$('#searchDossierWithAccount').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=administration&action=autoComplete&type=listeAvecCompte&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                console.log(field.nom);
+            });
+            response(noms);
+         });
+        }
+});

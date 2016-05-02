@@ -87,14 +87,11 @@ class AccessControll
 	        				//4-module creation de compte et droit
 	        				//--------------------
 	        				case 'seeAllFolderWithoutAccount':
-	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les dossiers sans compte utilisateur</a></li>';
+	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>';
 	        					break;
 	        				case 'seeAllAccount':
-	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher tous les comptes utilisateurs</a></li>';
+	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>';
 	        					break;
-	        				case 'createAccount':
-	        					$module4 .= '<li><a href="?objet=administration&action=creerCompteUtilisateur">Créer un compte utilisateur</a></li>';
-                                break;
 	        				//--------------------
 	        				//5-module gestion de l'application
 	        				//--------------------
@@ -126,9 +123,8 @@ class AccessControll
 				$module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>';
 				$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>';
                 $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
-                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les dossiers sans compte utilisateur</a></li>';
-                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher tous les comptes utilisateurs</a></li>';
-                $module4 .= '<li><a href="?objet=administration&action=creerCompteUtilisateur">Créer un compte utilisateur</a></li>';
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>';
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>';
         	} else{
         		//ici les droits ont été passé à noRights, situation d'urgence enclenchée.
         		$html = '<p>système hors ligne, veuillez vous déconnecter</p>';
@@ -219,16 +215,21 @@ class AccessControll
     				//--------------------
     				//4-module creation de compte et droit
     				//--------------------
-    				// case 'alterMdp':
-    				// 	if ( $droits['alterMdp'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
+    				case 'alterMdp':
+    					if ( $droits['alterMdp'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
     				// case 'alterAccountRight':
     				// 	if ( $droits['alterAccountRight'] == 1 || $droits['allRights'] == 1 ){
     					// 	return true;
     					// }
     				// 	break;
+                    case 'createAccount':
+                     if ( $droits['createAccount'] == 1 || $droits['allRights'] == 1 ){
+                         return true;
+                        }
+                     break;
     				//--------------------
     				//5-module gestion de l'application
     				//--------------------
@@ -415,18 +416,26 @@ class AccessControll
 					//--------------------
 					//4-module creation de compte et droit
 					//--------------------
-					// case 'seeAllFolderWithoutAccount':
-					// 	$html .='';
-					// 	break;
-					// case 'seeAllAccount':
-					// 	$html .='';
-					// 	break;
-					// case 'createAccount':
-					// 	$html .='';
-					// 	break;
-					// case 'alterMdp':
-					// 	$html .='';
-					// 	break;
+					case 'seeAllFolderWithoutAccount':
+						if ( $droits['seeAllFolderWithoutAccount'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
+					case 'seeAllAccount':
+						if ( $droits['seeAllAccount'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
+					case 'createAccount':
+						if ( $droits['createAccount'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
+					case 'alterMdp':
+						if ( $droits['createAccount'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
 					// case 'alterAccountRight':
 					// 	$html .='';
 					// 	break;

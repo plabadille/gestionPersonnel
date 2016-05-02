@@ -116,7 +116,6 @@ EOT;
 
                     <input id="boutonOk" type="submit" value="Envoyer" >
                 </form>
-                <div id="test"></div>
             <ul id="listeDossier">
 EOT;
         foreach ($dossier as $dossier) {
