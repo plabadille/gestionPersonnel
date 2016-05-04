@@ -63,7 +63,7 @@ class AdministrationController
         }
         $attributs['psw'] = $psw;
         //on le hash:
-        $attributs['hash'] = password_hash($psw, PASSWORD_DEFAULT);
+        $attributs['pass'] = password_hash($psw, PASSWORD_DEFAULT);
         //on retourne les deux :
         return $attributs;
     }
@@ -77,6 +77,21 @@ class AdministrationController
         #contenu à ajouter au fichier
         $content = "\n" . $today . ' ' . $actionUsername . ' ' . $username;
         $monfichier = fopen('media/infos/logPasswordAltered.txt', 'r+');
+        #on se positionne à la fin du fichier
+        fseek($monfichier, 0, SEEK_END);
+        fputs($monfichier, $content);
+        fclose($monfichier);
+    }
+
+    public function logSuprAccount($actionUsername, $username)
+    {
+        #date après le lancement du script (avec  heure, minute et seconde)
+        $today=date('Y-m-d-H-i-s');
+
+        ##On stock les informations d'executions dans un fichier pour faire un récap.
+        #contenu à ajouter au fichier
+        $content = "\n" . $today . ' ' . $actionUsername . ' ' . $username;
+        $monfichier = fopen('media/infos/logAccountDeleted.txt', 'r+');
         #on se positionne à la fin du fichier
         fseek($monfichier, 0, SEEK_END);
         fputs($monfichier, $content);
@@ -156,14 +171,22 @@ class AdministrationController
         if ( empty($error) ){ //ok
             $attributs = array();
             //on réccupère l'id:
+            $type = 'sauvegarderCompte';
             $attributs['id'] = $this->request->getGetAttribute('id');
             $attributs['identite'] = AdministrationManager::getNomPrenomFromId($attributs['id']);
             $attributs['listeRole'] = AdministrationManager::getListeRole();
+            $auth = AuthenticationManager::getInstance();
+            $actionUserRole = $auth->getRole();
+            if ($actionUserRole != 'superAdmin'){ //seul le superAdmin peut nommer un admin
+                for ($i=0; $i < count($attributs['listeRole']) ; $i++) { 
+                    unset($attributs['listeRole'][array_search('admin', $attributs['listeRole'][$i])]);
+                }    
+            }
             //on genere le mdp et le hash:
             //l'int envoyé correspond à la taille du mdp souhaité
             $attributs += self::generatePasswordAndHashPassword(10);
             //on affiche le formulaire pour le choix de la classe d'utilisateur:
-            $prez = AdministrationForm::traitementFormulaireCreerCompte($attributs);
+            $prez = AdministrationForm::traitementFormulaireCreerCompte($attributs, $type);
         } else{ //pas ok
             $prez = HomeHtml::toHtml($error);
         }
@@ -190,7 +213,8 @@ class AdministrationController
             if (!empty($cleanErrors)){
             #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
             #reprise du code creerDossier et adaptation
-                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireCreerCompte($attributs, $errors));
+                $type = 'sauvegarderCompte';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireCreerCompte($attributs, $type, $errors));
             } else{
                 AdministrationManager::addAccount($attributs);
                 self::afficherListeDossierSansCompte();
@@ -229,7 +253,117 @@ class AdministrationController
         } else{ //pas ok
             $prez = HomeHtml::toHtml($error);
             $this->response->setPart('contenu', $prez);
+        }    
+    }
+
+    // 4-5- 'alterAccountRight'
+    public function changeDroitsCompte()
+    {
+        //sécurité
+        $action = 'alterAccountRight';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //un admin ou superAdmin ne peuvent pas être modifié quoi qu'il arrive, sauf si l'user connecté est superAdmin.
+            $auth = AuthenticationManager::getInstance();
+            $actionUserRole = $auth->getRole();
+            $type = 'sauvegarderChangementDroits';
+            //on réccupère les données
+            $attributs['id'] = $this->request->getGetAttribute('id');
+            $attributs += AdministrationManager::getAccountById($attributs['id']);
+            $attributs['identite'] = AdministrationManager::getNomPrenomFromId($attributs['id']);
+            $attributs['listeRole'] = AdministrationManager::getListeRole();
+            if ($actionUserRole != 'superAdmin'){ //seul le superAdmin peut nommer un admin
+                for ($i=0; $i < count($attributs['listeRole']) ; $i++) { 
+                    unset($attributs['listeRole'][array_search('admin', $attributs['listeRole'][$i])]);
+                }    
+            }
+            if ($actionUserRole == 'superAdmin' || ( $attributs['role'] != 'superAdmin' && $attributs['role'] != 'admin' )){
+                //on affiche le formulaire pour le choix de la classe d'utilisateur:
+                $prez = AdministrationForm::traitementFormulaireCreerCompte($attributs, $type);
+            } else{
+                $prez = HomeHtml::toHtml($error);
+            }
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
         }
-        
+        $this->response->setPart('contenu', $prez);
+    }
+
+
+    public function sauvegarderChangementDroits()
+    {
+        //sécurité
+        $action = 'alterAccountRight';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            //un admin ou superAdmin ne peuvent pas être modifié quoi qu'il arrive, sauf si l'user connecté est superAdmin.
+            $auth = AuthenticationManager::getInstance();
+            $actionUserRole = $auth->getRole();
+            if ($actionUserRole == 'superAdmin' || ( $attributs['role'] != 'superAdmin' && $attributs['role'] != 'admin' )){
+                #strategie de nettoyage des données Post:
+                $cleaner = AdministrationForm::cleaningStrategy();
+                foreach ($attributs as $key => $value) {
+                    $attributs[$key] = $cleaner->applyStrategies($value);
+                }
+
+                $type = 'alterRightFolder';
+                $errors = AdministrationForm::validatingStrategy($attributs, $type);
+
+                if (!empty($cleanErrors)){
+                #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+                #reprise du code creerDossier et adaptation
+                    $type = 'sauvegarderChangementDroits';
+                    $this->response->setPart('contenu', AdministrationForm::traitementFormulaireCreerCompte($attributs, $type, $errors));
+                } else{
+                    AdministrationManager::alterAccountRight($attributs);
+                    self::afficherListeCompte();
+                }
+            } else{ //tentative de forcing par url
+                header("location: index.php");
+                die($error);
+            }
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 4-6- 'deleteAccount'
+    public function afficherListeCompteASupr()
+    {
+        //sécurité
+        $action = 'deleteAccount';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $dossier = AdministrationManager::getAllAccountToDelete();
+            $prez = AdministrationHtml::listAllAccountToDelete($dossier);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function suprCompte()
+    {
+        //sécurité
+        $action = 'deleteAccount';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère les données
+            $id = $this->request->getGetAttribute('id');
+            AdministrationManager::deleteAccountById($id);
+            //LOG
+            $auth = AuthenticationManager::getInstance();
+            $actionUsername = $auth->getMatricule();
+            self::logSuprAccount($actionUsername, $id);
+
+            self::afficherListeCompteASupr();
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
     }
 }

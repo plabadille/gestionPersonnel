@@ -50,13 +50,13 @@ class AdministrationForm
         #switch selon le type de formulaire.
         switch ($type) {
             case 'createFolder':
+            case 'alterRightFolder':
                 //initialisation du tableau d'erreur pour éviter les undefined index
                 //dans le form.
                 $errors = [
                     'role' => null
                 ];
 
-                //Validateur champ tel1 :
                 //1-Not empty
                 //2-format téléphone
                 $validatorRole = new Validator();
@@ -74,7 +74,7 @@ class AdministrationForm
     //--------------------
 
     // 4-3- 'createAccount':
-    public function traitementFormulaireCreerCompte($attributs, $errors = null)
+    public function traitementFormulaireCreerCompte($attributs, $type, $errors = null)
     {
         ob_start();
         include_once 'classes/PLabadille/GestionDossier/Administration/view/formCreerCompte.php';

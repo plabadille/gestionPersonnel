@@ -205,7 +205,7 @@ class AdministrationManager
             ");
             $stmt->bindParam(':matricule', $attributs['username']);
             $stmt->bindParam(':role', $attributs['role']);
-            $stmt->bindParam(':pass', $attributs['hash']);
+            $stmt->bindParam(':pass', $attributs['pass']);
             
             $stmt->execute();
     }
@@ -229,6 +229,97 @@ class AdministrationManager
         
         $stmt->execute();
         $stmt->closeCursor();
+    }
+
+    // 4-5- 'alterAccountRight':
+    static public function getAccountById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT *
+            FROM Users
+            WHERE matricule = :matricule
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule'=>$id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function alterAccountRight($attributs)
+    {
+        //protection supplémentaire pour être bien sur que personne ne puisse changer le role du superAdmin.
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Users 
+            SET role = :role
+            WHERE matricule = :id
+            AND role != 'superAdmin'
+        ");
+        
+        $stmt->bindParam(':id', $attributs['username']);
+        $stmt->bindParam(':role', $attributs['role']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    // 4-6- 'deleteAccount'
+    static public function getAllAccountToDelete()
+    {
+        //on tri par date afin d'afficher en premier les plus anciens (et donc plus important à supr)
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = '
+            SELECT r.matricule, date_retraite, nom, prenom
+            FROM Retraites r
+            JOIN Users u ON u.matricule = r.matricule
+            JOIN Militaires m ON m.matricule = r.matricule
+            ORDER BY date_retraite
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result['retraite'] = $stmt->fetchAll();
+
+        $req = '
+            SELECT a.matricule, date_deces, nom, prenom
+            FROM Archives a
+            JOIN Users u ON u.matricule = a.matricule
+            JOIN Militaires m ON m.matricule = a.matricule
+            ORDER BY date_deces
+        ';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result['archive'] = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function deleteAccountById($id)
+    {
+        //on s'assure également que la personne est bien présente dans la liste retraite ou archives
+        $pdo = DB::getInstance()->getPDO();
+        //on supprime le grade detenu
+        $req = '
+            DELETE 
+            FROM Users 
+            WHERE EXISTS (select matricule from Archives where matricule = :matricule)
+            OR EXISTS (select matricule from Retraites where matricule = :matricule)
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['matricule'=>$id];
+        $stmt->execute($data);
     }
     
 }

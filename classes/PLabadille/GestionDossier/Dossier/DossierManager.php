@@ -258,9 +258,10 @@ class DossierManager
 
         $req = 
         '
-            SELECT matricule, nom, prenom
-            FROM Militaires
-            where nom like concat("%",:search,"%") OR matricule = :search
+            SELECT m.matricule, nom, prenom
+            FROM Militaires m
+            JOIN Actifs a ON a.matricule = m.matricule
+            where nom like concat("%",:search,"%") OR m.matricule = :search
            
         ';
         $stmt = $pdo->prepare($req);
@@ -281,7 +282,12 @@ class DossierManager
     {
         $pdo = DB::getInstance()->getPDO();
 
-        $req = 'select nom, prenom from Militaires where nom like concat("%",:search,"%") OR matricule = :search';
+        $req = '
+            select nom, prenom 
+            from Militaires m
+            JOIN Actifs a ON a.matricule = m.matricule
+            where nom like concat("%",:search,"%") OR m.matricule = :search
+        ';
         $stmt = $pdo->prepare($req);
         $data = ['search'=>$search];
         $stmt->execute($data);

@@ -88,31 +88,101 @@ EOT;
 EOT;
         //affichage des boutonsNavigation en fonction des droits:
         $typeBouton = 'alterMdp';
-        $right = AccessControll::afficherBoutonNavigation($typeBouton);
+        $rightAlter = AccessControll::afficherBoutonNavigation($typeBouton);
+        $typeBouton = 'alterAccountRight';
+        $rightAlterRight = AccessControll::afficherBoutonNavigation($typeBouton);
         foreach ($dossier as $dossier) {
             $liste = self::afficheListe($dossier);
-            $url = '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir réinitialiser le mot de passe du compte : ' . $dossier['matricule'] . ' (' . $liste . ') ?\')) document.location.href=\'?objet=administration&amp;action=changePassword&amp;id=' . $dossier['matricule'] . '\'">Réinitialiser Mot de Passe</a>';
+            $urlAlter = '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir réinitialiser le mot de passe du compte : ' . $dossier['matricule'] . ' (' . $liste . ') ?\')) document.location.href=\'?objet=administration&amp;action=changePassword&amp;id=' . $dossier['matricule'] . '\'">Réinitialiser Mot de Passe</a>';
+            $urlAlterRight = '&nbsp;-&nbsp; <a href="?objet=administration&amp;action=changeDroitsCompte&amp;id=' . $dossier['matricule'] . '">Changer les droits</a>';
             if ( $userRole == 'superAdmin' ){ //le superAdmin peut changer n'importe quel mdp.
-                $boutonAlter = ($right) ? $url : null;
+                $boutonAlter = ($rightAlter) ? $urlAlter : null;
+                $boutonAlterRight = ($rightAlterRight) ? $urlAlterRight : null;
             } elseif ( $userRole == 'admin' ) { //les admin ne peuvent ni changer le mdp des autres admin, ni celui du super admin
                 if ($dossier['role'] !== 'superAdmin' && $dossier['role'] != 'admin'){
-                    $boutonAlter = ($right) ? $url : null;
-                } else { $boutonAlter = null; }
+                    $boutonAlter = ($rightAlter) ? $urlAlter : null;
+                    $boutonAlterRight = ($rightAlterRight) ? $urlAlterRight : null;
+                } else {
+                    $boutonAlter = null;
+                    $boutonAlterRight = null;
+                }
             } else{ //les autres (dont on a eventuellement donné le droit ne peuvent moddifier que celui des militaires de base)
                 if ($dossier['role'] == 'militaire'){
-                    $boutonAlter = ($right) ? $url : null;
-                } else { $boutonAlter = null; }
+                    $boutonAlter = ($rightAlter) ? $urlAlter : null;
+                    $boutonAlterRight = ($rightAlterRight) ? $urlAlterRight : null;
+                } else {
+                    $boutonAlter = null;
+                    $boutonAlterRight = null;
+                }
             }
 
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier['matricule']}">{$liste} -</a> identifiant: {$dossier['matricule']}, rôle: {$dossier['role']} {$boutonAlter}
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier['matricule']}">{$liste} -</a> identifiant: {$dossier['matricule']}, rôle: {$dossier['role']} {$boutonAlter} {$boutonAlterRight}
                 </li>
 EOT;
         }
 
         $html .= "  </ul>\n";
         return $html;
+    }
+
+    public static function listAllAccountToDelete($dossier)
+    {
+
+        //affichage des dossiers retraités
+        $html = <<<EOT
+            <h2>Liste des comptes à supprimer</h2>
+            <h3>Dossiers retraités</h3>    
+            <ul id="listeDossier">
+EOT;
+        foreach ($dossier['retraite'] as $dossierR) {
+            //affichage des boutonsNavigation en fonction des droits:
+            $typeBouton = 'deleteAccount';
+            $right = AccessControll::afficherBoutonNavigation($typeBouton);
+
+            $boutonSupr= ($right) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer le compte : ' . $dossierR['matricule'] . ' ?\')) document.location.href=\'?objet=administration&amp;action=suprCompte&amp;id=' . $dossierR['matricule'] . '\'">Supprimer compte</a>' : null;
+
+
+  
+            $liste = self::afficheListe($dossierR);
+            $html .= <<<EOT
+                <li>
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossierR['matricule']}">{$liste} - </a> - {$dossierR['date_retraite']} {$boutonSupr}
+                </li>
+EOT;
+        }
+        if (empty($dossier['retraite'])){
+            $html .= 'aucun compte à supprimer';
+        }
+
+        $html .= "  </ul>\n";
+        //affichage des dossiers archivés
+        $html .= <<<EOT
+            <h3>Dossiers archivés</h3>    
+            <ul id="listeDossier">
+EOT;
+        foreach ($dossier['archive'] as $dossierA) {
+            //affichage des boutonsNavigation en fonction des droits:
+            $typeBouton = 'deleteAccount';
+            $right = AccessControll::afficherBoutonNavigation($typeBouton);
+
+            $boutonSupr= ($right) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer le compte : ' . $dossierA['matricule'] . ' ?\')) document.location.href=\'?objet=administration&amp;action=suprCompte&amp;id=' . $dossierA['matricule'] . '\'">Supprimer compte</a>' : null;
+  
+            $liste = self::afficheListe($dossierA);
+            $html .= <<<EOT
+                <li>
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossierA['matricule']}">{$liste} - </a> - {$dossierA['date_deces']} {$boutonSupr}
+                </li>
+EOT;
+        }
+        if (empty($dossier['archive'])){
+            $html .= 'aucun compte à supprimer';
+        }
+
+        $html .= "  </ul>\n";
+        return $html;
+
     }
     
 

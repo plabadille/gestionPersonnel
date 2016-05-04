@@ -92,6 +92,9 @@ class AccessControll
 	        				case 'seeAllAccount':
 	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>';
 	        					break;
+                            case 'deleteAccount':
+                                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompteASupr">Afficher les comptes à supprimer</a></li>';
+                                break;
 	        				//--------------------
 	        				//5-module gestion de l'application
 	        				//--------------------
@@ -125,6 +128,7 @@ class AccessControll
                 $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
                 $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>';
                 $module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>';
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompteASupr">Afficher les comptes à supprimer</a></li>';
         	} else{
         		//ici les droits ont été passé à noRights, situation d'urgence enclenchée.
         		$html = '<p>système hors ligne, veuillez vous déconnecter</p>';
@@ -220,16 +224,21 @@ class AccessControll
     						return true;
     					}
     					break;
-    				// case 'alterAccountRight':
-    				// 	if ( $droits['alterAccountRight'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
+    				case 'alterAccountRight':
+    					if ( $droits['alterAccountRight'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
                     case 'createAccount':
-                     if ( $droits['createAccount'] == 1 || $droits['allRights'] == 1 ){
-                         return true;
-                        }
-                     break;
+                         if ( $droits['createAccount'] == 1 || $droits['allRights'] == 1 ){
+                             return true;
+                            }
+                         break;
+                     case 'deleteAccount':
+                         if ( $droits['deleteAccount'] == 1 || $droits['allRights'] == 1 ){
+                             return true;
+                            }
+                         break;
     				//--------------------
     				//5-module gestion de l'application
     				//--------------------
@@ -436,9 +445,16 @@ class AccessControll
                             return 'Vous n\'avez pas les droits requis pour effectuer cette action';
                         }
 						break;
-					// case 'alterAccountRight':
-					// 	$html .='';
-					// 	break;
+					case 'alterAccountRight':
+						if ( $droits['createAccount'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
+                    case 'deleteAccount':
+                        if ( $droits['deleteAccount'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+                        break;
 					//--------------------
 					//5-module gestion de l'application
 					//--------------------
