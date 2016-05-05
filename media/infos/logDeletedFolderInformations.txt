@@ -21,3 +21,8 @@ date username deletedContent(n column)
 2016-05-01-19-56-21 111 affectationCaserne nb:126 matricule:3 id:7 date_affectation:2016-05-01
 2016-05-01-19-58-12 111 affectationCaserne
 2016-05-01-19-58-17 111 affectationCaserne
+2016-05-05-12-22-08 111 appartenanceRegiment nb:123 matricule:2 id:Ecole Militaire date_appartenance:2016-05-05
+2016-05-05-12-22-14 111 affectationCaserne nb:133 matricule:2 id:5 date_affectation:2016-05-04
+2016-05-05-12-22-30 111 affectationCaserne nb:134 matricule:2 id:7 date_affectation:2016-05-04
+2016-05-05-12-24-23 111 detientGrade num:123 matricule:2 id:3.3.1 date_promotion:2016-05-01
+2016-05-05-12-29-10 111 possedeDiplome num:86 matricule:2 id:BEAT date_obtention:2016-05-04 pays_obtention:aaaaaaa organisme_formateur:aaaaa

@@ -3,6 +3,7 @@ namespace PLabadille\GestionDossier\Dossier;
 use PLabadille\Common\Cleaner\Cleaner;
 use PLabadille\Common\Cleaner\CleanerTrim;
 use PLabadille\Common\Cleaner\CleanerHtmlTags;
+use PLabadille\Common\Cleaner\CleanerPhoneNumber;
 use PLabadille\Common\Validator\Validator;
 use PLabadille\Common\Validator\ValidatorNotEmpty;
 use PLabadille\Common\Validator\ValidatorEmail;
@@ -39,6 +40,7 @@ class DossierForm
         $cleaner = new Cleaner();
         $cleaner->addStrategy(new CleanerHtmlTags());
         $cleaner->addStrategy(new CleanerTrim());
+        $cleaner->addStrategy(new CleanerPhoneNumber());
         return $cleaner;
     }
 
@@ -263,6 +265,10 @@ class DossierForm
                         }
                     }
                 }
+                //vérification du champ d'autocompletion (présence en base requise)
+                $explode = explode(' ', $attributs['caserneId']);
+                $caserneId = DossierManager::getCaserneById($explode['0']);
+                $errors['caserneId'] = (!empty($caserneId) ? null : 'la caserne saisie n\'existe pas, veuillez vous servir de l\'autocompletion' );
                 break;
 
             case 'regimentForm':
@@ -310,6 +316,9 @@ class DossierForm
                         }
                     }
                 }
+                //vérification du champ d'autocompletion (présence en base requise)
+                $regimentId = DossierManager::getRegimentById($attributs['regimentId']);
+                $errors['regimentId'] = (!empty($regimentId) ? null : 'le régiment saisi n\'existe pas, veuillez vous servir de l\'autocompletion' );
                 break;
 
                 case 'ajoutGradeDetenuForm':
@@ -356,6 +365,10 @@ class DossierForm
                             }
                         }
                     }
+                    //vérification du champ d'autocompletion (présence en base requise)
+                    $explode = explode(' ', $attributs['gradeId']);
+                    $gradeId = DossierManager::getGradeById($explode['0']);
+                    $errors['gradeId'] = (!empty($gradeId) ? null : 'le grade saisi n\'existe pas, veuillez vous servir de l\'autocompletion' );
                     break;
 
                 case 'ajoutDiplomePossedeForm':
@@ -394,6 +407,11 @@ class DossierForm
                     if($error !== null){
                         $errors['date_obtention']=$error;
                     }
+                    //vérification du champ d'autocompletion (présence en base requise)
+                    var_dump($attributs['diplomeId']);
+                    $explode = explode(' ', $attributs['diplomeId']);
+                    $diplomeId = DossierManager::getDiplomeById($explode['0']);
+                    $errors['diplomeId'] = (!empty($diplomeId) ? null : 'le diplome saisi n\'existe pas, veuillez vous servir de l\'autocompletion' );
                     break;
                 case 'archivageForm':
                     //initialisation du tableau d'erreur pour éviter les undefined index

@@ -9,13 +9,16 @@
                     echo '<p>' . $errors['doublon'] . '</p>';
                 }
                 echo '</div>';
+                if (isset($errors['diplomeId'])){
+                    $attributs['diplomeId'] = null;
+                }
             }
         } 
     ?>
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
 
-    <label for="diplomeId">Diplome:</label><br />
+    <label for="diplomeId">Diplome:<span class="dossierFormErrors"><?php echo $errors['diplomeId']; ?></span></label><br />
     <input type="text" name="diplomeId" autocomplete="off" id="searchDiplome" value="<?php echo (isset($attributs['diplomeId']) ? $attributs['diplomeId'] . ' : ' . $attributs['listeDiplome'][$attributs['diplomeId']] : null); ?>" />
 
     <label for="date_obtention">Date d'obtention:<span class="dossierFormErrors"><?php echo $errors['date_obtention']; ?></span></label>

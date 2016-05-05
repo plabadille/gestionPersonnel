@@ -10,6 +10,9 @@
                     echo '<p>' . $errors['doublon'] . '</p>';
                 }
                 echo '</div>';
+                if (isset($errors['gradeId'])){
+                    $attributs['gradeId'] = null;
+                }
             }
         } 
     ?>
@@ -18,7 +21,7 @@
     <label for="date_promotion">Date de promotion<span class="dossierFormErrors"><?php echo $errors['date_promotion']; ?></span></label>
     <input type="text" name="date_promotion" class="datepicker" value="<?php echo (isset($attributs['date_promotion']) ? $attributs['date_promotion'] : null); ?>" />
     
-    <label for="gradeId">Grade:</label><br />
+    <label for="gradeId">Grade:<span class="dossierFormErrors"><?php echo $errors['gradeId']; ?></span></label><br />
     <input type="text" name="gradeId" autocomplete="off" id="searchGrade" value="<?php echo (isset($attributs['gradeId']) ? $attributs['gradeId'] . ' : ' . $attributs['listeGrade'][$attributs['gradeId']] : null); ?>" />
 
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->

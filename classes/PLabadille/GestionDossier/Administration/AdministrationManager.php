@@ -313,8 +313,8 @@ class AdministrationManager
         $req = '
             DELETE 
             FROM Users 
-            WHERE EXISTS (select matricule from Archives where matricule = :matricule)
-            OR EXISTS (select matricule from Retraites where matricule = :matricule)
+            WHERE EXISTS (select matricule from Archives where matricule = :matricule) AND matricule = :matricule
+            OR EXISTS (select matricule from Retraites where matricule = :matricule) AND matricule = :matricule
         ';
 
         $stmt = $pdo->prepare($req);

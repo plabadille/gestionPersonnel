@@ -9,6 +9,9 @@
                     echo '<p>' . $errors['doublon'] . '</p>';
                 }
                 echo '</div>';
+                if (isset($errors['regimentId'])){
+                    $attributs['regimentId'] = null;
+                }
             }
         } 
     ?>
@@ -17,7 +20,7 @@
     <label for="date_appartenance">Date d'appartenance:<span class="dossierFormErrors"><?php echo $errors['date_appartenance']; ?></span></label>
     <input type="text" name="date_appartenance" class="datepicker" value="<?php echo (isset($attributs['date_appartenance']) ? $attributs['date_appartenance'] : null); ?>" />
 
-    <label for="regimentId">Nom du régiment:</label><br />
+    <label for="regimentId">Nom du régiment:<span class="dossierFormErrors"><?php echo $errors['regimentId']; ?></span></label><br />
     <input type="text" name="regimentId" autocomplete="off" id="searchRegiment" value="<?php echo (isset($attributs['regimentId']) ? $attributs['regimentId'] : null); ?>" />
     
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->

@@ -63,6 +63,78 @@ class DossierManager
         return $dossier;
     }
 
+    public static function getCaserneById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT id
+            FROM Casernes
+            where id = :id
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        return $result;
+    }
+
+    public static function getRegimentById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT id
+            FROM Regiment
+            where id = :id
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        return $result;
+    }
+
+    public static function getGradeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT id
+            FROM Grades
+            where id = :id
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        return $result;
+    }
+
+    public static function getDiplomeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT acronyme
+            FROM Diplomes
+            where acronyme = :acronyme
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['acronyme' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        return $result;
+    }
+
     //--------------------
     //1- Module mon dossier
     //--------------------
