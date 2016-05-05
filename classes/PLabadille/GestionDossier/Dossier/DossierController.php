@@ -135,7 +135,7 @@ class DossierController
                     break; 
                 case 'listeNomRegiment':
                     $result = DossierManager::ajaxListeNomRegiment($search);
-                    break; 
+                    break;
             }
             
             $json = json_encode($result);

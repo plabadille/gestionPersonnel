@@ -355,7 +355,7 @@ class DossierManager
         $pdo = DB::getInstance()->getPDO();
 
         $req = '
-            select nom, prenom 
+            select nom, prenom
             from Militaires m
             JOIN Actifs a ON a.matricule = m.matricule
             where nom like concat("%",:search,"%") OR m.matricule = :search

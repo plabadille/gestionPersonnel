@@ -1,3 +1,4 @@
+//1- autocomplete recherche
 $('#searchListDossier').autocomplete({
     source: function(term, response){
         // console.log(term);
@@ -8,8 +9,11 @@ $('#searchListDossier').autocomplete({
                 console.log(field.nom);
             });
             response(noms);
-         });
-        }
+        });
+    },
+    close: function(event, ui) { //permet de lancer la recherche après le click
+        document.getElementById('formSearch').submit();
+    }
 });
 
 $('#searchListCreatedDossier').autocomplete({
@@ -22,8 +26,11 @@ $('#searchListCreatedDossier').autocomplete({
                 // console.log(field.nom);
             });
             response(noms);
-         });
-        }
+        });
+    },
+    close: function(event, ui) { //permet de lancer la recherche après le click
+        document.getElementById('formSearch').submit();
+    }
 });
 
 $('#searchListEligiblePromotion').autocomplete({
@@ -36,8 +43,11 @@ $('#searchListEligiblePromotion').autocomplete({
                 // console.log(field.nom);
             });
             response(noms);
-         });
-        }
+        });
+    },
+    close: function(event, ui) { //permet de lancer la recherche après le click
+        document.getElementById('formSearch').submit();
+    }
 });
 
 $('#searchListEligibleRetraite').autocomplete({
@@ -50,8 +60,11 @@ $('#searchListEligibleRetraite').autocomplete({
                 // console.log(field.nom);
             });
             response(noms);
-         });
-        }
+        });
+    },
+    close: function(event, ui) { //permet de lancer la recherche après le click
+        document.getElementById('formSearch').submit();
+    }
 });
 
 $('#searchListEligibleRetraite').autocomplete({
@@ -64,9 +77,40 @@ $('#searchListEligibleRetraite').autocomplete({
                 // console.log(field.nom);
             });
             response(noms);
+        });
+    },
+    close: function(event, ui) { //permet de lancer la recherche après le click
+        document.getElementById('formSearch').submit();
+    }
+});
+
+$('#searchDossierWithOutAccount').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=administration&action=autoComplete&type=listeSansCompte&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                console.log(field.nom);
+            });
+            response(noms);
          });
         }
 });
+
+$('#searchDossierWithAccount').autocomplete({
+    source: function(term, response){
+        $.getJSON('?objet=administration&action=autoComplete&type=listeAvecCompte&search='+term.term, function(data){ 
+            var noms = new Array();
+            $.each(data, function(i, field){
+                noms.push(field.nom+" "+field.prenom);
+                console.log(field.nom);
+            });
+            response(noms);
+         });
+        }
+});
+
+//2-autocomplete formulaire
 
 $('#searchGrade').autocomplete({
     source: function(term, response){
@@ -112,32 +156,6 @@ $('#searchRegiment').autocomplete({
                 regiments.push(field.id);
             });
             response(regiments);
-         });
-        }
-});
-
-$('#searchDossierWithOutAccount').autocomplete({
-    source: function(term, response){
-        $.getJSON('?objet=administration&action=autoComplete&type=listeSansCompte&search='+term.term, function(data){ 
-            var noms = new Array();
-            $.each(data, function(i, field){
-                noms.push(field.nom+" "+field.prenom);
-                console.log(field.nom);
-            });
-            response(noms);
-         });
-        }
-});
-
-$('#searchDossierWithAccount').autocomplete({
-    source: function(term, response){
-        $.getJSON('?objet=administration&action=autoComplete&type=listeAvecCompte&search='+term.term, function(data){ 
-            var noms = new Array();
-            $.each(data, function(i, field){
-                noms.push(field.nom+" "+field.prenom);
-                console.log(field.nom);
-            });
-            response(noms);
          });
         }
 });
