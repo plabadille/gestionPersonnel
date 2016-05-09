@@ -320,6 +320,720 @@ class AdministrationManager
         $stmt = $pdo->prepare($req);
         $data = ['matricule'=>$id];
         $stmt->execute($data);
+        $stmt->closeCursor();
     }
+
+    //--------------------
+    //5-module de gestion de l'application
+    //--------------------
+
+    // 5-1- 'seeAllConstanteTable':
+
+    // 5-1-1 'seeAllCasernes':
+    public static function getAllCasernes()
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'SELECT * FROM Casernes';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+    // 5-1-2 'seeAllRegiments':
+    public static function getAllRegiments()
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'SELECT * FROM Regiment';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+    // 5-1-3 'seeAllDiplomes':
+    public static function getAllDiplomes()
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'SELECT * FROM Diplomes';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+    // 5-1-4 'seeAllGrades':
+    public static function getAllGrades()
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'SELECT * FROM Grades ORDER BY hierarchie';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+    // 5-1-5 'seeAllDroits':
+    public static function getAllDroits()
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'SELECT * FROM Droits';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+
+    // 5-2- 'addInConstanteTable':
+
+    // 5-2-1 'addCasernes':
+    static public function addCaserne($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $stmt = $pdo->prepare("
+                INSERT INTO Casernes 
+                    (id, nom, adresse, tel_standard) 
+                VALUES
+                    (:id, :nom, :adresse, :tel_standard)
+            ");
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':nom', $attributs['nom']);
+        $stmt->bindParam(':adresse', $attributs['adresse']);
+        $stmt->bindParam(':tel_standard', $attributs['tel_standard']);
+        
+        $stmt->execute();
+    }
+   
+    // 5-2-2 'addRegiments':
+    static public function addRegiment($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $stmt = $pdo->prepare("
+                INSERT INTO Regiment 
+                    (id) 
+                VALUES
+                    (:id)
+            ");
+        $stmt->bindParam(':id', $attributs['id']);
+        
+        $stmt->execute();
+    }
+
+    // 5-2-3 'addlDiplomes':
+    static public function addDiplome($attributs)
+    {$pdo = DB::getInstance()->getPDO();
+
+        $stmt = $pdo->prepare("
+                INSERT INTO Diplomes 
+                    (acronyme, intitule) 
+                VALUES
+                    (:acronyme, :intitule)
+            ");
+        $stmt->bindParam(':acronyme', $attributs['acronyme']);
+        $stmt->bindParam(':intitule', $attributs['intitule']);
+        
+        $stmt->execute();
+    }
+    
+    // 5-2-4 'addGrades':
+    static public function getListeGrade()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 'SELECT distinct hierarchie, grade FROM Grades';
+        $stmt = $pdo->prepare($req);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        return $result;
+    }
+
+    static public function addGrade($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $stmt = $pdo->prepare("
+            SELECT *
+            FROM Grades
+            WHERE grade = :grade AND hierarchie = :hierarchie
+        ");
+        $stmt->bindParam(':grade', $attributs['grade']);
+        $stmt->bindParam(':hierarchie', $attributs['hierarchie']);
+        
+        $stmt->execute();
+        $result = $stmt->fetch();
+
+        if ($result == false){
+            $stmt = $pdo->prepare("
+                    INSERT INTO Grades 
+                        (grade, hierarchie) 
+                    VALUES
+                        (:grade, :hierarchie)
+                ");
+            $stmt->bindParam(':grade', $attributs['grade']);
+            $stmt->bindParam(':hierarchie', $attributs['hierarchie']);
+            
+            $stmt->execute();
+
+            return null;
+        } else{
+            $doublonError = 'Système anti-doublon : cette entrée existe déjà dans la base de donnée, impossible de la mettre à nouveau';
+            return $doublonError;
+        }
+    }
+   
+    // 5-2-5 'addDroits':
+    static public function addClasseDroits($attributs)
+    {
+        //mise en forme ; si il existe il contient on, on veut 1. S'il existe pas on veut le set à false (0)
+        $noRights = (isset($attributs['noRights']) ? 1 : 0);
+        $allRights = (isset($attributs['allRights']) ? 1 : 0);
+        $seeOwnFolderModule = (isset($attributs['seeOwnFolderModule']) ? 1 : 0);
+        $editOwnFolderPersonalInformation = (isset($attributs['editOwnFolderPersonalInformation']) ? 1 : 0);
+        $listCreatedFolder = (isset($attributs['listCreatedFolder']) ? 1 : 0);
+        $listAllFolder = (isset($attributs['listAllFolder']) ? 1 : 0);
+        $seeCreatedFolder = (isset($attributs['seeCreatedFolder']) ? 1 : 0);
+        $seeAllFolder = (isset($attributs['seeAllFolder']) ? 1 : 0);
+        $createFolder = (isset($attributs['createFolder']) ? 1 : 0);
+        $addElementToAFolder = (isset($attributs['addElementToAFolder']) ? 1 : 0);
+        $addElementToAFolderCreated = (isset($attributs['addElementToAFolderCreated']) ? 1 : 0);
+        $editInformationIfAuthor = (isset($attributs['editInformationIfAuthor']) ? 1 : 0);
+        $editInformation = (isset($attributs['editInformation']) ? 1 : 0);
+        $deleteInformation = (isset($attributs['deleteInformation']) ? 1 : 0);
+        $useFileToAddFolders = (isset($attributs['useFileToAddFolders']) ? 1 : 0);
+        $listEligible = (isset($attributs['listEligible']) ? 1 : 0);
+        $editEligibleCondition = (isset($attributs['editEligibleCondition']) ? 1 : 0);
+        $addEligibleCondition = (isset($attributs['addEligibleCondition']) ? 1 : 0);
+        $suprEligibleCondition = (isset($attributs['suprEligibleCondition']) ? 1 : 0);
+        $canRetireAFolder = (isset($attributs['canRetireAFolder']) ? 1 : 0);
+        $canArchiveAFolder = (isset($attributs['canArchiveAFolder']) ? 1 : 0);
+        $editEligibleEmailContent = (isset($attributs['editEligibleEmailContent']) ? 1 : 0);
+        $uploadFileForMail = (isset($attributs['uploadFileForMail']) ? 1 : 0);
+        $changePieceJointeForEligibleMail = (isset($attributs['changePieceJointeForEligibleMail']) ? 1 : 0);
+        $seeAllFolderWithoutAccount = (isset($attributs['seeAllFolderWithoutAccount']) ? 1 : 0);
+        $seeAllAccount = (isset($attributs['seeAllAccount']) ? 1 : 0);
+        $createAccount = (isset($attributs['createAccount']) ? 1 : 0);
+        $alterMdp = (isset($attributs['alterMdp']) ? 1 : 0);
+        $alterAccountRight = (isset($attributs['alterAccountRight']) ? 1 : 0);
+        $deleteAccount = (isset($attributs['deleteAccount']) ? 1 : 0);
+        $seeAllConstanteTable = (isset($attributs['seeAllConstanteTable']) ? 1 : 0);
+        $editInAConstanteTable = (isset($attributs['editInAConstanteTable']) ? 1 : 0);
+        $deleteInAConstanteTable = (isset($attributs['deleteInAConstanteTable']) ? 1 : 0);
+
+        $pdo = DB::getInstance()->getPDO();
+
+        $stmt = $pdo->prepare("
+            INSERT INTO Droits 
+                (role, noRights, allRights, seeOwnFolderModule, editOwnFolderPersonalInformation, listCreatedFolder, listAllFolder, seeCreatedFolder, seeAllFolder, createFolder, addElementToAFolder, addElementToAFolderCreated, editInformationIfAuthor, editInformation, deleteInformation, useFileToAddFolders, listEligible, editEligibleCondition, addEligibleCondition, suprEligibleCondition, canRetireAFolder, canArchiveAFolder, editEligibleEmailContent, uploadFileForMail, changePieceJointeForEligibleMail, seeAllFolderWithoutAccount, seeAllAccount, createAccount, alterMdp, alterAccountRight, deleteAccount, seeAllConstanteTable, editInAConstanteTable, deleteInAConstanteTable)
+                VALUES
+                    (:role, :noRights, :allRights, :seeOwnFolderModule, :editOwnFolderPersonalInformation, :listCreatedFolder, :listAllFolder, :seeCreatedFolder, :seeAllFolder, :createFolder, :addElementToAFolder, :addElementToAFolderCreated, :editInformationIfAuthor, :editInformation, :deleteInformation, :useFileToAddFolders, :listEligible, :editEligibleCondition, :addEligibleCondition, :suprEligibleCondition, :canRetireAFolder, :canArchiveAFolder, :editEligibleEmailContent, :uploadFileForMail, :changePieceJointeForEligibleMail, :seeAllFolderWithoutAccount, :seeAllAccount, :createAccount, :alterMdp, :alterAccountRight, :deleteAccount, :seeAllConstanteTable, :editInAConstanteTable, :deleteInAConstanteTable)
+            ");
+
+        $stmt->bindParam(':role', $attributs['role']);
+        $stmt->bindParam(':noRights', $noRights);
+        $stmt->bindParam(':allRights', $allRights);
+        $stmt->bindParam(':seeOwnFolderModule', $seeOwnFolderModule);
+        $stmt->bindParam(':editOwnFolderPersonalInformation', $editOwnFolderPersonalInformation);
+        $stmt->bindParam(':listCreatedFolder', $listCreatedFolder);
+        $stmt->bindParam(':listAllFolder', $listAllFolder);
+        $stmt->bindParam(':seeCreatedFolder', $seeCreatedFolder);
+        $stmt->bindParam(':seeAllFolder', $seeAllFolder);
+        $stmt->bindParam(':createFolder', $createFolder);
+        $stmt->bindParam(':addElementToAFolder', $addElementToAFolder);
+        $stmt->bindParam(':addElementToAFolderCreated', $addElementToAFolderCreated);
+        $stmt->bindParam(':editInformationIfAuthor', $editInformationIfAuthor);
+        $stmt->bindParam(':editInformation', $editInformation);
+        $stmt->bindParam(':deleteInformation', $deleteInformation);
+        $stmt->bindParam(':useFileToAddFolders', $useFileToAddFolders);
+        $stmt->bindParam(':listEligible', $listEligible);
+        $stmt->bindParam(':editEligibleCondition', $editEligibleCondition);
+        $stmt->bindParam(':addEligibleCondition', $addEligibleCondition);
+        $stmt->bindParam(':suprEligibleCondition', $suprEligibleCondition);
+        $stmt->bindParam(':canRetireAFolder', $canRetireAFolder);
+        $stmt->bindParam(':canArchiveAFolder', $canArchiveAFolder);
+        $stmt->bindParam(':editEligibleEmailContent', $editEligibleEmailContent);
+        $stmt->bindParam(':uploadFileForMail', $uploadFileForMail);
+        $stmt->bindParam(':changePieceJointeForEligibleMail', $changePieceJointeForEligibleMail);
+        $stmt->bindParam(':seeAllFolderWithoutAccount', $seeAllFolderWithoutAccount);
+        $stmt->bindParam(':seeAllAccount', $seeAllAccount);
+        $stmt->bindParam(':createAccount', $createAccount);
+        $stmt->bindParam(':alterMdp', $alterMdp);
+        $stmt->bindParam(':alterAccountRight', $alterAccountRight);
+        $stmt->bindParam(':deleteAccount', $deleteAccount);
+        $stmt->bindParam(':seeAllConstanteTable', $seeAllConstanteTable);
+        $stmt->bindParam(':editInAConstanteTable', $editInAConstanteTable);
+        $stmt->bindParam(':deleteInAConstanteTable', $deleteInAConstanteTable);
+        
+        $stmt->execute();
+    }
+
+    //-----------------------------
+
+    // 5-3- 'editInConstanteTable':
+    //-----------------------------
+
+    // 5-3-1 'editCaserne':
+
+    public static function getCaserneById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT *
+            FROM Casernes
+            where id = :id
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+        return $result;
+    }
+
+    public static function editCaserne($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Casernes 
+            SET nom = :nom, adresse = :adresse, tel_standard = :tel_standard
+            WHERE id = :id
+        ");
+        
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':nom', $attributs['nom']);
+        $stmt->bindParam(':adresse', $attributs['adresse']);
+        $stmt->bindParam(':tel_standard', $attributs['tel_standard']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+    
+    // 5-3-2 'editRegiment':
+
+    public static function getRegimentById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT *
+            FROM Regiment
+            where id = :id
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+        return $result;
+    }
+
+    public static function editRegiment($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Regiment 
+            SET id = :id
+            WHERE id = :oldId
+        ");
+        
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':oldId', $attributs['oldId']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    // 5-3-3 'editDiplome':
+
+    public static function getDiplomeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT *
+            FROM Diplomes
+            where acronyme = :acronyme
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['acronyme' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+        return $result;
+    }
+
+    public static function editDiplome($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Diplomes 
+            SET intitule = :intitule, acronyme = :acronyme
+            WHERE acronyme = :oldAcronyme
+        ");
+        
+        $stmt->bindParam(':intitule', $attributs['intitule']);
+        $stmt->bindParam(':acronyme', $attributs['acronyme']);
+        $stmt->bindParam(':oldAcronyme', $attributs['oldAcronyme']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    // 5-3-4 'editGrade':
+
+    public static function getGradeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT *
+            FROM Grades
+            where id = :id
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['id' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+        return $result;
+    }
+
+    public static function editGrade($attributs)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Grades 
+            SET grade = :grade, hierarchie = :hierarchie
+            WHERE id = :id
+        ");
+        
+        $stmt->bindParam(':id', $attributs['id']);
+        $stmt->bindParam(':grade', $attributs['grade']);
+        $stmt->bindParam(':hierarchie', $attributs['hierarchie']);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    // 5-3-5 'editClasseDroits':
+
+    public static function getClasseDroitsById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        $req = 
+        '
+            SELECT *
+            FROM Droits
+            where role = :role
+        ';
+        $stmt = $pdo->prepare($req);
+        $data = ['role' => $id];
+        $stmt->execute($data);
+
+        $result = $stmt->fetch();
+        $stmt->closeCursor();
+        return $result;
+    }
+
+    public static function editClasseDroits($attributs)
+    {
+        $noRights = (isset($attributs['noRights']) ? 1 : 0);
+        $allRights = (isset($attributs['allRights']) ? 1 : 0);
+        $seeOwnFolderModule = (isset($attributs['seeOwnFolderModule']) ? 1 : 0);
+        $editOwnFolderPersonalInformation = (isset($attributs['editOwnFolderPersonalInformation']) ? 1 : 0);
+        $listCreatedFolder = (isset($attributs['listCreatedFolder']) ? 1 : 0);
+        $listAllFolder = (isset($attributs['listAllFolder']) ? 1 : 0);
+        $seeCreatedFolder = (isset($attributs['seeCreatedFolder']) ? 1 : 0);
+        $seeAllFolder = (isset($attributs['seeAllFolder']) ? 1 : 0);
+        $createFolder = (isset($attributs['createFolder']) ? 1 : 0);
+        $addElementToAFolder = (isset($attributs['addElementToAFolder']) ? 1 : 0);
+        $addElementToAFolderCreated = (isset($attributs['addElementToAFolderCreated']) ? 1 : 0);
+        $editInformationIfAuthor = (isset($attributs['editInformationIfAuthor']) ? 1 : 0);
+        $editInformation = (isset($attributs['editInformation']) ? 1 : 0);
+        $deleteInformation = (isset($attributs['deleteInformation']) ? 1 : 0);
+        $useFileToAddFolders = (isset($attributs['useFileToAddFolders']) ? 1 : 0);
+        $listEligible = (isset($attributs['listEligible']) ? 1 : 0);
+        $editEligibleCondition = (isset($attributs['editEligibleCondition']) ? 1 : 0);
+        $addEligibleCondition = (isset($attributs['addEligibleCondition']) ? 1 : 0);
+        $suprEligibleCondition = (isset($attributs['suprEligibleCondition']) ? 1 : 0);
+        $canRetireAFolder = (isset($attributs['canRetireAFolder']) ? 1 : 0);
+        $canArchiveAFolder = (isset($attributs['canArchiveAFolder']) ? 1 : 0);
+        $editEligibleEmailContent = (isset($attributs['editEligibleEmailContent']) ? 1 : 0);
+        $uploadFileForMail = (isset($attributs['uploadFileForMail']) ? 1 : 0);
+        $changePieceJointeForEligibleMail = (isset($attributs['changePieceJointeForEligibleMail']) ? 1 : 0);
+        $seeAllFolderWithoutAccount = (isset($attributs['seeAllFolderWithoutAccount']) ? 1 : 0);
+        $seeAllAccount = (isset($attributs['seeAllAccount']) ? 1 : 0);
+        $createAccount = (isset($attributs['createAccount']) ? 1 : 0);
+        $alterMdp = (isset($attributs['alterMdp']) ? 1 : 0);
+        $alterAccountRight = (isset($attributs['alterAccountRight']) ? 1 : 0);
+        $deleteAccount = (isset($attributs['deleteAccount']) ? 1 : 0);
+        $seeAllConstanteTable = (isset($attributs['seeAllConstanteTable']) ? 1 : 0);
+        $editInAConstanteTable = (isset($attributs['editInAConstanteTable']) ? 1 : 0);
+        $deleteInAConstanteTable = (isset($attributs['deleteInAConstanteTable']) ? 1 : 0);
+
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $stmt = $pdo->prepare("
+            UPDATE Droits 
+            SET role = :role, noRights = :noRights, allRights = :allRights, seeOwnFolderModule = :seeOwnFolderModule, editOwnFolderPersonalInformation = :editOwnFolderPersonalInformation, listCreatedFolder = :listCreatedFolder, listAllFolder = :listAllFolder, seeCreatedFolder = :seeCreatedFolder, seeAllFolder = :seeAllFolder, createFolder = :createFolder, addElementToAFolder = :addElementToAFolder, addElementToAFolderCreated = :addElementToAFolderCreated, editInformationIfAuthor = :editInformationIfAuthor, editInformation = :editInformation, deleteInformation = :deleteInformation, useFileToAddFolders = :useFileToAddFolders, listEligible = :listEligible, editEligibleCondition = :editEligibleCondition, addEligibleCondition = :addEligibleCondition, suprEligibleCondition = :suprEligibleCondition, canRetireAFolder = :canRetireAFolder, canArchiveAFolder = :canArchiveAFolder, editEligibleEmailContent = :editEligibleEmailContent, uploadFileForMail = :uploadFileForMail, changePieceJointeForEligibleMail = :changePieceJointeForEligibleMail, seeAllFolderWithoutAccount = :seeAllFolderWithoutAccount, seeAllAccount = :seeAllAccount, createAccount = :createAccount, alterMdp = :alterMdp, alterAccountRight = :alterAccountRight, deleteAccount = :deleteAccount, seeAllConstanteTable = :seeAllConstanteTable, editInAConstanteTable = :editInAConstanteTable, deleteInAConstanteTable = :deleteInAConstanteTable 
+            WHERE role = :oldRole 
+            AND role != 'superAdmin'
+        ");
+        
+        $stmt->bindParam(':oldRole', $attributs['oldRole']);
+        $stmt->bindParam(':role', $attributs['role']);
+        $stmt->bindParam(':noRights', $noRights);
+        $stmt->bindParam(':allRights', $allRights);
+        $stmt->bindParam(':seeOwnFolderModule', $seeOwnFolderModule);
+        $stmt->bindParam(':editOwnFolderPersonalInformation', $editOwnFolderPersonalInformation);
+        $stmt->bindParam(':listCreatedFolder', $listCreatedFolder);
+        $stmt->bindParam(':listAllFolder', $listAllFolder);
+        $stmt->bindParam(':seeCreatedFolder', $seeCreatedFolder);
+        $stmt->bindParam(':seeAllFolder', $seeAllFolder);
+        $stmt->bindParam(':createFolder', $createFolder);
+        $stmt->bindParam(':addElementToAFolder', $addElementToAFolder);
+        $stmt->bindParam(':addElementToAFolderCreated', $addElementToAFolderCreated);
+        $stmt->bindParam(':editInformationIfAuthor', $editInformationIfAuthor);
+        $stmt->bindParam(':editInformation', $editInformation);
+        $stmt->bindParam(':deleteInformation', $deleteInformation);
+        $stmt->bindParam(':useFileToAddFolders', $useFileToAddFolders);
+        $stmt->bindParam(':listEligible', $listEligible);
+        $stmt->bindParam(':editEligibleCondition', $editEligibleCondition);
+        $stmt->bindParam(':addEligibleCondition', $addEligibleCondition);
+        $stmt->bindParam(':suprEligibleCondition', $suprEligibleCondition);
+        $stmt->bindParam(':canRetireAFolder', $canRetireAFolder);
+        $stmt->bindParam(':canArchiveAFolder', $canArchiveAFolder);
+        $stmt->bindParam(':editEligibleEmailContent', $editEligibleEmailContent);
+        $stmt->bindParam(':uploadFileForMail', $uploadFileForMail);
+        $stmt->bindParam(':changePieceJointeForEligibleMail', $changePieceJointeForEligibleMail);
+        $stmt->bindParam(':seeAllFolderWithoutAccount', $seeAllFolderWithoutAccount);
+        $stmt->bindParam(':seeAllAccount', $seeAllAccount);
+        $stmt->bindParam(':createAccount', $createAccount);
+        $stmt->bindParam(':alterMdp', $alterMdp);
+        $stmt->bindParam(':alterAccountRight', $alterAccountRight);
+        $stmt->bindParam(':deleteAccount', $deleteAccount);
+        $stmt->bindParam(':seeAllConstanteTable', $seeAllConstanteTable);
+        $stmt->bindParam(':editInAConstanteTable', $editInAConstanteTable);
+        $stmt->bindParam(':deleteInAConstanteTable', $deleteInAConstanteTable);
+        
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    //-----------------------------
+
+    // 5-4- 'suprInConstanteTable':
+    //-----------------------------
+
+    // 5-4-1 'suprCaserne':
+    static public function deleteCaserneById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        //on regarde si la constante n'est pas utilisée ailleurs
+        $req = '
+            SELECT c.id
+            FROM Casernes c
+            WHERE c.id = :id
+            AND c.id NOT IN(SELECT a.id
+                FROM Affectation a)
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+        //si présent on retourne l'erreur
+        if ($result == false){
+            $stmt->closeCursor();
+            return 'La supression n\'a pas pu être effectuée, cette constante est liée à des dossiers : vérifiez qu\'aucun militaire n\'est affecté à cette caserne';
+        } else{ //sinon on supprime
+            $req = '
+                DELETE
+                FROM Casernes 
+                WHERE id = :id
+            ';
+
+            $stmt = $pdo->prepare($req);
+            $data = ['id'=>$id];
+            $stmt->execute($data);
+            $stmt->closeCursor();
+            return null;
+        }
+    }
+    
+    // 5-4-2 'suprRegiment':
+    static public function deleteRegimentById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        //on regarde si la constante n'est pas utilisée ailleurs
+        $req = '
+            SELECT r.id
+            FROM Regiment r
+            WHERE r.id = :id
+            AND r.id NOT IN(SELECT ar.id
+                FROM AppartientRegiment ar)
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+        //si présent on retourne l'erreur
+        if ($result == false){
+            $stmt->closeCursor();
+            return 'La supression n\'a pas pu être effectuée, cette constante est liée à des dossiers : vérifiez qu\'aucun militaire n\'appartient à ce régiment';
+        } else{ //sinon on supprime
+            $req = '
+                DELETE
+                FROM Regiment 
+                WHERE id = :id
+            ';
+
+            $stmt = $pdo->prepare($req);
+            $data = ['id'=>$id];
+            $stmt->execute($data);
+            $stmt->closeCursor();
+            return null;
+        }
+    }
+
+    // 5-4-3 'suprDiplome':
+    static public function deleteDiplomeById($id)
+    {
+
+        $pdo = DB::getInstance()->getPDO();
+        //on regarde si la constante n'est pas utilisée ailleurs
+        $req = '
+            SELECT d.acronyme
+            FROM Diplomes d
+            WHERE d.acronyme = :acronyme
+            AND(
+                :acronyme IN(SELECT id FROM PossedeDiplomes)
+                OR :acronyme IN(SELECT diplome FROM ConditionsPromotions) 
+                OR :acronyme IN(SELECT diplomeSup1 FROM ConditionsPromotions)
+                OR :acronyme IN(SELECT diplomeSup2 FROM ConditionsPromotions)
+            )
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['acronyme'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+        //si présent on retourne l'erreur
+        if ($result != false){ //fonctionnement inverse des autres, bug avec NOT IN...
+            $stmt->closeCursor();
+            return 'La supression n\'a pas pu être effectuée, cette constante est liée à des dossiers/conditions : vérifiez qu\'aucun militaire ne possède ce diplome, qu\'il n\'a pas d\'équivalence ou qu\'il ne fait pas parti d\'une condition de promotion';
+        } else{ //sinon on supprime
+            $req = '
+                DELETE
+                FROM Diplomes 
+                WHERE acronyme = :acronyme
+            ';
+
+            $stmt = $pdo->prepare($req);
+            $data = ['acronyme'=>$id];
+            $stmt->execute($data);
+            $stmt->closeCursor();
+            return null;
+        }
+    }
+
+    // 5-4-4 'suprGrade':
+    static public function deleteGradeById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        //on regarde si la constante n'est pas utilisée ailleurs
+        $req = '
+            SELECT g.id
+            FROM Grades g
+            WHERE g.id = :id
+            AND g.id NOT IN(SELECT dg.id
+                FROM DetientGrades dg)
+            AND g.id NOT IN(SELECT cp.idGrade
+                FROM ConditionsPromotions cp)
+            AND g.id NOT IN(SELECT cr.idGrade
+                FROM ConditionsRetraites cr)
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['id'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+        //si présent on retourne l'erreur
+        if ($result == false){
+            $stmt->closeCursor();
+            return 'La supression n\'a pas pu être effectuée, cette constante est liée à des dossiers/conditions : vérifiez qu\'aucun militaire ne détient ce grade, qu\'il ne fait pas parti d\'une condition de promotion ou de retraite';
+        } else{ //sinon on supprime
+            $req = '
+                DELETE
+                FROM Grades
+                WHERE id = :id
+            ';
+
+            $stmt = $pdo->prepare($req);
+            $data = ['id'=>$id];
+            $stmt->execute($data);
+            $stmt->closeCursor();
+            return null;
+        }
+        
+    }
+
+    // 5-4-5 'suprClasseDroits':
+    static public function deleteClasseDroitsById($id)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        //on regarde si la constante n'est pas utilisée ailleurs
+        $req = '
+            SELECT d.role
+            FROM Droits d
+            WHERE d.role = :role
+            AND d.role NOT IN(SELECT u.role
+                FROM Users u)
+        ';
+
+        $stmt = $pdo->prepare($req);
+        $data = ['role'=>$id];
+        $stmt->execute($data);
+        $result = $stmt->fetch();
+        //si présent on retourne l'erreur
+        if ($result == false){
+            $stmt->closeCursor();
+            return 'La supression n\'a pas pu être effectuée, cette constante est liée à un ou plusieurs comptes, supprimer les préalablements ou moddifier leurs roles';
+        } else{ //sinon on supprime
+            $req = '
+                DELETE
+                FROM Droits 
+                WHERE role = :role
+            ';
+
+            $stmt = $pdo->prepare($req);
+            $data = ['role'=>$id];
+            $stmt->execute($data);
+            $stmt->closeCursor();
+            return null;
+        }
+    }
+
+    //-----------------------------
     
 }

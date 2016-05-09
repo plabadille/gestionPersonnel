@@ -24,6 +24,7 @@ class AccessControll
     	$module2 = '';
     	$module3 = '';
         $module4 = '';
+        $module5 = '';
 
     	$html = '';
     	//gère l'affichage du menu en fonction du statut de l'utilisateur.
@@ -42,22 +43,22 @@ class AccessControll
 	        				//1-module mon dossier
 	        				//--------------------
 	        				case 'seeOwnFolderModule':
-	        					$module1 .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
+	        					$module1 .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>' . "\n";
 	        					break;
 	        				case 'editOwnFolderPersonalInformation':
-	        					$module1 .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
+	        					$module1 .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>' . "\n";
 	        					break;
 	        				//--------------------
 	        				//2-module gestion et ajout de dossier
 	        				//--------------------
 	        				case 'listCreatedFolder':
-	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
+	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>' . "\n";
 	        					break;
 	        				case 'listAllFolder':
-	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
+	        					$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>' . "\n";
 	        					break;
 	        				case 'createFolder':
-	        					$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
+	        					$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>' . "\n";
 	        					break;
 	        				// case 'useFileToAddFolders':
 	        				// 	$html .='';
@@ -66,13 +67,13 @@ class AccessControll
 	        				//3-module gestion promotion et retraite
 	        				//--------------------
 	        				case 'listEligible':
-	        					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
-            					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
-                                $module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>';
+	        					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>' . "\n";
+            					$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>' . "\n";
+                                $module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>' . "\n";
 	        					break;
 	        				case 'addEligibleCondition':
-	        					$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>';
-                                $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
+	        					$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>' . "\n";
+                                $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>' . "\n";
 	        					break;
 	        				// case 'editEligibleEmailContent':
 	        				// 	$html .='';
@@ -87,26 +88,31 @@ class AccessControll
 	        				//4-module creation de compte et droit
 	        				//--------------------
 	        				case 'seeAllFolderWithoutAccount':
-	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>';
+	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>' . "\n";
 	        					break;
 	        				case 'seeAllAccount':
-	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>';
+	        					$module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>' . "\n";
 	        					break;
                             case 'deleteAccount':
-                                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompteASupr">Afficher les comptes à supprimer</a></li>';
+                                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompteASupr">Afficher les comptes à supprimer</a></li>' . "\n";
                                 break;
 	        				//--------------------
 	        				//5-module gestion de l'application
 	        				//--------------------
-	        				// case 'seeAllConstanteTable':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'editInAConstanteTable':
-	        				// 	$html .='';
-	        				// 	break;
-	        				// case 'deleteInAConstanteTable':
-	        				// 	$html .='';
-	        				// 	break;
+	        				case 'seeAllConstanteTable':
+                                $module5 .= '<li><a href="?objet=administration&action=afficherListeCasernes">Afficher la liste des casernes</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=afficherListeRegiments">Afficher la liste des régiments</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=afficherListeDiplomes">Afficher la liste des diplomes</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=afficherListeGrades">Afficher la liste des grades</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=afficherListeDroits">Afficher la liste des droits</a></li>' . "\n";
+                                break;
+	        				case 'editInAConstanteTable':
+	        					$module5 .= '<li><a href="?objet=administration&action=ajouterCaserne">Ajouter une caserne</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=ajouterRegiment">Ajouter un régiment</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=ajouterDiplome">Ajouter un diplome</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=ajouterGrade">Ajouter un grade</a></li>' . "\n";
+                                $module5 .= '<li><a href="?objet=administration&action=ajouterClasseDroits">Ajouter un droit</a></li>' . "\n";
+	        					break;
 	        				//--------------------
 	        				//6-module de sauvegarde et de gestion de crise
 	        				//--------------------
@@ -116,19 +122,29 @@ class AccessControll
         		}
         	} elseif ( $droits['allRights'] == 1 ){
         		//on affiche tous les menus disponibles sans passer par une vérification champ par champ car l'utilisateur à tous les droits.
-        		$module1 .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>';
-        		$module1 .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>';
-        		$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>';
-        		$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>';
-            	$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>';
-            	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>';
-            	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>';
-				$module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>';
-				$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>';
-                $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>';
-                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>';
-                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>';
-                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompteASupr">Afficher les comptes à supprimer</a></li>';
+        		$module1 .= '<li><a href="?objet=dossier&action=afficherSonDossier">Afficher son dossier</a></li>' . "\n";
+        		$module1 .= '<li><a href="?objet=dossier&action=editerSonDossier">Editer son dossier</a></li>' . "\n";
+        		$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>' . "\n";
+        		$module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>' . "\n";
+            	$module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>' . "\n";
+            	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>' . "\n";
+            	$module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>' . "\n";
+				$module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>' . "\n";
+				$module3 .= '<li><a href="?objet=dossier&action=ajouterConditionRetraite">Ajouter conditions d\'éligibilité retraite</a></li>' . "\n";
+                $module3 .= '<li><a href="?objet=dossier&action=ajouterConditionPromotion">Ajouter conditions d\'éligibilité promotion</a></li>' . "\n";
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeDossierSansCompte">Afficher les comptes à créer</a></li>' . "\n";
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompte">Afficher tous les comptes utilisateurs</a></li>' . "\n";
+                $module4 .= '<li><a href="?objet=administration&action=afficherListeCompteASupr">Afficher les comptes à supprimer</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=afficherListeCasernes">Afficher la liste des casernes</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=afficherListeRegiments">Afficher la liste des régiments</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=afficherListeDiplomes">Afficher la liste des diplomes</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=afficherListeGrades">Afficher la liste des grades</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=afficherListeDroits">Afficher la liste des droits</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=ajouterCaserne">Ajouter une caserne</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=ajouterRegiment">Ajouter un régiment</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=ajouterDiplome">Ajouter un diplome</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=ajouterGrade">Ajouter un grade</a></li>' . "\n";
+                $module5 .= '<li><a href="?objet=administration&action=ajouterClasseDroits">Ajouter un droit</a></li>' . "\n";
         	} else{
         		//ici les droits ont été passé à noRights, situation d'urgence enclenchée.
         		$html = '<p>système hors ligne, veuillez vous déconnecter</p>';
@@ -137,21 +153,26 @@ class AccessControll
 
         //Nom module navigation et affichage si non vide
         if ( !empty($module1) ){
-        	$nameModule = '<div class="moduleConteneur"><h3>Module mon dossier</h3><ul class="module">';
-        	$html .= $nameModule . $module1 . '</ul></div>';
+        	$nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module mon dossier</h3>' . "\n" . '<ul class="subMenu">' . "\n";
+        	$html .= '<li class="toggleSubMenu">' . $nameModule . $module1 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
         }
         if ( !empty($module2) ){
-        	$nameModule = '<div class="moduleConteneur"><h3>Module gestion et ajout de dossier</h3><ul class="module">';
-        	$html .= $nameModule . $module2 . '</ul></div>';
+        	$nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module gestion et ajout de dossier</h3>' . "\n" . '<ul class="subMenu">' . "\n";
+        	$html .= '<li class="toggleSubMenu">' . $nameModule . $module2 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
         }
         if ( !empty($module3) ){
-        	$nameModule = '<div class="moduleConteneur"><h3>Module gestion promotion et retraite</h3><ul class="module">';
-        	$html .= $nameModule . $module3 . '</ul></div>';
+        	$nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module gestion promotion et retraite</h3>' . "\n" . '<ul class="subMenu">' . "\n";
+        	$html .= '<li class="toggleSubMenu">' . $nameModule . $module3 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
         }
         if ( !empty($module4) ){
-            $nameModule = '<div class="moduleConteneur"><h3>Module de création de compte et de droit</h3><ul class="module">';
-            $html .= $nameModule . $module4 . '</ul></div>';
+            $nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module de création de compte et de droit</h3>' . "\n" . '<ul class="subMenu">' . "\n";
+            $html .= '<li class="toggleSubMenu">' . $nameModule . $module4 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
         }
+        if ( !empty($module5) ){
+            $nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module de gestion de l\'application</h3>' . "\n" . '<ul class="subMenu">' . "\n";
+            $html .= '<li class="toggleSubMenu">' . $nameModule . $module5 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
+        }
+
 
         return $html;
     }
@@ -242,16 +263,21 @@ class AccessControll
     				//--------------------
     				//5-module gestion de l'application
     				//--------------------
-    				// case 'editInAConstanteTable':
-    				// 	if ( $droits['editInAConstanteTable'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
-    				// case 'deleteInAConstanteTable':
-    				// 	if ( $droits['deleteInAConstanteTable'] == 1 || $droits['allRights'] == 1 ){
-    					// 	return true;
-    					// }
-    				// 	break;
+                    case 'seeAllConstanteTable':
+                        if ( $droits['seeAllConstanteTable'] == 1 || $droits['allRights'] == 1 ){
+                            return true;
+                        }
+                        break;
+    				case 'editInAConstanteTable':
+    					if ( $droits['editInAConstanteTable'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
+    				case 'deleteInAConstanteTable':
+    					if ( $droits['deleteInAConstanteTable'] == 1 || $droits['allRights'] == 1 ){
+    						return true;
+    					}
+    					break;
     				//--------------------
     				//6-module de sauvegarde et de gestion de crise
     				//--------------------
@@ -458,15 +484,16 @@ class AccessControll
 					//--------------------
 					//5-module gestion de l'application
 					//--------------------
-					// case 'seeAllConstanteTable':
-					// 	$html .='';
-					// 	break;
-					// case 'editInAConstanteTable':
-					// 	$html .='';
-					// 	break;
-					// case 'deleteInAConstanteTable':
-					// 	$html .='';
-					// 	break;
+					case 'editInAConstanteTable':
+						if ( $droits['editInAConstanteTable'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
+					case 'deleteInAConstanteTable':
+						if ( $droits['deleteInAConstanteTable'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+						break;
 					//--------------------
 					//6-module de sauvegarde et de gestion de crise
 					//--------------------
@@ -487,5 +514,3 @@ class AccessControll
 		return null;
 	}
 }
-
-

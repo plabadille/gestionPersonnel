@@ -98,11 +98,32 @@ class AdministrationController
         fclose($monfichier);
     }
 
+    public function logSuprConstante($actionUsername, $type, $attributs)
+    {
+        #date après le lancement du script (avec  heure, minute et seconde)
+        $today=date('Y-m-d-H-i-s');
+
+        ##On stock les informations d'executions dans un fichier pour faire un récap.
+        #contenu à ajouter au fichier
+        $content = "\n" . $today . ' ' . $actionUsername . ' ' . $type;
+        foreach ($attributs as $key => $value) {
+            $content .= ' ' . $key . ':' . $value;
+        }
+        $monfichier = fopen('media/infos/logSuprConstanteInformations.txt', 'r+');
+        #on se positionne à la fin du fichier
+        fseek($monfichier, 0, SEEK_END);
+        fputs($monfichier, $content);
+        fclose($monfichier);
+    }
+
+    //-----------------------------
+
     //--------------------
     //4-module gestion et ajout de dossier
     //--------------------
 
     // 4-1- 'listCreatedFolderWithoutAccount':
+    //-----------------------------
     public function afficherListeDossierSansCompte() 
     {
         //sécurité
@@ -131,8 +152,10 @@ class AdministrationController
         }
         $this->response->setPart('contenu', $prez);
     }
+    //-----------------------------
 
     // 4-2- 'seeAllAccount':
+    //-----------------------------
     public function afficherListeCompte($info = null) 
     {
         //sécurité
@@ -161,8 +184,10 @@ class AdministrationController
         }
         $this->response->setPart('contenu', $prez);
     }
+    //-----------------------------
 
     // 4-3- 'createAccount':
+    //-----------------------------
     public function creerCompte()
     {
         //sécurité
@@ -224,8 +249,10 @@ class AdministrationController
            die($error);
         }
     }
+    //-----------------------------
 
     // 4-4- 'alterPassword':
+    //-----------------------------
     public function changePassword()
     {
         //sécurité
@@ -255,8 +282,10 @@ class AdministrationController
             $this->response->setPart('contenu', $prez);
         }    
     }
+    //-----------------------------
 
     // 4-5- 'alterAccountRight'
+    //-----------------------------
     public function changeDroitsCompte()
     {
         //sécurité
@@ -310,6 +339,7 @@ class AdministrationController
 
                 $type = 'alterRightFolder';
                 $errors = AdministrationForm::validatingStrategy($attributs, $type);
+                $cleanErrors = array_filter($errors);
 
                 if (!empty($cleanErrors)){
                 #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
@@ -329,8 +359,10 @@ class AdministrationController
             die($error);
         }
     }
+    //-----------------------------
 
     // 4-6- 'deleteAccount'
+    //-----------------------------
     public function afficherListeCompteASupr()
     {
         //sécurité
@@ -366,4 +398,753 @@ class AdministrationController
             die($error);
         }
     }
+    //-----------------------------
+
+    //--------------------
+    //5-module de gestion de l'application
+    //--------------------
+
+    // 5-1- 'seeAllConstanteTable':
+    //-----------------------------
+
+    // 5-1-1 'seeAllCasernes':
+    public function afficherListeCasernes($info = null) 
+    {
+        //sécurité
+        $action = 'seeAllConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $casernes = AdministrationManager::getAllCasernes();
+            $prez = AdministrationHtml::listAllCasernes($casernes, $info);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    // 5-1-2 'seeAllRegiments':
+    public function afficherListeRegiments($info = null) 
+    {
+        //sécurité
+        $action = 'seeAllConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $regiments = AdministrationManager::getAllRegiments();
+            $prez = AdministrationHtml::listAllRegiments($regiments, $info);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    // 5-1-3 'seeAllDiplomes':
+    public function afficherListeDiplomes($info = null) 
+    {
+        //sécurité
+        $action = 'seeAllConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $diplomes = AdministrationManager::getAllDiplomes();
+            $prez = AdministrationHtml::listAllDiplomes($diplomes, $info);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    // 5-1-4 'seeAllGrades':
+    public function afficherListeGrades($info = null) 
+    {
+        //sécurité
+        $action = 'seeAllConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $grades = AdministrationManager::getAllGrades();
+            $prez = AdministrationHtml::listAllGrades($grades, $info);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    // 5-1-5 'seeAllDroits':
+    public function afficherListeDroits($info = null) 
+    {
+        //sécurité
+        $action = 'seeAllConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $droits = AdministrationManager::getAllDroits();
+            $prez = AdministrationHtml::listAllDroits($droits, $info);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+    //-----------------------------
+
+
+    // 5-2- 'addInConstanteTable':
+    //-----------------------------
+
+    // 5-2-1 'addCasernes':
+    public function ajouterCaserne()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderCaserne';
+            $prez = AdministrationForm::traitementFormulaireAjouterCaserne($type);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderCaserne()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+
+        #Reccupération des données du formulaire
+        $attributs = $this->request->getPost();
+        if ( empty($error) ){ //ok
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterCaserne';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderCaserne';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterCaserne($type, $attributs, $errors));
+            } else{
+                AdministrationManager::addCaserne($attributs);
+                self::afficherListeCasernes();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-2-2 'addRegiments':
+    public function ajouterRegiment()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderRegiment';
+            $prez = AdministrationForm::traitementFormulaireAjouterRegiment($type);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderRegiment()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterRegiment';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderRegiment';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterRegiment($type, $attributs, $errors));
+            } else{
+                AdministrationManager::addRegiment($attributs);
+                self::afficherListeRegiments();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-2-3 'addlDiplomes':
+    public function ajouterDiplome()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderDiplome';
+            $prez = AdministrationForm::traitementFormulaireAjouterDiplome($type);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderDiplome()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterDiplome';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderDiplome';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterDiplome($type, $attributs, $errors));
+            } else{
+                AdministrationManager::addDiplome($attributs);
+                self::afficherListeDiplomes();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-2-4 'addGrades':
+    public function ajouterGrade()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderGrade';
+            $attributs['listeGrade'] = AdministrationManager::getListeGrade();
+            $prez = AdministrationForm::traitementFormulaireAjouterGrade($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderGrade()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterGrade';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderGrade';
+                $attributs['listeGrade'] = AdministrationManager::getListeGrade();
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterGrade($type, $attributs, $errors));
+            } else{
+                $errors['doublon'] = AdministrationManager::addGrade($attributs);
+                if (!empty($errors['doublon'])){ //s'il y a un doublon en base on réaffiche et erreur
+                    $type = 'sauvegarderGrade';
+                    $attributs['listeGrade'] = AdministrationManager::getListeGrade();
+                    $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterGrade($type, $attributs, $errors));
+                } else{//sinon c'est que l'enregistrement c'est bien effectué
+                    self::afficherListeGrades();
+                }
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-2-5 'addDroits':
+    public function ajouterClasseDroits()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $type = 'sauvegarderClasseDroits';
+            $prez = AdministrationForm::traitementFormulaireAjouterClasseDroits($type);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderClasseDroits()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterClasseDroits';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderClasseDroits';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterClasseDroits($type, $attributs, $errors));
+            } else{
+                AdministrationManager::addClasseDroits($attributs);
+                self::afficherListeDroits();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+    //-----------------------------
+
+    // 5-3- 'editInConstanteTable':
+    //-----------------------------
+
+    // 5-3-1 'editCaserne':
+    public function editerCaserne()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionCaserne';
+            $attributs = AdministrationManager::getCaserneById($id);
+            $prez = AdministrationForm::traitementFormulaireAjouterCaserne($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionCaserne()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterCaserne';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderEditionCaserne';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterCaserne($type, $attributs, $errors));
+            } else{
+                AdministrationManager::editCaserne($attributs);
+                self::afficherListeCasernes();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+    
+    // 5-3-2 'editRegiment':
+    public function editerRegiment()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionRegiment';
+            $attributs = AdministrationManager::getRegimentById($id);
+            $prez = AdministrationForm::traitementFormulaireAjouterRegiment($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionRegiment()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterRegiment';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderEditionRegiment';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterRegiment($type, $attributs, $errors));
+            } else{
+                AdministrationManager::editRegiment($attributs);
+                self::afficherListeRegiments();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-3-3 'editDiplome':
+    public function editerDiplome()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionDiplome';
+            $attributs = AdministrationManager::getDiplomeById($id);
+            $prez = AdministrationForm::traitementFormulaireAjouterDiplome($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionDiplome()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterDiplome';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderEditionDiplome';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterDiplome($type, $attributs, $errors));
+            } else{
+                AdministrationManager::editDiplome($attributs);
+                self::afficherListeDiplomes();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-3-4 'editGrade':
+    public function editerGrade()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionGrade';
+            $attributs = AdministrationManager::getGradeById($id);
+            $attributs['listeGrade'] = AdministrationManager::getListeGrade();
+            $prez = AdministrationForm::traitementFormulaireAjouterGrade($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionGrade()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterGrade';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderEditionGrade';
+                $attributs['listeGrade'] = AdministrationManager::getListeGrade();
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterGrade($type, $attributs, $errors));
+            } else{
+                AdministrationManager::editGrade($attributs);
+                self::afficherListeGrades();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    // 5-3-5 'editClasseDroits':
+    public function editerClasseDroits()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $id = $this->request->getGetAttribute('id');
+            $type = 'sauvegarderEditionClasseDroits';
+            $attributs = AdministrationManager::getClasseDroitsById($id);
+            $prez = AdministrationForm::traitementFormulaireAjouterClasseDroits($type, $attributs);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function sauvegarderEditionClasseDroits()
+    {
+        //sécurité
+        $action = 'editInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            #Reccupération des données du formulaire
+            $attributs = $this->request->getPost();
+            #strategie de nettoyage des données Post:
+            $cleaner = AdministrationForm::cleaningStrategy();
+            foreach ($attributs as $key => $value) {
+                $attributs[$key] = $cleaner->applyStrategies($value);
+            }
+            #Strat de validation
+            $type = 'ajouterClasseDroits';
+            $errors = AdministrationForm::validatingStrategy($attributs, $type);
+            $cleanErrors = array_filter($errors);
+
+            if (!empty($cleanErrors)){
+            #s'il y a une erreur on réaffiche le formulaire et les erreurs correspondantes
+            #reprise du code creerDossier et adaptation
+                $type = 'sauvegarderEditionClasseDroits';
+                $this->response->setPart('contenu', AdministrationForm::traitementFormulaireAjouterClasseDroits($type, $attributs, $errors));
+            } else{
+                AdministrationManager::editClasseDroits($attributs);
+                self::afficherListeDroits();
+            }
+        } else{ //pas ok
+            header("location: index.php");
+           die($error);
+        }
+    }
+
+    //-----------------------------
+
+    // 5-4- 'suprInConstanteTable':
+    //-----------------------------
+
+    // 5-4-1 'suprCaserne':
+    public function supprimerCaserne()
+    {
+        //sécurité
+        $action = 'deleteInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère les données
+            $id = $this->request->getGetAttribute('id');
+            $attributs = AdministrationManager::getCaserneById($id);
+            $error = AdministrationManager::deleteCaserneById($id); //si foreign key liée
+            if (empty($error)){ //si $error est null on supprime
+                //LOG
+                $type = 'suprCaserne';
+                $auth = AuthenticationManager::getInstance();
+                $actionUsername = $auth->getMatricule();
+                self::logSuprConstante($actionUsername, $type, $attributs);
+                //affichage
+                $info = 'supression effectuée';
+                self::afficherListeCasernes($info);
+            } else{ //sinon c'est que la ligne est utilisée, on affiche une erreur
+                self::afficherListeCasernes($error);
+            }
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+    
+    // 5-4-2 'suprRegiment':
+    public function supprimerRegiment()
+    {
+        //sécurité
+        $action = 'deleteInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère les données
+            $id = $this->request->getGetAttribute('id');
+            $attributs = AdministrationManager::getRegimentById($id);
+            $error = AdministrationManager::deleteRegimentById($id); //si foreign key liée
+            if (empty($error)){ //si $error est null on supprime
+                //LOG
+                $type = 'suprRegiment';
+                $auth = AuthenticationManager::getInstance();
+                $actionUsername = $auth->getMatricule();
+                self::logSuprConstante($actionUsername, $type, $attributs);
+                //affichage
+                $info = 'supression effectuée';
+                self::afficherListeRegiments($info);
+            } else{ //sinon c'est que la ligne est utilisée, on affiche une erreur
+                self::afficherListeRegiments($error);
+            }
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 5-4-3 'suprDiplome':
+    public function supprimerDiplome()
+    {
+        //sécurité
+        $action = 'deleteInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère les données
+            $id = $this->request->getGetAttribute('id');
+            $attributs = AdministrationManager::getDiplomeById($id);
+            $error = AdministrationManager::deleteDiplomeById($id); //si foreign key liée
+            if (empty($error)){ //si $error est null on supprime
+                //LOG
+                $type = 'suprDiplome';
+                $auth = AuthenticationManager::getInstance();
+                $actionUsername = $auth->getMatricule();
+                self::logSuprConstante($actionUsername, $type, $attributs);
+                //affichage
+                $info = 'supression effectuée';
+                self::afficherListeDiplomes($info);
+            } else{ //sinon c'est que la ligne est utilisée, on affiche une erreur
+                self::afficherListeDiplomes($error);
+            }
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 5-4-4 'suprGrade':
+    public function supprimerGrade()
+    {
+        //sécurité
+        $action = 'deleteInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère les données
+            $id = $this->request->getGetAttribute('id');
+            $attributs = AdministrationManager::getGradeById($id);
+            $error = AdministrationManager::deleteGradeById($id); //si foreign key liée
+            if (empty($error)){ //si $error est null on supprime
+                //LOG
+                $type = 'suprGrade';
+                $auth = AuthenticationManager::getInstance();
+                $actionUsername = $auth->getMatricule();
+                self::logSuprConstante($actionUsername, $type, $attributs);
+                //affichage
+                $info = 'supression effectuée';
+                self::afficherListeGrades($info);
+            } else{ //sinon c'est que la ligne est utilisée, on affiche une erreur
+                self::afficherListeGrades($error);
+            }
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 5-4-5 'suprClasseDroits':
+    public function supprimerClasseDroits()
+    {
+        //sécurité
+        $action = 'deleteInAConstanteTable';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            //on réccupère les données
+            $id = $this->request->getGetAttribute('id');
+            $attributs = AdministrationManager::getClasseDroitsById($id);
+
+            $auth = AuthenticationManager::getInstance();
+            $userRole = $auth->getRole();
+            if ($userRole == 'superAdmin'){ //seul le superAdmin peut supprimer une classe de droit
+                $error = AdministrationManager::deleteClasseDroitsById($id); //si foreign key liée
+                if (empty($error)){ //si $error est null on supprime
+                    //LOG
+                    $type = 'suprClasseDroits';
+                    $actionUsername = $auth->getMatricule();
+                    self::logSuprConstante($actionUsername, $type, $attributs);
+                    //affichage
+                    $info = 'supression effectuée';
+                    self::afficherListeDroits($info);
+                } else{ //sinon c'est que la ligne est utilisée, on affiche une erreur
+                    self::afficherListeDroits($error);
+                }
+            } else{
+                $error = 'Si vous souhaitez supprimer une classe d\'utilisateur, veuillez demander au superAdministrateur';
+                self::afficherListeDroits($error);
+            }
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    //-----------------------------
+
 }

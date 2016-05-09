@@ -13,7 +13,7 @@ use PLabadille\GestionDossier\Controller\AccessControll;
 //--------------------
 
 #Gère l'affichage des Dossiers.
-#Attention, la gestion d'affichage des formulaires est gérées directement par DossierForm par le biais de templates.
+#Attention, la gestion d'affichage des formulaires est gérées directement par DossalierForm par le biais de templates.
 class DossierHtml 
 {
     //--------------------
@@ -28,17 +28,17 @@ class DossierHtml
             $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
             $right = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
 
-            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
+            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '"><img src="media/img/icons/edit.png" alt="Editer" title="Editer" /></a>' : null;
             
             $typeBouton = 'canArchiveAFolder';
             $right = AccessControll::afficherBoutonNavigation($typeBouton);
 
-            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=archiverDossier&amp;id=' . $dossier->getMatricule() . '">Archiver</a>' : null;
+            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=archiverDossier&amp;id=' . $dossier->getMatricule() . '"><img src="media/img/icons/archive.png" alt="Archiver" title="Archiver" /></a>' : null;
 
             $typeBouton = 'canRetireAFolder';
             $right = AccessControll::afficherBoutonNavigation($typeBouton);
 
-            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=retraiterDossier&amp;id=' . $dossier->getMatricule() . '">Retraiter</a>' : null;
+            $boutons .= ($right) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=retraiterDossier&amp;id=' . $dossier->getMatricule() . '"><img src="media/img/icons/retirement.png" alt="Retraiter" title="Retraiter" /></a>' : null;
 
             return $boutons;
     }
@@ -51,14 +51,18 @@ class DossierHtml
     {
         //4-affichage dossier
         $html = <<<EOT
-            <h3>Dossier de {$dossier['informations']->getNom()} {$dossier['informations']->getPrenom()}, matricule : {$dossier['informations']->getMatricule()}</h3>
-                <p>Date de naissance : {$dossier['informations']->getDateNaissance()}</p>
-                <p>Genre : {$dossier['informations']->getGenre()}</p>
-                <p>Tel1 : {$dossier['informations']->getTel1()}</p>
-                <p>Tel 2 : {$dossier['informations']->getTel2()}</p>
-                <p>Email : {$dossier['informations']->getEmail()}</p>
-                <p>Adresse : {$dossier['informations']->getAdresse()}</p>
-                <p>Date de recrutement : {$dossier['informations']->getDateRecrutement()}</p>\n\n
+            <h2>Dossier de {$dossier['informations']->getNom()} {$dossier['informations']->getPrenom()}, matricule : {$dossier['informations']->getMatricule()}</h2>
+            <div id="completeFolder">
+                <h3>Informations personelles:</h3>
+                <div id="contentFolder">
+                    <p>Date de naissance : {$dossier['informations']->getDateNaissance()}</p>
+                    <p>Genre : {$dossier['informations']->getGenre()}</p>
+                    <p>Tel1 : {$dossier['informations']->getTel1()}</p>
+                    <p>Tel 2 : {$dossier['informations']->getTel2()}</p>
+                    <p>Email : {$dossier['informations']->getEmail()}</p>
+                    <p>Adresse : {$dossier['informations']->getAdresse()}</p>
+                    <p>Date de recrutement : {$dossier['informations']->getDateRecrutement()}</p>
+               </div>\n\n
 EOT;
         $html .= self::afficheAffectations($dossier['casernes']) . "\n\n";
         $html .= self::afficheAppartenances($dossier['regiments']) . "\n\n";
@@ -156,146 +160,200 @@ EOT;
         //1-edit bouton
         $typeBouton = 'editFolderInformation';
         $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
-        $editBouton = ($rightEdit) ? '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '">Editer</a>' : null;
-        
-        //2-addElement Boutons
-        $typeBouton = 'addElementToAFolder';
-        $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
-        $addElementBoutons = null;
+        $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editerDossier&amp;id=' . $dossier->getMatricule() . '" alt="Editer Informations" title="Editer Informations"><img src="media/img/icons/edit.png" alt="Editer Informations" /></a>&nbsp;&nbsp;' : null;
 
-        //3-Affichage boutons
-        if ( $rightAddElement ){
-            $addElementBoutons = '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterAffectation&amp;id=' . $dossier->getMatricule() . '">Ajouter une affectation</a>';
-            $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id=' . $dossier->getMatricule() . '">Ajouter un régiment d\'appartenance</a>';
-            $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterGradeDetenu&amp;id=' . $dossier->getMatricule() . '">Ajouter un grade</a>';
-            $addElementBoutons .= '&nbsp;-&nbsp; <a href="?objet=dossier&amp;action=ajouterDiplomePossede&amp;id=' . $dossier->getMatricule() . '">Ajouter un diplôme</a>';
-        }
-
-        //4-affichage dossier
+        //2-affichage dossier
         $html = <<<EOT
-            {$editBouton}
-            {$addElementBoutons}
-
-            <h3>Dossier de {$dossier->getNom()} {$dossier->getPrenom()}, matricule : {$dossier->getMatricule()}</h3>
-                <p>Date de naissance : {$dossier->getDateNaissance()}</p>
-                <p>Genre : {$dossier->getGenre()}</p>
-                <p>Tel1 : {$dossier->getTel1()}</p>
-                <p>Tel 2 : {$dossier->getTel2()}</p>
-                <p>Email : {$dossier->getEmail()}</p>
-                <p>Adresse : {$dossier->getAdresse()}</p>
-                <p>Date de recrutement : {$dossier->getDateRecrutement()}</p>
+            <h2>Dossier de {$dossier->getNom()} {$dossier->getPrenom()}, matricule : {$dossier->getMatricule()}</h2>
+            <div id="completeFolder">
+                <h3>{$editBouton}Informations personnelles :</h3>
+                <div id="contentFolder">
+                    <p>Date de naissance : {$dossier->getDateNaissance()}</p>
+                    <p>Genre : {$dossier->getGenre()}</p>
+                    <p>Tel1 : {$dossier->getTel1()}</p>
+                    <p>Tel 2 : {$dossier->getTel2()}</p>
+                    <p>Email : {$dossier->getEmail()}</p>
+                    <p>Adresse : {$dossier->getAdresse()}</p>
+                    <p>Date de recrutement : {$dossier->getDateRecrutement()}</p>
+                </div>
 EOT;
         return $html;
     }
 
     #Permet d'afficher les affectations liées à un dossier
-    public static function afficheAffectations($affectations) 
+    public static function afficheAffectations($affectations, $dossier = null) 
     {
-        $html = "</br>\n<h3>Liste des affectations :</h3> \n";
+        if(isset($dossier)){
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            //2-addElement Boutons
+            $typeBouton = 'addElementToAFolder';
+            $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+            //3-Affichage boutons
+            $addElementBoutons = null;
+            if ( $rightAddElement ){
+                $addElementBoutons = '&nbsp;&nbsp; <a href="?objet=dossier&amp;action=ajouterAffectation&amp;id=' . $dossier->getMatricule() . '" alt="Ajouter affectation" title="Ajouter affectation"><img src="media/img/icons/add.png" alt="Ajouter affectation" /></a>&nbsp;&nbsp;';
+            }
+        } else{
+            $addElementBoutons = null;
+        }
+        $html = "</br>\n<h3>" . $addElementBoutons . "Liste des affectations :</h3> \n";
 
         if (!empty($affectations)){
             //sécurité bouton suprimer grade:
             $typeBouton = 'deleteFolderInformation';
             $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
             //bouton grade actuel (avec lien JS pour demander confirmation)
-            $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette affectation de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprAffectation&amp;id=' . $affectations['0']['nb'] . '\'">Supprimer Affectation</a>'  : null;
+            $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette affectation de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprAffectation&amp;id=' . $affectations['0']['nb'] . '\'" alt="Supprimer Affectation" title="Supprimer Affectation"><img src="media/img/icons/delete.png" alt="Supprimer Affectation" /></a>&nbsp;&nbsp;' : null;
 
-            $html .= "<h4>Affectation actuelle :</h4> \n";
-            $html .= "<p>Caserne " . $affectations['0']['nom'] . " depuis le " . $affectations['0']['date_affectation'] . $suprBouton . "</p> \n";
+            $html .= "<div id=\"contentAffectations\"> \n <h4>Affectation actuelle :</h4> \n ";
+            $html .= "<p>" . $suprBouton . "Caserne " . $affectations['0']['nom'] . " depuis le " . $affectations['0']['date_affectation'] . "</p> \n";
 
             $html .= "<h4>Ancienne(s) affectation(s) :</h4> \n";
             if (isset($affectations['1'])){
                 foreach ($affectations as $key => $liste) {
                     if ($key > 0){
                         //bouton anciens grades
-                        $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette affectation de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprAffectation&amp;id=' . $affectations[$key]['nb'] . '\'">Supprimer Affectation</a>' : null;
+                        $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette affectation de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprAffectation&amp;id=' . $affectations[$key]['nb'] . '\'" alt="Supprimer Affectation" title="Supprimer Affectation"><img src="media/img/icons/delete.png" alt="Supprimer Affectation" /></a>&nbsp;&nbsp;' : null;
 
-                        $html .= "<p>Caserne " . $liste['nom'] . " le " . $liste['date_affectation'] . $suprBouton . "</p> \n";
+                        $html .= "<p>" . $suprBouton . "Caserne " . $liste['nom'] . " le " . $liste['date_affectation'] . "</p> \n";
                     }
                 }
             } else{
-                $html .= "<p>Aucune autre affectation</p> \n";
+                $html .= "<div id=\"contentAffectations\"> \n <p>Aucune autre affectation</p> \n";
             }
         } else{
             $html .= "<p>Aucune affectation</p> \n";
         }
+        $html .=  "</div> \n";
 
         return $html;
     }
 
     #Permet d'afficher les régiments d'appartenances liées à un dossier
-    public static function afficheAppartenances($appartenances) 
+    public static function afficheAppartenances($appartenances, $dossier = null) 
     {
-        $html = "</br>\n<h3>Liste des régiments d'appartenances :</h3> \n";
+        if(isset($dossier)){
+            //affichage des boutonsNavigation en fonction des droits:
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            //2-addElement Boutons
+            $typeBouton = 'addElementToAFolder';
+            $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+            //3-Affichage boutons
+            $addElementBoutons = null;
+            if ( $rightAddElement ){
+                $addElementBoutons = '&nbsp;&nbsp; <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id=' . $dossier->getMatricule() . '" alt="Ajouter régiment" ><img src="media/img/icons/add.png" alt="Ajouter régiment" /></a>&nbsp;&nbsp;';
+            }
+        } else{
+            $addElementBoutons = null;
+        }
+
+        $html = "</br>\n<h3>" . $addElementBoutons . "Liste des régiments d'appartenances :</h3> \n";
         if (!empty($appartenances)){
             //sécurité bouton suprimer grade:
             $typeBouton = 'deleteFolderInformation';
             $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
 
             //bouton grade actuel (avec lien JS pour demander confirmation)
-            $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprRegimentAppartenance&amp;id=' . $appartenances['0']['nb'] . '\'">Supprimer régiment</a>'  : null;
+            $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprRegimentAppartenance&amp;id=' . $appartenances['0']['nb'] . '\'" alt="Supprimer appartenance régiment" title="Supprimer régiment"><img src="media/img/icons/delete.png" alt="Supprimer appartenance régiment" /></a>&nbsp;&nbsp;' : null;
 
-            $html .= "<h4>Appartenance actuelle :</h4> \n";
-            $html .= "<p>Régiment: " . $appartenances['0']['id'] . " depuis le " . $appartenances['0']['date_appartenance'] . $suprBouton . "</p> \n";
+            $html .= "<div id=\"contentAppartenances\"> \n <h4>Appartenance actuelle :</h4> \n";
+            $html .= "<p>" . $suprBouton . "Régiment: " . $appartenances['0']['id'] . " depuis le " . $appartenances['0']['date_appartenance'] . "</p> \n";
 
             $html .= "<h4>Ancienne(s) appartenance(s) :</h4> \n";
             if (isset($appartenances['1'])){
                 foreach ($appartenances as $key => $liste) {
                     if ($key > 0){
                         //bouton anciens grades
-                        $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprRegimentAppartenance&amp;id=' . $appartenances[$key]['nb'] . '\'">Supprimer régiment</a>' : null;
+                        $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprRegimentAppartenance&amp;id=' . $appartenances[$key]['nb'] . '\'" alt="Supprimer appartenance régiment" title="Supprimer appartenance régiment"><img src="media/img/icons/delete.png" alt="Supprimer appartenance régiment" /></a>&nbsp;&nbsp;' : null;
 
-                        $html .= "<p>Régiment: " . $liste['id'] . " le " . $liste['date_appartenance'] . $suprBouton . "</p> \n";
+                        $html .= "<p>" . $suprBouton . "Régiment: " . $liste['id'] . " le " . $liste['date_appartenance'] . "</p> \n";
                     }
                 }
             } else{
                 $html .= "<p>Aucun autre régiment</p> \n";
             }
         } else{
-            $html .= "<p>Aucun régiment d'appartenance</p> \n";
+
+            $html .= "<div id=\"contentAppartenances\"> \n <p>Aucun régiment d'appartenance</p> \n";
         }
+        $html .= "</div> \n";
 
         return $html;
     }
 
     #Permet d'afficher les grades detenu liés à un dossier
-    public static function afficheGradesDetenu($grades) 
+    public static function afficheGradesDetenu($grades, $dossier = null) 
     {
-        $html = "</br>\n<h3>Liste des grades du militaire :</h3> \n";
+        if(isset($dossier)){
+            //affichage des boutonsNavigation en fonction des droits:
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            //2-addElement Boutons
+            $typeBouton = 'addElementToAFolder';
+            $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+            //3-Affichage boutons
+            $addElementBoutons = null;
+            if ( $rightAddElement ){
+                $addElementBoutons = '&nbsp;&nbsp; <a href="?objet=dossier&amp;action=ajouterGradeDetenu&amp;id=' . $dossier->getMatricule() . '" alt="Ajouter grade" title="Ajouter grade"><img src="media/img/icons/add.png" alt="Ajouter grade" /></a>&nbsp;&nbsp;';
+            }
+        } else{
+            $addElementBoutons = null;
+        }
+
+        $html = "</br>\n<h3>" . $addElementBoutons . "Liste des grades du militaire :</h3> \n";
         if (!empty($grades)){
             //sécurité bouton suprimer grade:
             $typeBouton = 'deleteFolderInformation';
             $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
             //bouton grade actuel (avec lien JS pour demander confirmation)
-            $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprGradeDetenu&amp;id=' . $grades['0']['num'] . '\'">Supprimer Grade</a>'  : null;
+            $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprGradeDetenu&amp;id=' . $grades['0']['num'] . '\'" alt="Supprimer grade détenu" title="Supprimer grade détenu"><img src="media/img/icons/delete.png" alt="Supprimer grade détenu" /></a>&nbsp;&nbsp;' : null;
 
-            $html .= "<h4>Grade actuel :</h4> \n";
-            $html .= "<p>Grade: " . $grades['0']['grade'] . " depuis le " . $grades['0']['date_promotion'] . $suprBouton . "</p> \n";
+            $html .= "<div id=\"contentGrades\"> \n <h4>Grade actuel :</h4> \n";
+            $html .= "<p>" . $suprBouton . "Grade: " . $grades['0']['grade'] . " depuis le " . $grades['0']['date_promotion'] . "</p> \n";
 
             $html .= "<h4>Ancien(s) grade(s) :</h4> \n";
             if (isset($grades['1'])){
                 foreach ($grades as $key => $liste) {
                     if ($key > 0){
                         //bouton anciens grades
-                        $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprGradeDetenu&amp;id=' . $grades[$key]['num'] . '\'">Supprimer Grade</a>' : null;
+                        $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprGradeDetenu&amp;id=' . $grades[$key]['num'] . '\'" alt="Supprimer grade détenu" title="Supprimer grade détenu"><img src="media/img/icons/delete.png" alt="Supprimer grade détenu" /></a>&nbsp;&nbsp;' : null;
 
-                        $html .= "<p>Grade: " . $liste['grade'] . " le " . $liste['date_promotion'] . $suprBouton . "</p> \n";
+                        $html .= "<p>" . $suprBouton . "Grade: " . $liste['grade'] . " le " . $liste['date_promotion'] . "</p> \n";
                     }
                 }
             } else{
                 $html .= "<p>Aucun autre grade</p> \n";
             }
         } else{
-            $html .= "<p>Aucun grade</p> \n";
+            $html .= "<div id=\"contentGrades\"> \n <p>Aucun grade</p> \n";
         }
+        $html .= "</div> \n";
 
         return $html;
     }
 
     #Permet d'afficher les diplomes possede liés à un dossier
-    public static function afficheDiplomesPossede($diplomes) 
+    public static function afficheDiplomesPossede($diplomes, $dossier = null)  
     {
-        $html = "</br>\n<h3>Liste des diplômes possédés :</h3> \n";
+        if(isset($dossier)){
+            //affichage des boutonsNavigation en fonction des droits:
+            $createBy = $dossier->getWhoCreateFolder();
+            $creatorIsLog = AccessControll::checkIfConnectedIsAuthor($createBy);
+            //2-addElement Boutons
+            $typeBouton = 'addElementToAFolder';
+            $rightAddElement = AccessControll::afficherBoutonNavigation($typeBouton, $creatorIsLog);
+            //3-Affichage boutons
+            $addElementBoutons = null;
+            if ( $rightAddElement ){
+                $addElementBoutons = '&nbsp;&nbsp; <a href="?objet=dossier&amp;action=ajouterDiplomePossede&amp;id=' . $dossier->getMatricule() . '" alt="Ajouter diplôme" title="Ajouter diplôme"><img src="media/img/icons/add.png" alt="Ajouter diplôme" /></a>&nbsp;&nbsp;';
+            }
+        } else{
+            $addElementBoutons = null;
+        }
+
+        $html = "</br>\n<h3>" . $addElementBoutons . "Liste des diplômes possédés :</h3> \n <div id=\"contentDiplomes\"> \n ";
 
         if (!empty($diplomes)){
             //sécurité bouton suprimer grade:  (avec lien JS pour demander confirmation)
@@ -303,13 +361,14 @@ EOT;
             $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
 
             foreach ($diplomes as $key => $liste) {
-                $suprBouton = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce diplome de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprDiplomePossede&amp;id=' . $diplomes[$key]['num'] . '\'">Supprimer Diplome</a>' : null;
+                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce diplome de ce dossier ?\')) document.location.href=\'?objet=dossier&amp;action=suprDiplomePossede&amp;id=' . $diplomes[$key]['num'] . '\'" alt="Supprimer diplome possédé" title="Supprimer diplome possédé"><img src="media/img/icons/delete.png" alt="Supprimer diplome possédé" /></a>&nbsp;&nbsp;' : null;
 
-                $html .= "<p>" . $liste['intitule'] . " (" . $liste['acronyme'] . ") obtenu le " . $liste['date_obtention'] . $suprBouton . "</p> \n";
+                $html .= "<p>" . $suprBouton . $liste['intitule'] . " (" . $liste['acronyme'] . ") obtenu le " . $liste['date_obtention'] . "</p> \n";
             }
         } else{
-            $html .= "<p>Aucun diplôme</p> \n";
+            $html .= "<div id=\"contentDiplomexs\"> \n <p>Aucun diplôme</p> \n";
         }
+        $html .= "</div> \n </div> \n";
 
         return $html;
     }
@@ -421,11 +480,11 @@ EOT;
                 //Boutons
                 $typeBouton = 'editEligibleCondition';
                 $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
-                $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editConditionRetraite&amp;id=' . $tab['id'] . '" alt="édition de la condition de retraite">Edit</a>' : null;
+                $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editConditionRetraite&amp;id=' . $tab['id'] . '" alt="édition de la condition de retraite" title="édition de la condition de retraite"><img src="media/img/icons/edit.png" alt="édition de la condition de retraite" title="édition de la condition de retraite" /></a>' : null;
 
                 $typeBouton = 'suprEligibleCondition';
                 $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
-                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette condition de retraite ?\')) document.location.href=\'?objet=dossier&amp;action=suprConditionRetraite&amp;id=' . $tab['id'] . '\'" alt="supression de la condition de retraite">Supr</a>' : null;
+                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette condition de retraite ?\')) document.location.href=\'?objet=dossier&amp;action=suprConditionRetraite&amp;id=' . $tab['id'] . '\'" alt="supression de la condition de retraite" title="supression de la condition de retraite"><img src="media/img/icons/delete.png" alt="supression de la condition de retraite" title="supression de la condition de retraite" /></a>' : null;
 
                 $denominationGrade = ( $key == 'idGrade' ? ': ' . $liste['nomGrade'][$value] : null );
                 $html .= '<td>' . $value . $denominationGrade . '</td>' . "\n";
@@ -458,11 +517,11 @@ EOT;
                 //Boutons
                 $typeBouton = 'editEligibleCondition';
                 $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
-                $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editConditionPromotion&amp;id=' . $tab['id'] . '" alt="Edition de la condition de promotion">Edit</a>' : null;
+                $editBouton = ($rightEdit) ? '<a href="?objet=dossier&amp;action=editConditionPromotion&amp;id=' . $tab['id'] . '" alt="Edition de la condition de promotion" title="Edition de la condition de promotion"><img src="media/img/icons/edit.png" alt="Edition de la condition de promotion" title="Edition de la condition de promotion" /></a>' : null;
 
                 $typeBouton = 'suprEligibleCondition';
                 $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
-                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette condition de promotion ?\')) document.location.href=\'?objet=dossier&amp;action=suprConditionPromotion&amp;id=' . $tab['id'] . '\'" alt="supression de la condition de promotion">Supr</a>' : null;
+                $suprBouton = ($rightSupr) ? '<a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette condition de promotion ?\')) document.location.href=\'?objet=dossier&amp;action=suprConditionPromotion&amp;id=' . $tab['id'] . '\'" alt="supression de la condition de promotion" title="supression de la condition de promotion"><img src="media/img/icons/delete.png" alt="supression de la condition de promotion" title="supression de la condition de promotion" /></a>' : null;
 
                 $denominationGrade = ( $key == 'idGrade' ? ': ' . $liste['nomGrade'][$value] : null );
                 if ( $key == 'diplome' || $key == 'diplomeSup1' || $key == 'diplomeSup2' ){

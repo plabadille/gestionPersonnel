@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Blog prog pour le web</title>
+    <link rel="stylesheet" href="ui/css/normalize.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="ui/css/design.css">
 </head>
 <body>
     <header>
         <h1>Application de gestion du personnel d'un service</h1>
+        <?php echo $prezAuth ?>
     </header>
     <div id="conteneur">
         <nav>
-            <h2>Compte</h2>
-            <?php echo $prezAuth ?>
             <h2>Navigation</h2>
             <ul id="navigation">
                 <?php echo $navigation ?>
@@ -36,5 +36,6 @@
     });
     </script>
     <script src="ui/js/autoCompleteListDossier.js"></script>
+    <script src="ui/js/nav.js"></script>
 </body>
 </html> 

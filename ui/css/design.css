@@ -1,34 +1,129 @@
+body{
+	background-color: #E0DAD6;
+}
 #conteneur{
 	display: flex;
 	flex-direction: row;
+	min-height: 80vh;
 }
-nav{
-	padding: 0 3% 0 3%;
-	margin: 0 2% 0 2%;
-	border: 1px solid grey;
-}
-main{
-	padding: 0 3% 0 3%;
-	margin: 0 2% 0 2%;
-	border: 1px solid grey;
-	flex:1;
-}
+
+/* --------------HEADER------------ */
 header{
-	text-align:center;
-	margin-bottom: 3%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: nowrap;
+	text-align:left;
+	padding:1%;
+	background-color: #67690A;
+	border-bottom: 3px solid black;
 }
+h1{
+	flex: 1 1 100%;
+	margin:0;
+}
+#infosConnexion{
+	 flex-shrink:0;
+	 text-align: center;
+}
+#quitter a{
+	color:#D5C4C4;
+}
+/* --------------FIN_HEADER------------ */
+/* --------------MENU&NAV -------------- */
+nav{
+	background-color: #67690A;
+	padding-right:5px;
+	border-right: 3px solid black;
+	max-width: 22%;
+}
+#navigation li a{
+	text-decoration: none;
+	font-weight: bold;
+}
+.toggleSubMenu{
+	padding-bottom: 10px;
+}
+.toggleSubMenu a:hover{
+	color:#1E0E48;
+}
+.subMenu li:first-of-type{
+	margin-top: 10px;
+}
+.subMenu li{
+	border-top: 1px solid black;
+	padding: 5px 0 5px 0;
+	font-size: 0.8em;
+}
+.subMenu li:hover{
+	background-color:#8F9226; 
+}
+#navigation .subMenu li a{
+	text-decoration: none;
+	font-weight: normal;
+	color: #1E0E48;
+}
+#navigation, .subMenu{
+	list-style: none;
+	text-decoration: none;
+	text-align: center;
+	padding:0;
+}
+
+.moduleConteneur{
+	padding: 4px;
+	margin-left: 3px;
+	border-radius:7px;
+	border: 2px solid black;
+	font-size: 1.2em;
+}
+.moduleConteneur a{
+	color:black;
+
+}
+
+/* <ul id="navigation">
+	<li class="toggleSubMenu">
+		<div class="moduleConteneur">
+			<ul class="subMenu">
+				<li>
+					<a> */
+
+
+/* --------------FIN NAV -------------- */
+
+/* --------------FOOTER -------------- */
 footer{
+	background-color: #67690A;
+	border-top: 3px solid black;
 	padding: 0 3% 0 3%;
-	margin: 2% 2% 0 2%;
-	border: 1px solid grey;
 	height:50px;
 	text-align: center;
 }
-h1{
-	padding: 20px 3% 20px 3%;
-	margin: 0 2% 0 2%;
-	border: 1px solid grey;
+/* --------------FIN FOOTER -------------- */
+
+/* --------------MAIN GLOBAL -------------- */
+main{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto 5px auto;
 }
+/* --------------FIN MAIN GOBAL -------------- */
+#completeFolder{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 10px;
+	border: 3px solid black;
+	padding: 0 2% 2% 2%;
+	margin-bottom: 5px;
+}
+#contentFolder, #contentAffectations, #contentAppartenances, #contentGrades, #diplomes {
+	border-bottom: 3px solid black;
+}
+
+
 h2{
 	text-align: center;
 }
@@ -36,11 +131,12 @@ h2{
 /*--CSS--ChampDeConnexion----*/
 #connexionForm{
 	display: block;
-	width: 30%;
+	width: 100%;
 	margin: auto;
 	margin-bottom: 15px;
+	border-radius: 15px;
 	border: 1px solid black;
-	padding: 1%;
+	padding: 8%;
 	text-align:center;
 }
 #connexionForm .connexionChamps{
@@ -55,30 +151,7 @@ h2{
 	text-align:center;
 }
 /*--CSS--Navigation----*/
-#navigation{
-	list-style: none;
-	text-align: center;
-	padding:0;
-}
-#navigation .moduleConteneur{
-	border: 1px solid black;
-	margin-bottom: 10px;
-	padding:5px;
-}
 
-.moduleConteneur .module{
-	list-style: none;
-	text-align: center;
-	padding:5px;
-}
-.moduleConteneur .module li{
-	border: 1px solid grey;
-	margin-bottom: 5px;
-	padding: 5px 0 5px 0;
-}
-.moduleConteneur .module li a{
-	padding:5px 10px 5px 10px;
-}
 /*------------------------------------*/
 /*--CSS--Affichage de tous les articles*/
 #listeDossier{
@@ -87,6 +160,7 @@ h2{
 	justify-content: center;
 	align-items: center;
 	padding:0;
+	min-width: 100%;
 }
 
 #listeDossier li{
@@ -104,8 +178,12 @@ h2{
 #listeDossier li a:nth-child(3){
 	flex:0;
 }
+
 /*------------------------------------*/
 /*--CSS--Formulaire de recherche de dossier */
+.ui-autocomplete-input{
+	min-width: 250px;
+}
 #formSearch{
 	display: flex;
 	justify-content: center;
@@ -137,19 +215,23 @@ h2{
 	flex-flow: row wrap;
 	justify-content: center;
 	align-items: center;
-	text-align: center;
+	text-align: left;
 }
 #formSaisieDossier label{
-	flex: 1 1 20%;
+	min-width: 17%;
+	max-width: 25%;
+	padding-left: 10px;
+	margin-right: 4px;
 }
 #formSaisieDossier input, #formSaisieDossier textarea, #formSaisieDossier select{
 	flex: 1 1 70%;
-	text-align: center;
+	margin-right: 10px;
+	text-align: left;
 }
-#formSaisieDossier #boutonOk{
-	flex: initial;
-	width:20%;
-	margin-top: 20px;
+main #formSaisieDossier #boutonOk{
+	flex:0 0 15%;
+	max-width:30%;
+	margin: 20px auto 0 auto;
 }
 #formSaisieDossier .dossierFormErrors{
 	font-size: 0.6em;
@@ -158,4 +240,40 @@ h2{
 }
 #formSaisieDossier .errorOnField{
 	color:red;
+}
+
+@media screen and (max-device-width: 1442px) {
+  	#formSaisieDossier label{
+		min-width: 13%;
+		max-width: 25%;
+		padding-left: 10px;
+		margin-right: 4px;
+	}
+}
+
+@media screen and (max-device-width: 850px) {
+  	#formSaisieDossier label{
+		min-width: 13%;
+		max-width: 25%;
+		padding-left: 10px;
+		margin-right: 4px;
+		text-align: center;
+	}
+	#formSaisieDossier input, #formSaisieDossier textarea, #formSaisieDossier select{
+	flex: 1 1 95%;
+	margin-right: 5px;
+	margin-left: 5px;
+	text-align: center;
+}
+}
+
+/*------------------------------------*/
+/*--CSS--Tableau---------------------*/
+table{
+	max-width: 700px;
+	display: block;
+	margin: 0 auto 0 auto;
+	width: 100%;
+	border: 1px;
+	overflow:scroll;
 }

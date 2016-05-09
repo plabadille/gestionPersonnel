@@ -185,5 +185,244 @@ EOT;
 
     }
     
+    //--------------------
+    //5-module de gestion de l'application
+    //--------------------
 
+    // 5-1- 'seeAllConstanteTable':
+
+    // 5-1-1 'seeAllCasernes':
+    public static function listAllCasernes($casernes, $info = null)
+    {
+        if (isset($info)){
+            $prezInfo = '<div id="info"><p>' . $info . '</p></div>';
+        } else{
+            $prezInfo = null;
+        }
+    $html = <<<EOT
+            <h2>Liste des casernes</h2>
+            {$prezInfo}
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>#</th>
+                    <th>nom</th>
+                    <th>adresse</th>
+                    <th>tel_standard</th>
+                    <th>actions</th>
+                </tr>
+EOT;
+        //droits d'affichage des boutons
+        $typeBouton = 'editInAConstanteTable';
+        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+        $typeBouton = 'deleteInAConstanteTable';
+        $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+
+        foreach ($casernes as $key => $tab) {
+            //affichage des boutons si droit
+                //addslashes utilisé pour échappé les caractères dans la chaine de caractère nom
+            $boutonEditer = ($rightEdit) ? '<a href="?objet=administration&amp;action=editerCaserne&amp;id=' . $tab['id'] . '">Editer caserne</a>' : null;
+            $boutonSupprimer = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer cette caserne : ' . addslashes($tab['nom']) . ' ?\')) document.location.href=\'?objet=administration&amp;action=supprimerCaserne&amp;id=' . $tab['id'] . '\'">Supprimer caserne</a>' : null;
+
+            $html .= '<tr>' . "\n";
+            foreach ($tab as $key => $value) {
+                //affichage data
+                $html .= '<td>' . $value . '</td>' . "\n";
+            }
+            //affichage bouton
+            $html .= '<td>' . $boutonEditer . ' ' . $boutonSupprimer . '</td>' . "\n";
+
+            $html .= '</tr>' . "\n";
+        }
+        $html .= '</table>' . "\n";
+
+        return $html;
+    }
+    // 5-1-2 'seeAllRegiments':
+    public static function listAllRegiments($regiments, $info = null)
+    {
+        if (isset($info)){
+            $prezInfo = '<div id="info"><p>' . $info . '</p></div>';
+        } else{
+            $prezInfo = null;
+        }
+    $html = <<<EOT
+            <h2>Liste des régiments</h2>
+            {$prezInfo}
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>noms</th>
+                    <th>actions</th>
+                </tr>
+EOT;
+        //droits d'affichage des boutons
+        $typeBouton = 'editInAConstanteTable';
+        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+        $typeBouton = 'deleteInAConstanteTable';
+        $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+
+        foreach ($regiments as $key => $tab) {
+            //affichage des boutons si droit
+        $boutonEditer = ($rightEdit) ? '<a href="?objet=administration&amp;action=editerRegiment&amp;id=' . $tab['id'] . '">Editer regiment</a>' : null;
+        $boutonSupprimer = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce régiment : ' . $tab['id'] . ' ?\')) document.location.href=\'?objet=administration&amp;action=supprimerRegiment&amp;id=' . $tab['id'] . '\'">Supprimer régiment</a>' : null;
+
+            $html .= '<tr>' . "\n";
+            foreach ($tab as $key => $value) {
+                $html .= '<td>' . $value . '</td>' . "\n";
+            }
+             //affichage bouton
+            $html .= '<td>' . $boutonEditer . ' ' . $boutonSupprimer . '</td>' . "\n";
+
+            $html .= '</tr>' . "\n";
+        }
+        $html .= '</table>' . "\n";
+
+        return $html;
+    }
+    // 5-1-3 'seeAllDiplomes':
+    public static function listAllDiplomes($diplomes, $info = null)
+    {
+        if (isset($info)){
+            $prezInfo = '<div id="info"><p>' . $info . '</p></div>';
+        } else{
+            $prezInfo = null;
+        }
+    $html = <<<EOT
+            <h2>Liste des diplômes</h2>
+            {$prezInfo}
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>acronyme</th>
+                    <th>intitulé</th>
+                    <th>actions</th>
+                </tr>
+EOT;
+        //droits d'affichage des boutons
+        $typeBouton = 'editInAConstanteTable';
+        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+        $typeBouton = 'deleteInAConstanteTable';
+        $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+
+        foreach ($diplomes as $key => $tab) {
+            //affichage des boutons si droit
+                //addslashes utilisé pour échappé les caractères dans la chaine de caractère intitule
+            $boutonEditer = ($rightEdit) ? '<a href="?objet=administration&amp;action=editerDiplome&amp;id=' . $tab['acronyme'] . '">Editer diplôme</a>' : null;
+            $boutonSupprimer = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce diplôme : ' . addslashes($tab['intitule']) . ' ?\')) document.location.href=\'?objet=administration&amp;action=supprimerDiplome&amp;id=' . $tab['acronyme'] . '\'">Supprimer diplôme</a>' : null;
+
+            $html .= '<tr>' . "\n";
+            foreach ($tab as $key => $value) {
+                $html .= '<td>' . $value . '</td>' . "\n";
+            }
+            //affichage bouton
+            $html .= '<td>' . $boutonEditer . ' ' . $boutonSupprimer . '</td>' . "\n";
+            $html .= '</tr>' . "\n";
+        }
+        $html .= '</table>' . "\n";
+        return $html;
+    }
+    // 5-1-4 'seeAllGrades':
+    public static function listAllGrades($grades, $info = null)
+    {
+        if (isset($info)){
+            $prezInfo = '<div id="info"><p>' . $info . '</p></div>';
+        } else{
+            $prezInfo = null;
+        }
+    $html = <<<EOT
+            <h2>Liste des grades</h2>
+            {$prezInfo}
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>id</th>
+                    <th>grade</th>
+                    <th>hierarchie</th>
+                    <th>actions</th>
+                </tr>
+EOT;
+        //droits d'affichage des boutons
+        $typeBouton = 'editInAConstanteTable';
+        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+        $typeBouton = 'deleteInAConstanteTable';
+        $rightSupr = AccessControll::afficherBoutonNavigation($typeBouton);
+
+        foreach ($grades as $key => $tab) {
+            //affichage des boutons si droit
+            $boutonEditer = ($rightEdit) ? '<a href="?objet=administration&amp;action=editerGrade&amp;id=' . $tab['id'] . '">Editer grade</a>' : null;
+            $boutonSupprimer = ($rightSupr) ? '&nbsp;-&nbsp; <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer ce grade : ' . addslashes($tab['grade']) . ' ?\')) document.location.href=\'?objet=administration&amp;action=supprimerGrade&amp;id=' . $tab['id'] . '\'">Supprimer grade</a>' : null;
+
+            $html .= '<tr>' . "\n";
+            foreach ($tab as $key => $value) {
+                $html .= '<td>' . $value . '</td>' . "\n";
+            }
+            //affichage bouton
+            $html .= '<td>' . $boutonEditer . ' ' . $boutonSupprimer . '</td>' . "\n";
+            $html .= '</tr>' . "\n";
+        }
+        $html .= '</table>' . "\n";
+
+        return $html;
+    }
+    // 5-1-5 'seeAllDroits':
+    public static function listAllDroits($droits, $info = null)
+    {
+        if (isset($info)){
+            $prezInfo = '<div id="info"><p>' . $info . '</p></div>';
+        } else{
+            $prezInfo = null;
+        }
+        $auth = AuthenticationManager::getInstance();
+        $userRole = $auth->getRole();
+
+
+        $html = <<<EOT
+            <h2>Liste des classes de droits</h2>
+            {$prezInfo}
+            <table border="1" style="width:100%">
+                <tr>
+                    <th>type de droit / role</th>
+EOT;
+        //droits d'affichage des boutons
+        $typeBouton = 'editInAConstanteTable';
+        $rightEdit = AccessControll::afficherBoutonNavigation($typeBouton);
+        
+        if( $userRole == 'superAdmin' ){ //seul le superAdmin est autorisé à supprimer une classe de droit
+            $rightSupr = true;
+        } else{
+            $rightSupr = false;
+        }
+
+        for ($i=0; $i < count($droits); $i++) {
+            //affichage des boutons si droit
+            $boutonEditer = ($rightEdit) ? '<br/> <a href="?objet=administration&amp;action=editerClasseDroits&amp;id=' . $droits[$i]['role'] . '">Editer</a>' : null;
+            $boutonSupprimer = ($rightSupr) ? '<br/> <a href="javascript:if(confirm(\'Cette action est irréversible, êtes-vous sûr de vouloir supprimer la classe de droit : ' . addslashes($droits[$i]['role']) . ' ?\')) document.location.href=\'?objet=administration&amp;action=supprimerClasseDroits&amp;id=' . $droits[$i]['role'] . '\'">Supprimer</a>' : null;
+
+            if ( $droits[$i]['role'] == 'superAdmin' ){ //la classe superAdmin n'est ni moddifiable, ni supprimable
+                $boutonEditer = null;
+                $boutonSupprimer = null;
+            }
+            $html .= '<th>' . $droits[$i]['role'] . $boutonEditer . $boutonSupprimer . '</th>' . "\n";
+            ;
+        }
+        $html .= '</tr>' . "\n";
+
+        foreach ($droits['0'] as $key => $value) {
+            if ($key != 'role'){
+                $html .= '<tr>' . "\n";
+                $column = $key;
+                $html .= '<td>' . $column . '</td>' . "\n";
+                foreach ($droits as $key => $value) {
+                    if ($value[$column] === '0'){
+                        $valueC = 'non';
+                    } elseif ($value[$column] === '1'){
+                        $valueC = 'oui';
+                    }
+                    $html .= '<td>' . $valueC . '</td>' . "\n";
+               }
+               $html .= '</tr>' . "\n";
+           }
+        }
+
+        $html .= '</table>' . "\n";
+
+        return $html;
+    }
 }

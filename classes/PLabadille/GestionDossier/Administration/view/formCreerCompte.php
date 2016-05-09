@@ -5,7 +5,7 @@
     }
     if ( $type == 'sauvegarderCompte' ){
         echo '<h2 class="titreFormulaire">Formulaire de création de compte utilisateur:</h2>' . "\n";
-    } else{
+    } elseif ( $type == 'sauvegarderEditionCompte' ){
         echo '<h2 class="titreFormulaire">Formulaire de modification de droit d\'un compte:</h2>' . "\n";
     }
 ?>
@@ -65,4 +65,4 @@ if ( $type == 'sauvegarderCompte' ){
     <input type='hidden' name='prenom' value="<?php echo $attributs['prenom'] ? $attributs['prenom'] : null; ?>">
 
     <input id="boutonOk" type="submit" value="Envoyer" />
-</form>
+    </form>

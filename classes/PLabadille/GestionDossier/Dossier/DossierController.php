@@ -161,19 +161,19 @@ class DossierController
             $det = DossierManager::getGradesDetenuById($matricule);
             $poss = DossierManager::getDiplomesPossedeById($matricule);
 
-            $dossier = DossierHtml::afficheUnDossier($dossier);
-            $html = $dossier . "\n";
+            $info = DossierHtml::afficheUnDossier($dossier);
+            $html = $info . "\n";
           
-            $affectations = DossierHtml::afficheAffectations($aff);
+            $affectations = DossierHtml::afficheAffectations($aff, $dossier);
             $html .= $affectations . "\n";
 
-            $appartenances = DossierHtml::afficheAppartenances($app);
+            $appartenances = DossierHtml::afficheAppartenances($app, $dossier);
             $html .= $appartenances . "\n";
 
-            $gradesDetenu = DossierHtml::afficheGradesDetenu($det);
+            $gradesDetenu = DossierHtml::afficheGradesDetenu($det, $dossier);
             $html .= $gradesDetenu . "\n";
 
-            $diplomePossede = DossierHtml::afficheDiplomesPossede($poss);
+            $diplomePossede = DossierHtml::afficheDiplomesPossede($poss, $dossier);
             $html .= $diplomePossede . "\n";
 
             return $html;
