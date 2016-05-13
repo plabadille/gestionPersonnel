@@ -40,15 +40,6 @@ if ( !$auth->isConnected() ){
         include_once 'ui/views/template.php';
     }
 }
-//     if ($request->isAjax()){
-//         echo $response->getPart('contenu');
-//     } else {
-//         $prezAuth = $response->getPart('loginDisplay');
-//         $navigation = $response->getPart('navigation');
-//         $prez = $response->getPart('contenu');
-//         include_once 'ui/pages/template.php';
-//     }
-// }
 
 //--------------------
 //MODULE IMPLEMENTE

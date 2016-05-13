@@ -15,7 +15,7 @@
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
     
-    <label for="idGrade">Grade:</label><br />
+    <label for="idGrade">Grade*</label><br />
     <select name="idGrade" id="idGrade">
     <?php
         foreach ($attributs['listeGrade'] as $id => $nom) {
@@ -32,19 +32,19 @@
     ?>
     </select>
 
-    <label for="annees_service_FA">Année de service (Force Armée):<span class="dossierFormErrors"><?php echo $errors['annees_service_FA']; ?></span></label>
+    <label for="annees_service_FA">Année de service (Force Armée)*<span class="dossierFormErrors"><?php echo $errors['annees_service_FA']; ?></span></label>
     <input type="number" name="annees_service_FA" id="annees_service_FA" placeholder="Saisir le nombre d'année de service requise" value="<?php echo (isset($attributs['annees_service_FA']) ? $attributs['annees_service_FA'] : null); ?>" />
 
-    <label for="annees_service_GN">Année de service (Gendarmerie Nationale):<span class="dossierFormErrors"><?php echo $errors['annees_service_GN']; ?></span></label>
+    <label for="annees_service_GN">Année de service (Gendarmerie Nationale)*<span class="dossierFormErrors"><?php echo $errors['annees_service_GN']; ?></span></label>
     <input type="number" name="annees_service_GN" id="annees_service_GN" placeholder="Saisir le nombre d'année de service requise" value="<?php echo (isset($attributs['annees_service_GN']) ? $attributs['annees_service_GN'] : null); ?>" />
 
-    <label for="annees_service_SOE">Année de service (Sous-Officier d'école):<span class="dossierFormErrors"><?php echo $errors['annees_service_SOE']; ?></span></label>
+    <label for="annees_service_SOE">Année de service (Sous-Officier d'école)*<span class="dossierFormErrors"><?php echo $errors['annees_service_SOE']; ?></span></label>
     <input type="number" name="annees_service_SOE" id="annees_service_SOE" placeholder="Saisir le nombre d'année de service requise" value="<?php echo (isset($attributs['annees_service_SOE']) ? $attributs['annees_service_SOE'] : null); ?>" />
 
-    <label for="annees_service_grade">Année de service (grade actuel):<span class="dossierFormErrors"><?php echo $errors['annees_service_grade']; ?></span></label>
+    <label for="annees_service_grade">Année de service (grade actuel)*<span class="dossierFormErrors"><?php echo $errors['annees_service_grade']; ?></span></label>
     <input type="number" name="annees_service_grade" id="annees_service_grade" placeholder="Saisir le nombre d'année de service requise" value="<?php echo (isset($attributs['annees_service_grade']) ? $attributs['annees_service_grade'] : null); ?>" />
 
-    <label for="diplome">Diplome:</label><br />
+    <label for="diplome">Diplome</label><br />
     <select name="diplome" id="diplome">
     <?php
         if (isset($attributs['diplome'])){
@@ -66,7 +66,7 @@
     ?>
     </select>
     
-    <label for="diplomeSup1">Diplome Sup1:</label><br />
+    <label for="diplomeSup1">Diplome Sup1</label><br />
     <select name="diplomeSup1" id="diplomeSup1">
     <?php
         if (isset($attributs['diplomeSup1'])){
@@ -88,7 +88,7 @@
     ?>
     </select>
 
-    <label for="diplomeSup2">Diplome Sup2:</label><br />
+    <label for="diplomeSup2">Diplome Sup2</label><br />
     <select name="diplomeSup2" id="diplomeSup2">
     <?php
         if (isset($attributs['diplomeSup2'])){

@@ -220,10 +220,10 @@ EOT;
                     }
                 }
             } else{
-                $html .= "<div id=\"contentAffectations\"> \n <p>Aucune autre affectation</p> \n";
+                $html .= "<p>Aucune autre affectation</p> \n";
             }
         } else{
-            $html .= "<p>Aucune affectation</p> \n";
+            $html .= "<div id=\"contentAffectations\"> \n <p>Aucune affectation</p> \n";
         }
         $html .=  "</div> \n";
 
@@ -243,7 +243,7 @@ EOT;
             //3-Affichage boutons
             $addElementBoutons = null;
             if ( $rightAddElement ){
-                $addElementBoutons = '&nbsp;&nbsp; <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id=' . $dossier->getMatricule() . '" alt="Ajouter régiment" ><img src="media/img/icons/add.png" alt="Ajouter régiment" /></a>&nbsp;&nbsp;';
+                $addElementBoutons = '&nbsp;&nbsp; <a href="?objet=dossier&amp;action=ajouterAppartenanceRegiment&amp;id=' . $dossier->getMatricule() . '" alt="Ajouter régiment" ><img src="media/img/icons/add.png" alt="Ajouter régiment" title="Ajouter régiment" /></a>&nbsp;&nbsp;';
             }
         } else{
             $addElementBoutons = null;
@@ -417,7 +417,7 @@ EOT;
 
             $html .= <<<EOT
                 <li>
-                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} -</a> {$boutonsNav}  
+                    <a href="?objet=dossier&amp;action=voir&amp;id={$dossier->getMatricule()}">{$liste} - Eligible au grade : {$dossier->getGrade()} - </a> {$boutonsNav}  
                 </li>
 EOT;
         }
@@ -465,7 +465,7 @@ EOT;
             <h2>Liste des conditions d'éligibilité</h2>
 
             <h3>Conditions de retraite:</h3>
-            <table border="1" style="width:100%">
+            <table class="tab" border="1" style="width:100%">
                 <tr>
                     <th>#</th>
                     <th>Grade</th>      
@@ -497,7 +497,7 @@ EOT;
 
         $html .= <<<EOT
             <h3>Conditions de promotion:</h3>
-            <table border="1" style="width:100%">
+            <table class="tab" border="1" style="width:100%">
                 <tr>
                     <th>#</th>
                     <th>Grade</th>

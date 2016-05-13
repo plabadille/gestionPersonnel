@@ -22,7 +22,7 @@
 
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=administration&action=<?php echo $type ; ?>">
 
-    <label for="id">Acronyme<span class="dossierFormErrors"><?php echo $errors['id']; ?></span></label>
+    <label for="id">Nom*<span class="dossierFormErrors"><?php echo $errors['id']; ?></span></label>
     <input type="text" name="id" id="id" placeholder="Saisir le nom du régiment" value="<?php echo $attributs['id']; ?>" />
 
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->

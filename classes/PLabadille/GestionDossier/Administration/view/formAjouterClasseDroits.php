@@ -29,7 +29,7 @@
 
 <form enctype="multipart/form-data" method="post" action="index.php?objet=administration&action=<?php echo $type ; ?>">
 
-    <label for="role">Nom de la classe<span class="dossierFormErrors"><?php echo $errors['role']; ?></span></label>
+    <label for="role">Nom de la classe*<span class="dossierFormErrors"><?php echo $errors['role']; ?></span></label>
     <input type="text" name="role" id="role" placeholder="Saisir le nom de la classe" value="<?php echo $attributs['role']; ?>" /><br>
 
     <input type=checkbox name="noRights"<?php echo (isset($attributs['noRights']) ? ' checked' : null); ?> >noRights<br>

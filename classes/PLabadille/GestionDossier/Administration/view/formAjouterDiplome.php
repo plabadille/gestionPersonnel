@@ -22,10 +22,10 @@
 
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=administration&action=<?php echo $type ; ?>">
 
-    <label for="acronyme">Acronyme<span class="dossierFormErrors"><?php echo $errors['acronyme']; ?></span></label>
+    <label for="acronyme"><a rel="tooltip" title="Exemple : BS pour Brevet Supérieur"><img src="media/img/icons/info.png" alt="informations" /></a> Acronyme*<span class="dossierFormErrors"><?php echo $errors['acronyme']; ?></span></label>
     <input type="text" name="acronyme" id="acronyme" placeholder="Saisir l'acronyme du diplôme" value="<?php echo $attributs['acronyme']; ?>" />
 
-    <label for="intitule">Intitulé<span class="dossierFormErrors"><?php echo $errors['intitule']; ?></span></label>
+    <label for="intitule"><a rel="tooltip" title="Exemple : Brevet Supérieur"><img src="media/img/icons/info.png" alt="informations" /></a> Intitulé*<span class="dossierFormErrors"><?php echo $errors['intitule']; ?></span></label>
     <input type="text" name="intitule" id="intitule" placeholder="Saisir l'intitulé du diplôme" value="<?php echo $attributs['intitule']; ?>" />
 
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->

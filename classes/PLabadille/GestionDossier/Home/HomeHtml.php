@@ -3,6 +3,8 @@
 namespace PLabadille\GestionDossier\Home;
 
 use PLabadille\Common\Authentication\AuthenticationManager;
+use PLabadille\GestionDossier\Dossier\DossierManager;
+use PLabadille\GestionDossier\Dossier\Dossier;
 
 /**
 * \author Pierre Labadille
@@ -34,15 +36,25 @@ class HomeHtml
             $viewErrors .= '<p>' . $error . '</p>';
             $viewErrors .= '</div>';
         }
-
+        $auth = AuthenticationManager::getInstance();
+        if ($auth->isConnected()){
+            $username = $auth->getMatricule();
+            $folder = DossierManager::getOneFromId($username);
+            $prenom = $folder->getPrenom();
+            $nom = $folder->getNom();
+        } else{
+            $prenom = null;
+            $nom = null;
+        }
 		$nameLogin = AuthenticationManager::LOGIN_KEYWORD;
         $namePwd = AuthenticationManager::PWD_KEYWORD;
 
         $html = <<<EOT
         {$viewErrors}
         <h2>Accueil</h2>
-        <p>Connexion effectuée! Bonne navigation</p>
-        <p>à changer dans HomeHtml.php</p>
+        <h3>Bonjour {$prenom} {$nom},</h3>
+        <p>Vous pouvez utiliser le menu de gauche afin de naviguer sur l'application. Vous ne verrez automatiquement que les modules que votre classe d'utilisateur vous permet d'utiliser.</p>
+        <p>Si vous remarquez un problème dans l'application, veuillez contacter un administrateur : admin@test.com</p>
 EOT;
 		return $html;
 	}

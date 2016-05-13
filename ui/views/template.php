@@ -32,7 +32,12 @@
     <!-- https://jqueryui.com/datepicker/#date-formats -->
     <script>
     $(function() {
-        $( ".datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+        $( ".datepicker" ).datepicker({ 
+        	dateFormat: 'yy-mm-dd',
+        	yearRange: "1920:c+5",
+        	changeMonth: true,
+      		changeYear: true
+        });
     });
     </script>
     <script src="ui/js/autoCompleteListDossier.js"></script>

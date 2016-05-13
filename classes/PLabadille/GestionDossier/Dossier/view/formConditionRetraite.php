@@ -15,7 +15,7 @@
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
 
-    <label for="idGrade">Grade:</label><br />
+    <label for="idGrade">Grade*</label><br />
     <select name="idGrade" id="idGrade">
     <?php
     
@@ -33,10 +33,10 @@
     ?>
     </select>
 
-    <label for="service_effectif">Service effectif:<span class="dossierFormErrors"><?php echo $errors['service_effectif']; ?></span></label>
+    <label for="service_effectif"><a rel="tooltip" title="Nombre d'année total de service à effectuer dans n'importe quel régiment avant d'être éligible à la retraite."><img src="media/img/icons/info.png" alt="informations" /></a> Service effectif*<span class="dossierFormErrors"><?php echo $errors['service_effectif']; ?></span></label>
     <input type="number" name="service_effectif" placeholder="Saisir le nombre d'année de service pour le départ à la retraite'" value="<?php echo (isset($attributs['service_effectif']) ? $attributs['service_effectif'] : null); ?>" />
 
-    <label for="age">Âge:<span class="dossierFormErrors"><?php echo $errors['age']; ?></span></label>
+    <label for="age">Âge*<span class="dossierFormErrors"><?php echo $errors['age']; ?></span></label>
     <input type="number" name="age" id="age" placeholder="Saisir l'âge de départ à la retraite'" value="<?php echo (isset($attributs['age']) ? $attributs['age'] : null); ?>" />
     
     <!-- champ hidden conservant l'ancien id lors de l'édition afin de le supprimer -->

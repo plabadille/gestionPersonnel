@@ -16,7 +16,7 @@
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
     
-    <label for="date_deces">Date de décès<span class="dossierFormErrors"><?php echo $errors['date_deces']; ?></span></label>
+    <label for="date_deces"><a rel="tooltip" title="le format de date à saisir est sous la forme américaine : YYYY-MM-DD."><img src="media/img/icons/info.png" alt="informations" /></a> Date de décès<span class="dossierFormErrors"><?php echo $errors['date_deces']; ?></span></label>
     <input type="text" name="date_deces" class="datepicker" value="<?php echo (isset($attributs['date_deces']) ? $attributs['date_deces'] : null); ?>" />
 
     <label for="cause_deces">Cause du décès<span class="dossierFormErrors"><?php echo $errors['cause_deces']; ?></span></label>

@@ -33,15 +33,15 @@ class HomeController
     * \fn public function home()
     * \brief Set la page d'accueil en affichage
     */
-	public function home() 
+	public function home($error = null) 
     {
-    	$prez = HomeHtml::toHtml();
+    	$prez = HomeHtml::toHtml($error);
 		$this->response->setPart('contenu', $prez);
 	}
 
-	public function defaultAction()
+	public function defaultAction($error = null)
 	{
-		$this->home();
+		$this->home($error);
 	}
 
 	/**

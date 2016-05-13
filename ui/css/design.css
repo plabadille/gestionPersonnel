@@ -1,10 +1,12 @@
 body{
-	background-color: #E0DAD6;
+	background-color: #717751;
+	margin:0;
 }
 #conteneur{
 	display: flex;
 	flex-direction: row;
 	min-height: 80vh;
+	background-color: #c1b79e;
 }
 
 /* --------------HEADER------------ */
@@ -15,8 +17,8 @@ header{
 	flex-wrap: nowrap;
 	text-align:left;
 	padding:1%;
-	background-color: #67690A;
-	border-bottom: 3px solid black;
+	background-color: #717751;
+	border-bottom: 3px solid #331a00;
 }
 h1{
 	flex: 1 1 100%;
@@ -32,9 +34,9 @@ h1{
 /* --------------FIN_HEADER------------ */
 /* --------------MENU&NAV -------------- */
 nav{
-	background-color: #67690A;
+	background-color: #717751;
 	padding-right:5px;
-	border-right: 3px solid black;
+	border-right: 3px solid #331a00;
 	max-width: 22%;
 }
 #navigation li a{
@@ -44,24 +46,25 @@ nav{
 .toggleSubMenu{
 	padding-bottom: 10px;
 }
-.toggleSubMenu a:hover{
-	color:#1E0E48;
-}
+
 .subMenu li:first-of-type{
 	margin-top: 10px;
 }
 .subMenu li{
-	border-top: 1px solid black;
+	border-top: 2px solid #331a00;
 	padding: 5px 0 5px 0;
 	font-size: 0.8em;
 }
+.toggleSubMenu a:hover{
+	color: #c1b79e;
+}
 .subMenu li:hover{
-	background-color:#8F9226; 
+	background-color: #6b4f3a; 
 }
 #navigation .subMenu li a{
 	text-decoration: none;
 	font-weight: normal;
-	color: #1E0E48;
+	color: #c1b79e;
 }
 #navigation, .subMenu{
 	list-style: none;
@@ -74,7 +77,7 @@ nav{
 	padding: 4px;
 	margin-left: 3px;
 	border-radius:7px;
-	border: 2px solid black;
+	border: 3px solid #331a00;
 	font-size: 1.2em;
 }
 .moduleConteneur a{
@@ -82,22 +85,14 @@ nav{
 
 }
 
-/* <ul id="navigation">
-	<li class="toggleSubMenu">
-		<div class="moduleConteneur">
-			<ul class="subMenu">
-				<li>
-					<a> */
-
-
 /* --------------FIN NAV -------------- */
 
 /* --------------FOOTER -------------- */
 footer{
-	background-color: #67690A;
-	border-top: 3px solid black;
+	background-color: #717751;
+	border-top: 3px solid #331a00;
 	padding: 0 3% 0 3%;
-	height:50px;
+	height: 50px;
 	text-align: center;
 }
 /* --------------FIN FOOTER -------------- */
@@ -107,35 +102,141 @@ main{
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin: 0 auto 5px auto;
+	justify-content: center;
+	margin: 0 auto auto auto;
 }
 /* --------------FIN MAIN GOBAL -------------- */
-#completeFolder{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	border-radius: 10px;
-	border: 3px solid black;
-	padding: 0 2% 2% 2%;
-	margin-bottom: 5px;
-}
-#contentFolder, #contentAffectations, #contentAppartenances, #contentGrades, #diplomes {
-	border-bottom: 3px solid black;
-}
-
-
-h2{
-	text-align: center;
-}
 
 /*--CSS--ChampDeConnexion----*/
+#verticalAlign{
+	display: flex;
+	flex:1 1 100%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+#verticalAlign form{
+	align-self: center;
+}
+
+#connexionForm {
+	max-width: 350px;
+	
+	background: #f3f3f3;
+	border: 1px solid #fff;
+	border-radius: 5px;
+	
+	box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+#connexionForm h2 {
+	font-family: 'Bree Serif', serif;
+	font-weight: 300;
+	font-size: 2em;
+	line-height:34px;
+	color: #331a00;
+	text-shadow: 1px 1px 0 rgba(256,256,256,1.0);
+	margin-bottom: 10px;
+}
+#connexionForm p {
+	padding: 0 4px 0 4px;
+	font-size: 0.9em;
+	line-height: 16px;
+	color: #717751;
+	text-align:center;
+	text-shadow: 1px 1px 0 rgba(256,256,256,1.0);
+}
+
+#connexionForm .content {
+	padding: 0 30px 25px 30px;
+}
+#connexionForm .content input {
+	width: 80%;
+	padding: 15px 25px;
+	
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: 400;
+	font-size: 14px;
+	color: #9d9e9e;
+	text-shadow: 1px 1px 0 rgba(256,256,256,1.0);
+	
+	background: #fff;
+	border: 1px solid #fff;
+	border-radius: 5px;
+	
+	box-shadow: inset 0 1px 3px rgba(0,0,0,0.50);
+	-moz-box-shadow: inset 0 1px 3px rgba(0,0,0,0.50);
+	-webkit-box-shadow: inset 0 1px 3px rgba(0,0,0,0.50);
+}
+#connexionForm input {
+	margin-top: 25px;
+}
+
+#connexionForm .content input:hover {
+	background: #c1b79e;
+	color: #331a00;
+}
+
+#connexionForm .content input:focus {
+	background: #c1b79e;
+	color: #331a00;
+	
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.25);
+	-moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.25);
+	-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.25);
+}
+
+/* Login button */
+#connexionForm #connexionBouton {
+	padding: 11px 25px;
+	display:block;
+	margin:auto;
+	margin-bottom: 5px;
+	font-family: 'Bree Serif', serif;
+	font-weight: 300;
+	font-size: 18px;
+	color: #fff;
+	text-shadow: 0px 1px 0 rgba(0,0,0,0.25);
+	
+	background: #6b4f3a;
+	border: 1px solid #331a00;
+	border-radius: 5px;
+	cursor: pointer;
+	
+	box-shadow: inset 0 0 2px rgba(256,256,256,0.75);
+	-moz-box-shadow: inset 0 0 2px rgba(256,256,256,0.75);
+	-webkit-box-shadow: inset 0 0 2px rgba(256,256,256,0.75);
+}
+
+#connexionForm #connexionBouton:hover {
+	background: #717751;
+	border: 1px solid rgba(256,256,256,0.75);
+	
+	box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+	-webkit-box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+#connexionForm #connexionBouton:focus {
+	position: relative;
+	bottom: -1px;
+	
+	background: #717751;
+	
+	box-shadow: inset 0 1px 6px rgba(256,256,256,0.75);
+	-moz-box-shadow: inset 0 1px 6px rgba(256,256,256,0.75);
+	-webkit-box-shadow: inset 0 1px 6px rgba(256,256,256,0.75);
+}
+
+/* 
 #connexionForm{
 	display: block;
 	width: 100%;
 	margin: auto;
 	margin-bottom: 15px;
 	border-radius: 15px;
-	border: 1px solid black;
+	border: 1px solid #6b4f3a;
 	padding: 8%;
 	text-align:center;
 }
@@ -149,10 +250,8 @@ h2{
 }
 .pPublicHome{
 	text-align:center;
-}
-/*--CSS--Navigation----*/
+} */
 
-/*------------------------------------*/
 /*--CSS--Affichage de tous les articles*/
 #listeDossier{
 	list-style: none;
@@ -166,7 +265,7 @@ h2{
 #listeDossier li{
 	display:flex;
 	flex: 1 1 100%;
-	border:1px solid grey;
+	border:1px solid #6b4f3a;
 	padding:10px 10px 10px 10px;
 }
 #listeDossier li a:first-child{
@@ -179,7 +278,48 @@ h2{
 	flex:0;
 }
 
+@media screen and (min-device-width: 1250px) {
+	#listeDossier{
+		min-width: 700px;
+	}
+}
+
+
+
 /*------------------------------------*/
+/* ------- AFFICHAGE D'UN DOSSIER ---------*/
+#completeFolder{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 10px;
+	border: 3px solid #6b4f3a;
+	padding: 0 2% 2% 2%;
+	margin-bottom: 5px;
+	min-width: 500px;
+}
+#contentFolder, #contentAffectations, #contentAppartenances, #contentGrades{
+	border-bottom: 3px solid #6b4f3a;
+}
+
+h2{
+	text-align: center;
+}
+
+@media screen and (max-device-width: 850px) {
+	#completeFolder{
+		border-radius: 0px;
+		border: 0px;
+	}
+}
+
+@media screen and (min-device-width: 1600px) {
+	#completeFolder{
+		min-width: 700px;
+	}
+}
+/* ------- FIN AFFICHAGE D'UN DOSSIER ---------*/
+
 /*--CSS--Formulaire de recherche de dossier */
 .ui-autocomplete-input{
 	min-width: 250px;
@@ -197,7 +337,7 @@ h2{
 	margin-right: 10px;
 }
 /*------------------------------------*/
-/*--CSS--Formulaire de saisie d'article*/
+/*--CSS--Formulaire de saisie---------*/
 #errorFieldDossierForm{
 	width:100%;
 	background: red;
@@ -211,6 +351,7 @@ h2{
 }
 #formSaisieDossier{
 	display:flex;
+	max-width:500px;
 	padding:20px 0 20px 0;
 	flex-flow: row wrap;
 	justify-content: center;
@@ -222,19 +363,24 @@ h2{
 	max-width: 25%;
 	padding-left: 10px;
 	margin-right: 4px;
+	font-weight:bold;
+	margin-bottom:10px;
 }
 #formSaisieDossier input, #formSaisieDossier textarea, #formSaisieDossier select{
-	flex: 1 1 70%;
+	flex: 1 1 60%;
 	margin-right: 10px;
 	text-align: left;
+	margin-bottom:10px;
+	font-style:italic;
 }
 main #formSaisieDossier #boutonOk{
 	flex:0 0 15%;
 	max-width:30%;
+	text-align:center;
 	margin: 20px auto 0 auto;
 }
 #formSaisieDossier .dossierFormErrors{
-	font-size: 0.6em;
+	font-size: 0.9em;
 	color: red;
 	font-style: italic;
 }
@@ -242,38 +388,101 @@ main #formSaisieDossier #boutonOk{
 	color:red;
 }
 
-@media screen and (max-device-width: 1442px) {
-  	#formSaisieDossier label{
-		min-width: 13%;
-		max-width: 25%;
-		padding-left: 10px;
-		margin-right: 4px;
+@media screen and (min-device-width: 1250px) {
+  	#formSaisieDossier{
+		max-width:700px;
+	}
+	#formSaisieDossier label{
+		width: 35%;
+	}
+	#formSaisieDossier input, #formSaisieDossier textarea, #formSaisieDossier select{
+		flex: 1 1 50%;
+	}
+	main #formSaisieDossier #boutonOk{
+		flex:0 0 25%;
 	}
 }
 
 @media screen and (max-device-width: 850px) {
   	#formSaisieDossier label{
-		min-width: 13%;
-		max-width: 25%;
-		padding-left: 10px;
-		margin-right: 4px;
+		min-width: 90%;
+		max-width: 90%;
+		padding-left: 0;
+		margin-right: 0;
+		margin-top: 10px;
 		text-align: center;
 	}
 	#formSaisieDossier input, #formSaisieDossier textarea, #formSaisieDossier select{
-	flex: 1 1 95%;
-	margin-right: 5px;
-	margin-left: 5px;
-	text-align: center;
-}
+		flex: 1 1 95%;
+		margin-right: 5px;
+		margin-left: 5px;
+		text-align: center;
+	}
 }
 
 /*------------------------------------*/
 /*--CSS--Tableau---------------------*/
-table{
+.tab{
 	max-width: 700px;
-	display: block;
 	margin: 0 auto 0 auto;
 	width: 100%;
-	border: 1px;
-	overflow:scroll;
+	border: 1px solid #6b4f3a;
+}
+.tab th{
+	padding:6px;
+	background-color:#717751;
+}
+.tab td{
+	padding:3px;
+} 
+@media screen and (min-device-width: 1300px) {
+  	.tab{
+		max-width: 900px;
+	}
+}
+
+@media screen and (min-device-width: 1500px) {
+  	.tab{
+		max-width: 1100px;
+	}
+}
+
+@media screen and (min-device-width: 1800px) {
+  	.tab{
+		max-width: 1400px;
+	}
+}
+/*--FIN--Tableau---------------------*/
+
+#coError{
+	color: red;
+}
+
+/* Infobulle */
+ 
+#tooltip {
+    position:absolute;
+    z-index:9999;
+    color:#fff;
+    font-size:10px;
+    width:180px;
+ 
+}
+ 
+#tooltip .tipHeader {
+    height:8px;
+    background:url(images/tipHeader.gif) no-repeat;
+}
+ 
+/* hack IE */
+*html #tooltip .tipHeader {margin-bottom:-6px;}
+ 
+#tooltip .tipBody {
+    background-color:#000;
+    padding:5px;
+}
+ 
+#tooltip .tipFooter {
+    height:8px;
+    background:url(images/tipFooter.gif) no-repeat;
 }

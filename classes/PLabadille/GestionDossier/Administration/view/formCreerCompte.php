@@ -31,10 +31,10 @@ if ( $type == 'sauvegarderCompte' ){
 </div>
 
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=administration&action=<?php echo $type ; ?>">
-    <label for="username">Nom d'utilisateur</label>
+    <label for="username"><a rel="tooltip" title="Le nom d'utilisateur doit forcément faire référence au matricule d'un militaire déjà saisi dans la base."><img src="media/img/icons/info.png" alt="informations" /></a> Nom d'utilisateur*</label>
     <input type="text" name="username" id="username" value="<?php echo $attributs['id']; ?>" readonly/>
 
-    <label for="role">Selectionnez le rôle de cet utilisateur</label>
+    <label for="role">Selectionnez le rôle de cet utilisateur*</label>
     <select name="role" id="role">
     <?php
         foreach ($attributs['listeRole'] as $role) {

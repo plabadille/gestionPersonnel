@@ -1051,6 +1051,11 @@ class DossierController
         $error = AccessControll::checkRight($action);
         if ( empty($error) ){ //ok
             $dossiersEligibles = DossierManager::getAllEligiblePromotion();
+            //affichage du grade
+            foreach ($dossiersEligibles as $key => $value) {
+                $gradeSup = DossierManager::getGradeSup($value->getGrade());
+                $value->setGrade($gradeSup['0']);
+            }      
             $prez = DossierHtml::afficheDossiersEligiblesPromotion($dossiersEligibles);
         } else{ //pas ok
            $prez = HomeHtml::toHtml($error);

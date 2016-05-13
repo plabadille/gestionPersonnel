@@ -14,6 +14,7 @@ class Dossier
     protected $adresse;
     protected $date_recrutement;
     protected $saisie_by;
+    protected $grade;
 
     public function __construct($attributs = null)
     {
@@ -66,11 +67,15 @@ class Dossier
             $this->date_recrutement=$attributs['date_recrutement'];
         else
             $this->date_recrutement="";
-
         if (isset($attributs['saisie_by']))
             $this->saisie_by=$attributs['saisie_by'];
         else
             $this->saisie_by="";
+
+        if (isset($attributs['id']))
+            $this->grade=$attributs['id'];
+        else
+            $this->grade="";
     }  
 
     public function getMatricule()
@@ -160,6 +165,14 @@ class Dossier
     public function setWhoCreateFolder($saisie_by)
     {
         $this->saisie_by = $saisie_by;
+    }
+    public function getGrade()
+    {
+        return $this->grade;
+    }
+    public function setGrade($grade)
+    {
+        $this->grade = $grade;
     }
 
 }

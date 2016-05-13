@@ -5,6 +5,7 @@ namespace PLabadille\Common\Controller;
 use PLabadille\Common\Authentication\AuthenticationManager;
 use PLabadille\Common\Authentication\AuthenticationHtml;
 use PLabadille\GestionDossier\Controller\AccessControll;
+use PLabadille\GestionDossier\Home\HomeHtml;
 use PLabadille\Common\Cleaner\Cleaner;
 use PLabadille\Common\Cleaner\CleanerTrim;
 use PLabadille\Common\Cleaner\CleanerHtmlTags;
@@ -40,7 +41,7 @@ class FrontController
         $login = $cleaner->applyStrategies($login);
         $password = $cleaner->applyStrategies($password);
  		
- 		 if (!$authManager->isConnected() AND $login !== null) {
+ 		 if (!$authManager->isConnected() AND !empty($login)) {
                 // donnée POST pour le login => l'utilisateur essaye de se connecter
                 // vérifier le login/pwd
                 $authManager->checkAuthentication($login, $password);
@@ -49,7 +50,14 @@ class FrontController
                     // => modifier loginDisplay pour afficher les infos utilisateur et non le formulaire
                     $this->response->setPart('loginDisplay', AuthenticationHtml::afficher($url));
                     $this->response->setPart('navigation', AccessControll::afficherNavigation());
+                } else{
+                    $error = 'Mauvais identifiant ou mot de passe';
+                    $this->response->setPart('loginDisplay', AuthenticationHtml::afficher($url, $error));
+                    $this->response->setPart('navigation', AccessControll::afficherNavigation()); 
                 }
+         } else{ //l'user n'essaye pas de ce connecter
+            $this->response->setPart('loginDisplay', AuthenticationHtml::afficher($url));
+            $this->response->setPart('navigation', AccessControll::afficherNavigation());
          }
 
 		$router = $this->router;

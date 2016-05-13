@@ -7,11 +7,13 @@ use PLabadille\Common\Cleaner\CleanerPhoneNumber;
 use PLabadille\Common\Validator\Validator;
 use PLabadille\Common\Validator\ValidatorNotEmpty;
 use PLabadille\Common\Validator\ValidatorEmail;
-use PLabadille\Common\Validator\ValidatorTitleMinLength;
+use PLabadille\Common\Validator\ValidatorMinLength;
 use PLabadille\Common\Validator\ValidatorDateFormat;
 use PLabadille\Common\Validator\ValidatorPhoneNumberFormat;
 use PLabadille\Common\Validator\ValidatorCheckIfDateIsMoreRecent;
+use PLabadille\Common\Validator\ValidatorCheckIfDateIsMoreRecentAndReturnDiff;
 use PLabadille\Common\Validator\ValidatorIsNumber;
+use PLabadille\Common\Validator\ValidatorNoNumbers;
 
 //--------------------
 //ORGANISATION DU CODE
@@ -48,12 +50,14 @@ class DossierForm
     {
         #initialisation des validators
         $validatorNotEmpty = new ValidatorNotEmpty();
-        $validatorTitleMinLength = new ValidatorTitleMinLength();
         $validator_Email = new ValidatorEmail();
         $validatorDateFormat = new ValidatorDateFormat();
         $validatorPhoneNumberFormat = new ValidatorPhoneNumberFormat();
         $validatorCheckIfDateIsMoreRecent = new ValidatorCheckIfDateIsMoreRecent();
+        $validatorCheckIfDateIsMoreRecentAndReturnDiff = new ValidatorCheckIfDateIsMoreRecentAndReturnDiff();
         $validatorIsNumber = new ValidatorIsNumber();
+        $validatorMinLength = new ValidatorMinLength();
+        $validatorNoNumbers = new ValidatorNoNumbers();
 
         #switch selon le type de formulaire.
         switch ($type) {
@@ -79,15 +83,15 @@ class DossierForm
                     $errors['tel1']=$error;
                 }
                 //Validateur champ tel2 :
-                //1-Not empty
-                //2-format téléphone
+                //2-format téléphone (si non vide)
                 $validatorTel2 = new Validator();
-                $validatorTel2->addStrategy($validatorNotEmpty);
-                $validatorTel2->addStrategy($validatorPhoneNumberFormat);
-                $error = $validatorTel2->applyStrategies($attributs['tel2']);
+                if (!empty($attributs['tel2'])){ //optionnel, si non vide doit correspondre au format
+                    $validatorTel2->addStrategy($validatorPhoneNumberFormat);
+                    $error = $validatorTel2->applyStrategies($attributs['tel2']);
 
-                if($error !== null){
-                    $errors['tel2']=$error;
+                    if($error !== null){
+                        $errors['tel2']=$error;
+                    }
                 }
                 //Validateur champ email :
                 //1-Not empty
@@ -102,8 +106,10 @@ class DossierForm
                 }
                 //Validateur champ adresse :
                 //1-Not empty
+                //2-Min length
                 $validatorAdresse = new Validator();
                 $validatorAdresse->addStrategy($validatorNotEmpty);
+                $validatorAdresse->addStrategy($validatorMinLength);
                 $error = $validatorAdresse->applyStrategies($attributs['adresse']);
 
                 if($error !== null){
@@ -127,8 +133,10 @@ class DossierForm
 
                 //Validateur champ Nom :
                 // 1-Not empty
+                // 2-No numbers
                 $validatorNom = new Validator();
                 $validatorNom->addStrategy($validatorNotEmpty);
+                $validatorNom->addStrategy($validatorNoNumbers);
                 $error = $validatorNom->applyStrategies($attributs['nom']);
 
                 if($error !== null){
@@ -136,8 +144,10 @@ class DossierForm
                 }
                 //Validateur champ Prenom :
                 //1-Not empty
+                //2-No numbers
                 $validatorPrenom = new Validator();
                 $validatorPrenom->addStrategy($validatorNotEmpty);
+                $validatorPrenom->addStrategy($validatorNoNumbers);
                 $error = $validatorPrenom->applyStrategies($attributs['prenom']);
 
                 if($error !== null){
@@ -166,15 +176,15 @@ class DossierForm
                     $errors['tel1']=$error;
                 }
                 //Validateur champ tel2 :
-                //1-Not empty
-                //2-format téléphone
-                $validatorTel2 = new Validator();
-                $validatorTel2->addStrategy($validatorNotEmpty);
-                $validatorTel2->addStrategy($validatorPhoneNumberFormat);
-                $error = $validatorTel2->applyStrategies($attributs['tel2']);
+                //1-format téléphone
+                 $validatorTel2 = new Validator();
+                if (!empty($attributs['tel2'])){ //optionnel, si non vide doit correspondre au format
+                    $validatorTel2->addStrategy($validatorPhoneNumberFormat);
+                    $error = $validatorTel2->applyStrategies($attributs['tel2']);
 
-                if($error !== null){
-                    $errors['tel2']=$error;
+                    if($error !== null){
+                        $errors['tel2']=$error;
+                    }
                 }
                 //Validateur champ email :
                 //1-Not empty
@@ -189,8 +199,10 @@ class DossierForm
                 }
                 //Validateur champ adresse :
                 //1-Not empty
+                //2-Min Length
                 $validatorAdresse = new Validator();
                 $validatorAdresse->addStrategy($validatorNotEmpty);
+                $validatorAdresse->addStrategy($validatorMinLength);
                 $error = $validatorAdresse->applyStrategies($attributs['adresse']);
 
                 if($error !== null){
@@ -213,9 +225,15 @@ class DossierForm
                     $value['0'] = $attributs['date_naissance'];
                     $value['1'] = $attributs['date_recrutement'];
                     $validatorDateRecrutement = new Validator();
-                    $validatorDateRecrutement->addStrategy($validatorCheckIfDateIsMoreRecent);
-                    $error = $validatorDateRecrutement->applyStrategies($value);
-
+                    $validatorDateRecrutement->addStrategy($validatorCheckIfDateIsMoreRecentAndReturnDiff);
+                    $diff = $validatorDateRecrutement->applyStrategies($value);
+                    if(is_numeric($diff)){
+                        if ($diff < 18){
+                            $error = "<br>*La date saisie n'est pas possible, l'individu n'est pas majeur ($diff ans)";
+                        }
+                    } else{
+                        $error = $diff;
+                    }
                     if($error !== null){
                         $errors['date_recrutement']=$error;
                     } 
@@ -380,8 +398,10 @@ class DossierForm
                     ];
 
                     // 1-Not empty
+                    // 2-Not number
                     $validatorPaysObtention = new Validator();
                     $validatorPaysObtention->addStrategy($validatorNotEmpty);
+                    $validatorPaysObtention->addStrategy($validatorNoNumbers);
                     $error = $validatorPaysObtention->applyStrategies($attributs['pays_obtention']);
 
                     if($error !== null){
@@ -389,8 +409,10 @@ class DossierForm
                     }
 
                     //1-Not empty
+                    // 2-Not number
                     $validatorOrganismeFormation = new Validator();
                     $validatorOrganismeFormation->addStrategy($validatorNotEmpty);
+                    $validatorOrganismeFormation->addStrategy($validatorNoNumbers);
                     $error = $validatorOrganismeFormation->applyStrategies($attributs['organisme_formateur']);
 
                     if($error !== null){

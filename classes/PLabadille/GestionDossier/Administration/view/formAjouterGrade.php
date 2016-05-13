@@ -22,10 +22,10 @@
 
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=administration&action=<?php echo $type ; ?>">
 
-    <label for="grade">Nom du grade<span class="dossierFormErrors"><?php echo (isset($errors['grade']) ? $errors['grade'] : null); ?></span></label>
+    <label for="grade">Nom du grade*<span class="dossierFormErrors"><?php echo (isset($errors['grade']) ? $errors['grade'] : null); ?></span></label>
     <input type="text" name="grade" id="grade" placeholder="Saisir le nom de la classe" value="<?php echo (isset($attributs['grade']) ? $attributs['grade'] : null); ?>" />
 
-    <label for="hierarchie">Selectionnez l'équivalence du grade en terme de hierarchie</label>
+    <label for="hierarchie"><a rel="tooltip" title="Selectionnez le grade équivalent dans la liste."><img src="media/img/icons/info.png" alt="informations" /></a> Selectionnez l'équivalence du grade en terme de hierarchie*</label>
     <select name="hierarchie" id="hierarchie">
     <?php
         foreach ($attributs['listeGrade'] as $grade) {

@@ -26,6 +26,7 @@ class DossierManager
             SELECT m.matricule, nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement, saisie_by
             FROM Militaires m
             INNER JOIN Actifs a ON m.matricule = a.matricule
+            ORDER BY nom
         ';
         $stmt = $pdo->prepare($req);
         $stmt->execute();
@@ -105,7 +106,7 @@ class DossierManager
 
         $req = 
         '
-            SELECT id
+            SELECT grade
             FROM Grades
             where id = :id
         ';
@@ -133,6 +134,35 @@ class DossierManager
 
         $result = $stmt->fetch();
         return $result;
+    }
+
+    public static function getGradeSup($grade)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $req = 'select hierarchie from Grades where id = :grade';
+        $stmt = $pdo->prepare($req);
+        $data = ['grade' => $grade];
+        $stmt->execute($data);
+        $result = $stmt->fetchAll();
+
+        #On retire 1 au résultat afin de trouver le grade supérieur
+        $result['0']['hierarchie'] = $result['0']['hierarchie'] -1;
+        #On refait une requête afin de réccupérer les id des grades (possible plusieurs selon parcours pro)
+        $req = 'select grade from Grades where hierarchie = :hierarchie';
+        $stmt = $pdo->prepare($req);
+        $data = ['hierarchie' => $result['0']['hierarchie']];
+        $stmt->execute($data);
+        $result = $stmt->fetchAll();
+
+        $stmt->closeCursor();
+
+        #on retire les étages de tableau inutile puis on renvoit.
+        foreach ($result as $num) {
+            foreach ($num as $key => $value) {
+                $gradesSup[] = $value;
+            } 
+        }
+        return $gradesSup;
     }
 
     //--------------------
@@ -251,6 +281,7 @@ class DossierManager
             FROM Militaires m
             INNER JOIN Actifs a ON m.matricule = a.matricule
             WHERE a.saisie_by = :username;
+            ORDER BY nom
         ';
         $stmt = $pdo->prepare($req);
         $data = ['username' => $username];
@@ -1181,16 +1212,18 @@ class DossierManager
         $pdo = DB::getInstance()->getPDO();
 
         $req = '
-            SELECT * from Militaires m
+            SELECT a.matricule, nom, prenom, dg.id from Militaires m
             INNER JOIN Actifs a ON m.matricule = a.matricule
+            INNER JOIN DetientGrades dg ON dg.matricule = a.matricule
             WHERE eligible_promotion = 1
+            ORDER BY nom
         ';
         $stmt = $pdo->prepare($req);
         $stmt->execute();
 
         $result = $stmt->fetchAll();
         $stmt->closeCursor();
-
+       
         $dossier = array();
         foreach ($result as $attributs) {
             $dossier[] = new Dossier($attributs);
@@ -1270,6 +1303,7 @@ class DossierManager
             SELECT * from Militaires m
             INNER JOIN Actifs a ON m.matricule = a.matricule
             WHERE eligible_retraite = 1
+            ORDER BY nom
         ';
         $stmt = $pdo->prepare($req);
         $stmt->execute();
