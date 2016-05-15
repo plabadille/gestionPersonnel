@@ -37,6 +37,16 @@ class AdministrationManager
         return $result;
     }
 
+    public static function downloadBdd()
+    {
+        DB::getInstance()->getDump();
+    }
+
+    public static function internalDumpBdd()
+    {
+        DB::getInstance()->internalDump();
+    }
+
     //--------------------
     //4-module gestion et ajout de dossier
     //--------------------
@@ -1033,6 +1043,85 @@ class AdministrationManager
             return null;
         }
     }
+    //-----------------------------
+
+    //--------------------
+    //6-module de sauvegarde et de gestion de crise
+    //--------------------
+
+    // 6-1- 'gestion de la bdd':
+    //-----------------------------
+
+    // 6-1-1 'sauvegardeCompleteBdd':
+    //Utilisation d'une fonction générique
+
+    // 6-1-2 'suprAllBdd':
+    public static function deleteBdd()
+    {
+        //on doit respecter un ordre pour eviter d'avoir des problèmes de dépendance à cause des foreigns keys.
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd
+        //supression des tables utilisants les constantes et militaire
+        $pdo->exec("
+            DROP TABLE PossedeDiplomes, Users, DiplomesEquivalences, DetientGrades, ConditionsPromotions, ConditionsRetraites, AppartientRegiment, Affectation
+        ");
+        //supression des tables contenants les constantes
+        $pdo->exec("
+            DROP TABLE Actifs, Archives, Casernes, Diplomes, Grades, Regiment, Retraites, Droits
+        ");
+        //supression de la table Militaire
+        $pdo->exec("DROP TABLE Militaires");
+        
+        return 'action effectuée, veuillez réimporter la base manuellement pour pouvoir de nouveau utiliser l\'application';
+    }
+
+    // 6-1-3 'setAllUsersRightToNoRight':
+    public static function setNoRights()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $count = $pdo->exec("
+            UPDATE Droits 
+            SET noRights = 1
+            WHERE role != 'superAdmin'
+        ");
+        
+        if ($count > 0){
+            return 'action effectuée : les droits des utilisateurs sont maintenant null (effectif après déconnexion si ils sont déjà connecté).';
+        } else{
+            return 'erreur, les droits des rôles sont déjà à noRights';
+        }
+    }
+
+
+    public static function unsetNoRights()
+    {
+        $pdo = DB::getInstance()->getPDO();
+
+        //requête d'insertion en bdd   
+        $count = $pdo->exec("
+            UPDATE Droits 
+            SET noRights = 0
+            WHERE role != 'superAdmin'
+        ");
+
+        if ($count > 0){
+            return 'action effectuée : les droits des utilisateurs sont maintenant rétablie (effectif après déconnexion si ils sont déjà connecté).';
+        } else{
+            return 'erreur, les droits des rôles ne sont déjà plus à noRights';
+        }
+    }
+    //-----------------------------
+
+    // 6-2- 'importer un DUMP':
+    //-----------------------------
+
+    //-----------------------------
+
+    // 6-3- 'gérer les fichiers de LOG':
+    //-----------------------------
 
     //-----------------------------
     

@@ -1144,6 +1144,159 @@ class AdministrationController
             die($error);
         }
     }
+    //-----------------------------
+
+    //--------------------
+    //6-module de sauvegarde et de gestion de crise
+    //--------------------
+
+    // 6-1- 'gestion de la bdd':
+    //-----------------------------
+
+    // 6-1-0 'display'
+    public function bddManagement($info = null)
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            $prez = AdministrationHtml::displayBddManagement($info);
+            $this->response->setPart('contenu', $prez);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 6-1-1 'sauvegardeCompleteBdd':
+    public function downloadBddDump()
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            AdministrationManager::downloadBdd();
+            self::bddManagement();
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+    // 6-1-2 'suprAllBdd':
+    public function deleteTheWholeBdd()
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            AdministrationManager::internalDumpBdd();
+            $info = AdministrationManager::deleteBdd();
+            self::bddManagement($info);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    // 6-1-3 'setAllUsersRightToNoRight':
+    public function setAllUsersToNoRight()
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            $info = AdministrationManager::setNoRights();
+            self::bddManagement($info);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    public function unsetAllUsersToNoRight()
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            $info = AdministrationManager::unsetNoRights();
+            self::bddManagement($info);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    //-----------------------------
+
+    // 6-2- 'importer un DUMP':
+    //-----------------------------
+
+    public function importDump()
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    //-----------------------------
+
+    // 6-3- 'gérer les fichiers de LOG':
+    //-----------------------------
+
+    public function logsManagement($log = null)
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            //on génère un tableau contenant la liste des noms des fichiers de log
+            $path = "media/infos";
+            if (is_dir($path)) {
+                if ($dh = opendir($path)) {
+                    while (($file = readdir($dh)) !== false) {
+                        //on ne veut pas réccupérer de fichier caché ou autre '.' donc on filtre
+                        if (preg_match('#[a-w]{3,}(.txt)#', $file)){
+                            $logsName[] = $file;
+                        }
+                    }
+                    closedir($dh);
+                }
+            }
+            // $logsName = explode('\n', $logsName);
+            $prez = AdministrationHtml::displayLogsManagement($logsName, $log);
+            $this->response->setPart('contenu', $prez);
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    public function displayLog()
+    {
+        //sécurité
+        $auth = AuthenticationManager::getInstance();
+        $actionUserRole = $auth->getRole();
+        if ($actionUserRole == 'superAdmin'){
+            $filename = $this->request->getGetAttribute('filename');
+            //on réccupère le contenu du fichier et on le redécoupe en ligne dans un tableau
+            $path = 'media/infos/';
+            $content = file_get_contents($path.$filename);
+            $content = explode("\n", $content);
+            //on l'affiche
+            self::logsManagement($content);
+
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
 
     //-----------------------------
 

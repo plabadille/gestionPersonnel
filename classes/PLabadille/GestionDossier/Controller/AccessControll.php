@@ -25,6 +25,7 @@ class AccessControll
         $module3 = '';
         $module4 = '';
         $module5 = '';
+        $module6 = '';
 
         $html = '';
         //gère l'affichage du menu en fonction du statut de l'utilisateur.
@@ -145,6 +146,9 @@ class AccessControll
                 $module5 .= '<li><a href="?objet=administration&action=ajouterDiplome">Ajouter un diplome</a></li>' . "\n";
                 $module5 .= '<li><a href="?objet=administration&action=ajouterGrade">Ajouter un grade</a></li>' . "\n";
                 $module5 .= '<li><a href="?objet=administration&action=ajouterClasseDroits">Ajouter un droit</a></li>' . "\n";
+                $module6 .= '<li><a href="?objet=administration&action=bddManagement">Gérer la base de donnée (droits, sauvegarde, supression)</a></li>' . "\n";
+                $module6 .= '<li><a href="?objet=administration&action=importDump">Importer une sauvegarde le la base de donnée</a></li>' . "\n";
+                $module6 .= '<li><a href="?objet=administration&action=logsManagement">Gérer les fichiers de log</a></li>' . "\n";
             } else{
                 //ici les droits ont été passé à noRights, situation d'urgence enclenchée.
                 $html = '<p>système hors ligne, veuillez vous déconnecter</p>';
@@ -171,6 +175,10 @@ class AccessControll
         if ( !empty($module5) ){
             $nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module de gestion de l\'application</h3>' . "\n" . '<ul class="subMenu">' . "\n";
             $html .= '<li class="toggleSubMenu">' . $nameModule . $module5 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
+        }
+        if ( !empty($module6) ){
+            $nameModule = "\n" . '<div class="moduleConteneur">' . "\n" . '<h3>Module de sauvegarde et de gestion de crise</h3>' . "\n" . '<ul class="subMenu">' . "\n";
+            $html .= '<li class="toggleSubMenu">' . $nameModule . $module6 . '</ul>' . "\n" . '</div>' . "\n" . '</li>';
         }
 
 

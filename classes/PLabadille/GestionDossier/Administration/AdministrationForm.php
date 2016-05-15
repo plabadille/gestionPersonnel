@@ -255,4 +255,29 @@ class AdministrationForm
         return $prez;
     }
 
+    //--------------------
+    //6-module de sauvegarde et de gestion de crise
+    //--------------------
+
+    // 6-1- 'gestion de la bdd':
+    //-----------------------------
+
+    // 6-1-1 'sauvegardeCompleteBdd':
+
+    // 6-1-2 'suprAllBdd':
+
+    // 6-1-3 'setAllUsersRightToNoRight':
+
+    //-----------------------------
+
+    // 6-2- 'importer un DUMP':
+    //-----------------------------
+
+    //-----------------------------
+
+    // 6-3- 'gérer les fichiers de LOG':
+    //-----------------------------
+
+    //-----------------------------
+
 }

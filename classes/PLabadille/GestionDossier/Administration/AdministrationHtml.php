@@ -425,4 +425,102 @@ EOT;
 
         return $html;
     }
+
+    //--------------------
+    //6-module de sauvegarde et de gestion de crise
+    //--------------------
+
+    // 6-1- 'gestion de la bdd':
+    //-----------------------------
+    public static function displayBddManagement($info = null)
+    {
+        if (!empty($info)){
+            $infoDisplay = '<div id="infoAction"><p>' . $info . '</p></div>';
+        } else{
+            $infoDisplay = null;
+        }
+
+        $html = <<<EOT
+        <section id="adminDisplayContent">
+            <h2>Gestion de la base de donnée</h2>
+            {$infoDisplay}
+            
+            <div class="block">
+                <h3>Sauvegarde de la base de donnée</h3>
+                <p><a href="?objet=administration&action=downloadBddDump" alt="lien de téléchargement de la bdd">Télécharger l'intégralité de la base</a><p>
+            </div>
+            
+            <div class="block">
+                <h3>Gestion des droits des utilisateurs (situation d'urgence)</h3>
+                <p>Si vous souhaitez interdir l'accès à toutes les fonctionnalités des utilisateurs (temporairement, les droits préalablement prévu ne seront pas perdu) de toutes les classes excepté celle de superAdministrateur, choisissez "activer". Pour remettre les droits en l'état suite à une activation, choisissez "désactiver".</p>
+                <p><a href="?objet=administration&action=setAllUsersToNoRight" alt="passer les droits de tous les utilisateurs à aucun droit">activer</a> -/-
+                <a href="?objet=administration&action=unsetAllUsersToNoRight" alt="désactiver aucun droits">désactiver</a></p>
+            </div>
+
+            <div class="block">
+                <h3>Suppression de la base de donnée</h3>
+                <p>Si la base a été corrompue, que vous souhaitez rendre le site totalement indisponible ou que vous souhaitez protéger les données vous pouvez utiliser cette fonctionnalité. La supression totale sera cependant précédée d'une sauvegarde de secour dans /data/tmp. Le site deviendra alors <b>indisponible</b> pour tous les utilisateurs, <b>vous compris</b> : il faudra alors <b>réimporter la base de donnée manuellement</b>. Si vous souhaitez simplement retourner à une ancienne version de la base, choisissez plutôt la fonction d'import.</p>
+                <p><a href="javascript:if(confirm('Cette action est irréversible, êtes-vous sûr de vouloir supprimer la base de donnée? Elle devra ensuite être réimporté manuellement.')) document.location.href='?objet=administration&amp;action=deleteTheWholeBdd&amp'" alt="Supprimer la base de donnée">Supprimer la base de donnée</a></p>
+            </div>
+        </section>
+
+EOT;
+    return $html;
+    }
+
+    //-----------------------------
+
+    // 6-2- 'importer un DUMP':
+    //-----------------------------
+
+    //-----------------------------
+
+    // 6-3- 'gérer les fichiers de LOG':
+    //-----------------------------
+
+    public static function displayLogsManagement($logsName, $log=null)
+    {
+        $html = '<h2>Gestion des fichiers de logs</h2>'."\n";
+
+        $html .= '<h3>Liste des fichiers de log disponibles</h3>'."\n";
+        foreach ($logsName as $key => $value) {
+            $html .= '<a href="?objet=administration&action=displayLog&filename='.$value.'" alt="afficher un fichier de log">afficher le fichier: '.$value.'</a>'."\n";
+        }
+
+        $html .= '<h3>Contenu du fichier</h3>'."\n";
+        if ($log){
+            $html .= '<table class="tabLogs">'."\n";
+
+            //affichage de l'en-tête du tableau
+            $html .= '<tr>'."\n";
+            $html .= '<th>line<th>'."\n";
+            $head = explode(' ', $log[0]);
+            foreach ($head as $key => $value) {
+                $html .= '<th>'.$value.'</th>'."\n";
+            }
+            $html .= '</tr>'."\n";
+
+            //affichage du contenu
+            foreach ($log as $key => $value) {
+                if ($key != 0){
+                    $content = explode(' ', $value);
+                    $html .= '<tr>'."\n";
+                    $html .= '<td>'.$key.'<td>'."\n";
+                    foreach ($content as $key => $txt) {
+                        if ((strrchr($txt, ';')) != false){ //spécial pour les fichiers conservant le contenu supprimé
+                            $txt = preg_replace('#(;)#', '<br/>', $txt); //si un ; existe, on le remplace par un saut de ligne pour l'affichage correct
+                        }
+                        
+                        $html .= '<td>'.$txt.'</td>'."\n";
+                    }
+                    $html .= '</tr>'."\n";
+                }
+            }
+            $html .= '</table>'."\n";
+        } else{
+            $html .= '<p>Aucun fichier selectionné</p>'."\n";
+        }
+        return $html;
+    }
+    //-----------------------------
 }

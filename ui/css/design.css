@@ -452,11 +452,28 @@ main #formSaisieDossier #boutonOk{
 		max-width: 1400px;
 	}
 }
+
+.tabLogs{
+	border: 1px solid black;
+}
+.tabLogs th{
+	text-align: center;
+	padding:6px;
+	background-color:#717751;
+}
+.tabLogs td{
+	text-align: center;
+	border-bottom: 1px solid white;
+	padding:3px;
+	color: white;
+	background-color:black;
+}
 /*--FIN--Tableau---------------------*/
 
 #coError{
-	color: red;
+	color: red!important;
 }
+
 
 /* Infobulle */
  
@@ -485,4 +502,22 @@ main #formSaisieDossier #boutonOk{
 #tooltip .tipFooter {
     height:8px;
     background:url(images/tipFooter.gif) no-repeat;
+}
+
+/* interface admin */
+#adminDisplayContent{
+	max-width:800px;
+	padding: 5px;
+}
+
+#adminDisplayContent .block{
+	border-bottom: 1px solid;
+}
+
+#adminDisplayContent .block h3{
+	margin-top:40px;
+}
+
+#infoAction{
+	color: red!important;
 }
