@@ -147,7 +147,6 @@ class AccessControll
                 $module5 .= '<li><a href="?objet=administration&action=ajouterGrade">Ajouter un grade</a></li>' . "\n";
                 $module5 .= '<li><a href="?objet=administration&action=ajouterClasseDroits">Ajouter un droit</a></li>' . "\n";
                 $module6 .= '<li><a href="?objet=administration&action=bddManagement">Gérer la base de donnée (droits, sauvegarde, supression)</a></li>' . "\n";
-                $module6 .= '<li><a href="?objet=administration&action=importDump">Importer une sauvegarde le la base de donnée</a></li>' . "\n";
                 $module6 .= '<li><a href="?objet=administration&action=logsManagement">Gérer les fichiers de log</a></li>' . "\n";
             } else{
                 //ici les droits ont été passé à noRights, situation d'urgence enclenchée.

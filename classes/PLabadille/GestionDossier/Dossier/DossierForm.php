@@ -13,6 +13,7 @@ use PLabadille\Common\Validator\ValidatorPhoneNumberFormat;
 use PLabadille\Common\Validator\ValidatorCheckIfDateIsMoreRecent;
 use PLabadille\Common\Validator\ValidatorCheckIfDateIsMoreRecentAndReturnDiff;
 use PLabadille\Common\Validator\ValidatorIsNumber;
+use PLabadille\Common\Validator\ValidatorIsString;
 use PLabadille\Common\Validator\ValidatorNoNumbers;
 
 //--------------------
@@ -56,6 +57,7 @@ class DossierForm
         $validatorCheckIfDateIsMoreRecent = new ValidatorCheckIfDateIsMoreRecent();
         $validatorCheckIfDateIsMoreRecentAndReturnDiff = new ValidatorCheckIfDateIsMoreRecentAndReturnDiff();
         $validatorIsNumber = new ValidatorIsNumber();
+        $validatorIsString = new ValidatorIsString();
         $validatorMinLength = new ValidatorMinLength();
         $validatorNoNumbers = new ValidatorNoNumbers();
 
@@ -136,7 +138,7 @@ class DossierForm
                 // 2-No numbers
                 $validatorNom = new Validator();
                 $validatorNom->addStrategy($validatorNotEmpty);
-                $validatorNom->addStrategy($validatorNoNumbers);
+                $validatorNom->addStrategy($validatorIsString);
                 $error = $validatorNom->applyStrategies($attributs['nom']);
 
                 if($error !== null){
@@ -147,7 +149,7 @@ class DossierForm
                 //2-No numbers
                 $validatorPrenom = new Validator();
                 $validatorPrenom->addStrategy($validatorNotEmpty);
-                $validatorPrenom->addStrategy($validatorNoNumbers);
+                $validatorPrenom->addStrategy($validatorIsString);
                 $error = $validatorPrenom->applyStrategies($attributs['prenom']);
 
                 if($error !== null){
@@ -401,7 +403,7 @@ class DossierForm
                     // 2-Not number
                     $validatorPaysObtention = new Validator();
                     $validatorPaysObtention->addStrategy($validatorNotEmpty);
-                    $validatorPaysObtention->addStrategy($validatorNoNumbers);
+                    $validatorPaysObtention->addStrategy($validatorIsString);
                     $error = $validatorPaysObtention->applyStrategies($attributs['pays_obtention']);
 
                     if($error !== null){
@@ -412,7 +414,7 @@ class DossierForm
                     // 2-Not number
                     $validatorOrganismeFormation = new Validator();
                     $validatorOrganismeFormation->addStrategy($validatorNotEmpty);
-                    $validatorOrganismeFormation->addStrategy($validatorNoNumbers);
+                    $validatorOrganismeFormation->addStrategy($validatorIsString);
                     $error = $validatorOrganismeFormation->applyStrategies($attributs['organisme_formateur']);
 
                     if($error !== null){

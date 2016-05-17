@@ -105,10 +105,38 @@ class AdministrationController
 
         ##On stock les informations d'executions dans un fichier pour faire un récap.
         #contenu à ajouter au fichier
-        $content = "\n" . $today . ' ' . $actionUsername . ' ' . $type;
-        foreach ($attributs as $key => $value) {
-            $content .= ' ' . $key . ':' . $value;
+        $content = "\n" . $today . ' ' . $actionUsername . ' ' . $type . ' ';
+        
+        if ($type == 'suprClasseDroits'){
+            foreach ($attributs as $key => $value) {
+                if ($value == '0'){
+                    unset($attributs[$key]);
+                }
+            }
         }
+
+        $j = 0;
+        $col = count($attributs);
+        foreach ($attributs as $key => $value) {
+            $content .= $key . ':';
+            $str = explode(' ', $value); //on s'occupe des cas ayant un espace dans la valeur supprimée
+            $number = count($str);
+            if ($number >= 1){
+                for ($i=0; $i < $number ; $i++) { 
+                    if($i != $number-1){
+                        $content .= $str[$i] . '_';
+                    } else{ //dernier élément, on rajoute le ; séparateur
+                        if ($j < $col-1){ 
+                            $content .= $str[$i] . ';';
+                        } else{//dernier élément du tableau
+                            $content .= $str[$i];
+                        }
+                    } 
+                }
+            }
+            $j++;     
+        }
+
         $monfichier = fopen('media/infos/logSuprConstanteInformations.txt', 'r+');
         #on se positionne à la fin du fichier
         fseek($monfichier, 0, SEEK_END);
@@ -1238,7 +1266,34 @@ class AdministrationController
         $auth = AuthenticationManager::getInstance();
         $actionUserRole = $auth->getRole();
         if ($actionUserRole == 'superAdmin'){
-
+            $files = $this->request->getFiles();
+            if (!empty($files['dump']['tmp_name'])){ //un fichier est bien présent
+                if ($files['dump']['type'] == 'application/sql'){
+                    //on parcours le fichier et le stock dans un tableau
+                    $file = fopen($files['dump']['tmp_name'], 'r');
+                    $fileContent = '';
+                    while ( !feof($file)) {
+                        $fileContent .= fgets($file);
+                    }
+                    fclose($file);
+                    if (!empty($fileContent)){
+                        //à ce stade et si le dump fournit est correct, on est certain qu'il n'y aura pas de problème. On fait donc appel à une fonction du Manager qui va supprimer l'intégralité de la base puis réimporter cette version.
+                        
+                        //on sauvegarde localement le contenu actuel de la bdd
+                        AdministrationManager::internalDumpBdd();
+                        //on lance la supression/importation
+                        $info = AdministrationManager::dropBaseAndImportANewOne($fileContent);
+                        //indique si succès ou échec et on réaffiche l'interface d'administration
+                        self::bddManagement($info); 
+                    } else{ //au cas ou un problème de lecture du fichier survient
+                        self::bddManagement('une erreur est survenue, veuillez réessayer.');
+                    }
+                } else{ //le fichier n'est pas du bon format
+                    self::bddManagement('le fichier doit être un fichier de type .sql');
+                }
+            } else{ //pas de fichier importé
+                self::bddManagement('aucun fichier n\'a été correctement importé');
+            }
         } else{ //pas ok
             header("location: index.php");
             die($error);
@@ -1250,7 +1305,7 @@ class AdministrationController
     // 6-3- 'gérer les fichiers de LOG':
     //-----------------------------
 
-    public function logsManagement($log = null)
+    public function logsManagement($log = null, $logSelected = null)
     {
         //sécurité
         $auth = AuthenticationManager::getInstance();
@@ -1270,7 +1325,7 @@ class AdministrationController
                 }
             }
             // $logsName = explode('\n', $logsName);
-            $prez = AdministrationHtml::displayLogsManagement($logsName, $log);
+            $prez = AdministrationHtml::displayLogsManagement($logsName, $log, $logSelected);
             $this->response->setPart('contenu', $prez);
         } else{ //pas ok
             header("location: index.php");
@@ -1290,7 +1345,7 @@ class AdministrationController
             $content = file_get_contents($path.$filename);
             $content = explode("\n", $content);
             //on l'affiche
-            self::logsManagement($content);
+            self::logsManagement($content, $filename);
 
         } else{ //pas ok
             header("location: index.php");

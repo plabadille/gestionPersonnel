@@ -1,3 +1,6 @@
-date type username deletedContent
+date username type deletedContent
 2016-04-30-12-39-17 111 conditionPromotion id:24;idGrade:1;annees_service_FA:5;annees_service_GN:0;annees_service_SOE:0;annees_service_grade:0;diplome:BAT;diplomeSup1:;diplomeSup2:
 2016-04-30-12-39-45 111 conditionRetraite id:24;idGrade:1;service_effectif:1;age:50
+2016-05-16-10-47-14 111 conditionRetraite id:25;idGrade:1;service_effectif:10;age:30
+2016-05-16-10-48-09 111 conditionRetraite id:26;idGrade:1;service_effectif:10;age:50
+2016-05-16-10-49-39 111 conditionPromotion id:25;idGrade:1;annees_service_FA:20;annees_service_GN:10;annees_service_SOE:5;annees_service_grade:15;diplome:BA2;diplomeSup1:CAT1;diplomeSup2:BCG

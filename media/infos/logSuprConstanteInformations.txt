@@ -1,17 +1,19 @@
-date username type contentDeleted(plusieurs colonnes)
-2016-05-08-13-26-16 111 suprGrade id:28 grade:test hierarchie:3
-2016-05-08-13-30-43 111 suprGrade id:29 grade:test2 hierarchie:1
-2016-05-08-13-33-18 111 suprGrade id:30 grade:test3 hierarchie:1
-2016-05-08-13-34-25 111 suprGrade id:31 grade:test4 hierarchie:1
-2016-05-08-13-47-35 111 suprGrade id:39 grade:test12 hierarchie:1
-2016-05-08-14-33-41 111 suprGrade id:40 grade:test16 hierarchie:1
-2016-05-08-14-34-04 111 suprGrade id:41 grade:grade17 hierarchie:1
-2016-05-08-16-22-45 111 suprDiplome acronyme:truc intitule:test
-2016-05-08-16-26-16 111 suprDiplome acronyme:test2 intitule:2
-2016-05-08-16-26-42 111 suprDiplome acronyme:test3 intitule:3
-2016-05-08-16-49-49 111 suprDiplome acronyme:test4 intitule:4
-2016-05-08-16-50-34 111 suprGrade id:42 grade:test18 hierarchie:1
+date username type contentDeleted
+2016-05-08-13-26-16 111 suprGrade id:28;grade:test;hierarchie:3
+2016-05-08-13-30-43 111 suprGrade id:29;grade:test2;hierarchie:1
+2016-05-08-13-33-18 111 suprGrade id:30;grade:test3;hierarchie:1
+2016-05-08-13-34-25 111 suprGrade id:31;grade:test4;hierarchie:1
+2016-05-08-13-47-35 111 suprGrade id:39;grade:test12;hierarchie:1
+2016-05-08-14-33-41 111 suprGrade id:40;grade:test16;hierarchie:1
+2016-05-08-14-34-04 111 suprGrade id:41;grade:grade17;hierarchie:1
+2016-05-08-16-22-45 111 suprDiplome acronyme:truc;intitule:test
+2016-05-08-16-26-16 111 suprDiplome acronyme:test2;intitule:2
+2016-05-08-16-26-42 111 suprDiplome acronyme:test3;intitule:3
+2016-05-08-16-49-49 111 suprDiplome acronyme:test4;intitule:4
+2016-05-08-16-50-34 111 suprGrade id:42;grade:test18;hierarchie:1
 2016-05-08-16-55-05 111 suprRegiment id:TEST
-2016-05-08-16-57-31 111 suprCaserne id:26 nom:trucTest adresse:TRUClANDa tel_standard:02 33 66 43 11
-2016-05-08-17-05-47 111 suprClasseDroits role:Test noRights:0 allRights:0 seeOwnFolderModule:0 editOwnFolderPersonalInformation:0 listCreatedFolder:0 listAllFolder:1 seeCreatedFolder:1 seeAllFolder:1 createFolder:0 addElementToAFolder:0 addElementToAFolderCreated:1 editInformationIfAuthor:1 editInformation:0 deleteInformation:0 useFileToAddFolders:0 listEligible:0 editEligibleCondition:0 addEligibleCondition:0 suprEligibleCondition:0 canRetireAFolder:0 canArchiveAFolder:0 editEligibleEmailContent:0 uploadFileForMail:0 changePieceJointeForEligibleMail:0 seeAllFolderWithoutAccount:0 seeAllAccount:0 createAccount:0 alterMdp:0 alterAccountRight:0 deleteAccount:0 seeAllConstanteTable:0 editInAConstanteTable:0 deleteInAConstanteTable:0
-2016-05-08-17-07-34 1 suprGrade id:43 grade:testAdmin hierarchie:1
+2016-05-08-16-57-31 111 suprCaserne id:26;nom:trucTest;adresse:TRUClANDa;tel_standard:0233664311
+2016-05-08-17-07-34 1 suprGrade id:43;grade:testAdmin;hierarchie:1
+2016-05-16-10-58-46 111 suprClasseDroits role:test;createFolder:1;suprEligibleCondition:1;createAccount:1
+2016-05-16-10-59-33 111 suprCaserne id:27;nom:test_de_caserne_log;adresse:une_super_adresse;tel_standard:02_33_66_43_11
+2016-05-17-09-38-53 111 suprGrade id:44;grade:test_hirar;hierarchie:10

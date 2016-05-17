@@ -16,7 +16,7 @@
 </div>
 <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="index.php?objet=dossier&action=<?php echo $type ; ?>">
     
-    <label for="date_retraite"><a rel="tooltip" title="le format de date à saisir est sous la forme américaine : YYYY-MM-DD"><img src="media/img/icons/info.png" alt="informations" /></a> Date de retraite<span class="dossierFormErrors"><?php echo $errors['date_retraite']; ?></span></label>
+    <label for="date_retraite"><a rel="tooltip" title="le format de date à saisir est sous la forme américaine : YYYY-MM-DD"><img src="media/img/icons/info.png" alt="informations" /></a> Date de retraite*<span class="dossierFormErrors"><?php echo $errors['date_retraite']; ?></span></label>
     <input type="text" name="date_retraite" class="datepicker" value="<?php echo (isset($attributs['date_retraite']) ? $attributs['date_retraite'] : null); ?>" />
     
     <input type='hidden' name='id' value="<?php echo $attributs['id'] ? $attributs['id'] : null; ?>">

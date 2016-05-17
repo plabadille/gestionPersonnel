@@ -40,9 +40,27 @@ class DossierController
 
         ##On stock les informations d'executions dans un fichier pour faire un récap.
         #contenu à ajouter au fichier
-        $content = "\n" . $today . ' ' . $username . ' ' . $type;
+        $content = "\n" . $today . ' ' . $username . ' ' . $type . ' ';
+        $j = 0;
+        $col = count($data);
         foreach ($data as $key => $value) {
-            $content .= ' ' . $key . ':' . $value;
+            $content .= $key . ':';
+            $str = explode(' ', $value); //on s'occupe des cas ayant un espace dans la valeur supprimée
+            $number = count($str);
+            if ($number >= 1){
+                for ($i=0; $i < $number ; $i++) { 
+                    if($i != $number-1){
+                        $content .= $str[$i] . '_';
+                    } else{ //dernier élément, on rajoute le ; séparateur
+                        if ($j < $col-1){ 
+                            $content .= $str[$i] . ';';
+                        } else{//dernier élément du tableau
+                            $content .= $str[$i];
+                        }
+                    } 
+                }
+            }
+            $j++;     
         }
         $monfichier = fopen('media/infos/logDeletedFolderInformations.txt', 'r+');
         #on se positionne à la fin du fichier
@@ -91,9 +109,27 @@ class DossierController
 
             ##On stock les informations d'executions dans un fichier pour faire un récap.
             #contenu à ajouter au fichier
-            $content = "\n" . $today . ' ' . $username . ' ' . $type;
+            $content = "\n" . $today . ' ' . $username . ' ' . $type . ' ';
+            $j = 0;
+            $col = count($data);
             foreach ($data as $key => $value) {
-                $content .= ' ' . $key . ':' . $value;
+                $content .= $key . ':';
+                $str = explode(' ', $value); //on s'occupe des cas ayant un espace dans la valeur supprimée
+                $number = count($str);
+                if ($number >= 1){
+                    for ($i=0; $i < $number ; $i++) { 
+                        if($i != $number-1){
+                            $content .= $str[$i] . '_';
+                        } else{ //dernier élément, on rajoute le ; séparateur
+                            if ($j < $col-1){ 
+                                $content .= $str[$i] . ';';
+                            } else{//dernier élément du tableau
+                                $content .= $str[$i];
+                            }
+                        } 
+                    }
+                }
+                $j++;     
             }
             $monfichier = fopen('media/infos/logDeletedConditionsEligible.txt', 'r+');
             #on se positionne à la fin du fichier

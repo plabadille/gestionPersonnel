@@ -992,20 +992,38 @@ class AdministrationManager
         if ($result == false){
             $stmt->closeCursor();
             return 'La supression n\'a pas pu être effectuée, cette constante est liée à des dossiers/conditions : vérifiez qu\'aucun militaire ne détient ce grade, qu\'il ne fait pas parti d\'une condition de promotion ou de retraite';
-        } else{ //sinon on supprime
-            $req = '
-                DELETE
-                FROM Grades
-                WHERE id = :id
-            ';
-
+        } else{ //sinon on verifi qu'un autre grade possède la hierarchie de celui ci
+            $req = 'SELECT hierarchie FROM Grades WHERE id =:id';
             $stmt = $pdo->prepare($req);
             $data = ['id'=>$id];
             $stmt->execute($data);
-            $stmt->closeCursor();
-            return null;
+            $test = $stmt->fetch();
+
+            $req = 'SELECT * FROM Grades WHERE hierarchie =:hierarchie AND id != :id';
+            $stmt = $pdo->prepare($req);
+            $stmt->bindParam(':hierarchie', $test['hierarchie']);
+            $stmt->bindParam(':id', $id);
+            
+            $stmt->execute();
+            $testResult = $stmt->fetch();
+
+            if ($testResult == false){
+                $stmt->closeCursor();
+                return 'La supression n\'a pas pu être effectuée, cette constante est la dernière représentante du niveau hierarchique '.$test['hierarchie'].' ça supression entrainerait des problèmes importants. Il vous suffit de créer un nouveau grade du même niveau hierarchique que celui-ci et vous pourrez ensuite supprimer ce grade sans problème.';
+            } else{ #tout est ok, on supprime le grade
+                $req = '
+                    DELETE
+                    FROM Grades
+                    WHERE id = :id
+                ';
+
+                $stmt = $pdo->prepare($req);
+                $data = ['id'=>$id];
+                $stmt->execute($data);
+                $stmt->closeCursor();
+                return null;
+            } 
         }
-        
     }
 
     // 5-4-5 'suprClasseDroits':
@@ -1118,6 +1136,42 @@ class AdministrationManager
     // 6-2- 'importer un DUMP':
     //-----------------------------
 
+    public static function dropBaseAndImportANewOne($fileContent)
+    {
+        if (!empty($fileContent)){ //au cas ou..
+            $pdo = DB::getInstance()->getPDO();
+            //supression de la base
+            //supression des tables utilisants les constantes et militaire
+            $pdo->exec("
+                DROP TABLE PossedeDiplomes, Users, DiplomesEquivalences, DetientGrades, ConditionsPromotions, ConditionsRetraites, AppartientRegiment, Affectation
+            ");
+            //supression des tables contenants les constantes
+            $pdo->exec("
+                DROP TABLE Actifs, Archives, Casernes, Diplomes, Grades, Regiment, Retraites, Droits
+            ");
+            //supression de la table Militaire
+            $pdo->exec("DROP TABLE Militaires");
+
+            //on réimporte la base à partir du fichier fourni
+            $count = $pdo->exec($fileContent);
+
+            //les requêtes d'ajout ne sont pas comptabilisé par exec. On vérifi donc les rapports d'erreur. 00000 correspond à un succès et 01000 correspond à un succès avec warning.
+            $error = $pdo->errorInfo();
+            if ($error[0] === '00000' || $error[0] === '01000'){
+                $success = true;
+            } else{
+                $success = false;
+            }
+
+            if ($success) { //l'importation c'est bien passée
+                return 'action effectuée : la base de données correspond désormais à la sauvegarde fournie';
+            } else{ //bug, à ce stage il n'y a problablement plus de bdd donc pas cool.
+                return 'une erreur innatendue est survenu, le bon fonctionnement de l\'application risque d\'être compromis. Veuillez réimporter manuellement la base de donnée. Une sauvegarde locale de la base de données a été effectuée avant cette opération dans le répertoire : /data/tmp';
+            }
+        } else{ //le fichier est vide, ce n'est normalement pas possible.
+            return 'fatal error : une maintenance de la fonctionnalité est nécessaire';
+        }
+    }
     //-----------------------------
 
     // 6-3- 'gérer les fichiers de LOG':

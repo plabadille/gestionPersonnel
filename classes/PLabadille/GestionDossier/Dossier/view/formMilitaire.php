@@ -1,6 +1,6 @@
 <h2 class="titreFormulaire">Formulaire de création de dossier:</h2>
 <?php
-if (isset($attributs['id'])){
+if (isset($attributs['id']) && !empty($attributs['id'])){
     echo '<a href="?objet=dossier&action=voir&id=' . $attributs['id'] . '">Retourner à l\'affichage du dossier</a>';
 } ?> 
 <div id="formErrorsExist">

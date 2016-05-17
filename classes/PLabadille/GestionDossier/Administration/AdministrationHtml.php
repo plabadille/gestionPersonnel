@@ -451,6 +451,19 @@ EOT;
             </div>
             
             <div class="block">
+                <h3>Importer une version différente de la base de donnée</h3>
+                <p>Cette fonctionnalité est utile si vous souhaitez pour une raison quelcquonque revenir à un état antérieur de la base de donnée. Vous pouvez également vous servir de cette fonction pour importer une nouvelle base. Néanmoins il convient d'être prudent et nous vous conseillons fortement de n'importer que des fichiers de sauvegarde réalisé avec la fonctionnalité ci-dessus.</p>
+                <p>Si le fichier importé n'est pas correct, il y a un risque réel de disfonctionnement de l'application suite à une importation nulle ou partielle, une intervention manuelle (hors application) serait alors nécessaire.</p>
+                <p><b>!!! Le fichier importé doit nécessairement correspondre à la base de donnée complète et non une partie. N'utilisez pas cette fonctionnalité pour simplement ajouter des données !!!</b></p>
+
+                <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="?objet=administration&action=importDump">
+                    <label for="dump">Ajouter un fichier SQL</label>
+                    <input type="file" name="dump" />  
+                    <input id="boutonOk" type="submit" value="Envoyer" >
+                </form>   
+            </div>
+            
+            <div class="block">
                 <h3>Gestion des droits des utilisateurs (situation d'urgence)</h3>
                 <p>Si vous souhaitez interdir l'accès à toutes les fonctionnalités des utilisateurs (temporairement, les droits préalablement prévu ne seront pas perdu) de toutes les classes excepté celle de superAdministrateur, choisissez "activer". Pour remettre les droits en l'état suite à une activation, choisissez "désactiver".</p>
                 <p><a href="?objet=administration&action=setAllUsersToNoRight" alt="passer les droits de tous les utilisateurs à aucun droit">activer</a> -/-
@@ -478,18 +491,19 @@ EOT;
     // 6-3- 'gérer les fichiers de LOG':
     //-----------------------------
 
-    public static function displayLogsManagement($logsName, $log=null)
+    public static function displayLogsManagement($logsName, $log=null, $logSelected=null)
     {
+        $path = './media/infos/';
         $html = '<h2>Gestion des fichiers de logs</h2>'."\n";
 
-        $html .= '<h3>Liste des fichiers de log disponibles</h3>'."\n";
-        foreach ($logsName as $key => $value) {
-            $html .= '<a href="?objet=administration&action=displayLog&filename='.$value.'" alt="afficher un fichier de log">afficher le fichier: '.$value.'</a>'."\n";
+        $html .= '<h3>Liste des fichiers de log disponibles</h3>'."\n"."<ul>\n";
+        foreach ($logsName as $key => $value){
+            $html .= '<li>'.$value.'  <a href="?objet=administration&action=displayLog&filename='.$value.'" alt="afficher un fichier de log"><img src="media/img/icons/view.png" alt="Voir le fichier" title="Voir le fichier" /></a> - <a href="'.$path.$value.'" download="'.$value.'" alt="Télécharger le fichier '.$value.'"><img src="media/img/icons/download.png" alt="Télécharger le fichier" title="Télercharger le fichier" /></a></li>'."\n";
         }
-
-        $html .= '<h3>Contenu du fichier</h3>'."\n";
+        $html .= "</ul>\n".'<h3>Contenu du fichier : '. $logSelected .'</h3>'."\n";
+        
         if ($log){
-            $html .= '<table class="tabLogs">'."\n";
+            $html .= '<div id="logsContent"><table class="tabLogs">'."\n";
 
             //affichage de l'en-tête du tableau
             $html .= '<tr>'."\n";
@@ -516,7 +530,7 @@ EOT;
                     $html .= '</tr>'."\n";
                 }
             }
-            $html .= '</table>'."\n";
+            $html .= '</table></div>'."\n";
         } else{
             $html .= '<p>Aucun fichier selectionné</p>'."\n";
         }

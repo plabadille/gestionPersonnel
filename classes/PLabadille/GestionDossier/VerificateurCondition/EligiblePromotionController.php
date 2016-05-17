@@ -115,9 +115,7 @@ class EligiblePromotionController
     {
         $militairesATester = self::getMilitairesATesterPromotionDossier();
         $promotionRules = EligiblePromotionManager::getPromotionRules();
-
         $militairesEligibles = array();
-
         
         #on parcourt les militaires
         foreach ($militairesATester as $matricule => $dossier) {
@@ -138,7 +136,7 @@ class EligiblePromotionController
                             ##afin de gagner en performance on ne regarde pas les deux autres exigences si celle-ci n'est pas vérifiée
                             #2)A-t-il les diplômes nécessaires ?
                             ##On continue si les deux sont vides ou les deux set
-                            if ( (!empty($rules['diplomes']) && !empty($dossier['diplomes'])) || (empty($rules['diplomes']) && empty($dossier['diplomes'])) ){
+                            if ( !empty($rules['diplomes']) && !empty($dossier['diplomes']) ){
                                 ##on parcourt les diplomes du militaire, sinon c'est déjà ok
                                 foreach ($dossier['diplomes'] as $key => $possDip) {
                                     ##on parcourt les diplomes requis
@@ -153,6 +151,8 @@ class EligiblePromotionController
                                         break;
                                     }
                                 }
+                            } elseif (empty($rules['diplomes'])) { //si il n'y a pas de régle diplome c'est forcément bon.
+                                $diplome = true;
                             }
                             #3)A-t-il les temps de services adequat?
                             #############
@@ -176,6 +176,7 @@ class EligiblePromotionController
                                     #On parcourt le tableau des régiments du militaire
                                     foreach ($dossier['regiments'] as $key => $tab) {
                                         if ( $tab['id'] == $idRegiment ){
+                                            
                                             if ( $tab['serviceRegiment'] >= $service ){
                                                 #on est okey pour celui la, il faut vérifier le reste
                                                 unset($idRegiments[$idRegiment]);
@@ -190,6 +191,16 @@ class EligiblePromotionController
                             #Si le tableau de régiment est a été complétement vidé c'est que toutes les conditions sont remplies.
                             if ( empty($idRegiments ) ){
                                 $regiment = true;
+                            } else{ //on supprime les choses prédéfini au dessus pour ce passage (sinon elle se rajoute au règle du passage suivant...)
+                                if ( isset($idRegiments['Forces Armées']) ){
+                                    unset($idRegiments['Forces Armées']);
+                                }
+                                if ( isset($idRegiments['Gendarmerie Nationale']) ){
+                                    unset($idRegiments['Gendarmerie Nationale']);
+                                }
+                                if ( isset($idRegiments['Ecole Militaire']) ){
+                                    unset($idRegiments['Ecole Militaire']);
+                                }  
                             }
                             #4) Si toutes les conditions sont remplies on selectionne le dossier
                             if ( $regiment == true && $diplome == true ){
