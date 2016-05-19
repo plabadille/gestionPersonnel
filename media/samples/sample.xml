@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<militaires>
+    <militaire> <!-- 1 groupe par militaire, 1000 groupes maximum par fichier -->
+        <nom>Henry</nom>
+        <prenom>Toto</prenom>
+        <date_naissance>1991-05-22</date_naissance>
+        <genre>M</genre>
+        <tel1>0233664311</tel1>
+        <tel2>02 33 22 52 65</tel2> <!-- Champ optionnel, doit être présent mais peut être vide -->
+        <email>toto@henry.com</email>
+        <adresse>Le pavillon - Caen</adresse>
+        <date_recrutement>2015-10-22</date_recrutement>
+    </militaire>
+    <militaire> <!-- 1 groupe par militaire, 1000 groupes maximum par fichier -->
+        <nom>Lest</nom>
+        <prenom>Julie</prenom>
+        <date_naissance>1980-03-15</date_naissance>
+        <genre>F</genre>
+        <tel1>0682596865</tel1>
+        <tel2></tel2> <!-- Champ optionnel, doit être présent mais peut être vide -->
+        <email>julie@lest.com</email>
+        <adresse>La maison bleue - Caen</adresse>
+        <date_recrutement>2015-10-22</date_recrutement>
+    </militaire>
+</militaires>

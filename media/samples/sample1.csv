@@ -1,0 +1,8 @@
+//exemple correct
+nom,prenom,date_naissance,genre,tel1,tel2,email,adresse,date_recrutement
+Henry,Toto,1991-05-22,M,0233664311,02 33 22 52 65,toto@henry.com,Le pavillon - Caen,2015-10-22
+Lest,Julie,1980-03-15,F,0682596865,,julie@lest.com,La maison bleue - Caen,2015-10-22
+
+//exemple incorrect 1
+nom,prenom,date_naissance,genre,tel1,email,adresse,date_recrutement
+Henry,Toto,1991-05-22,M,0233664311,toto@henry.com,Le pavillon - Caen,2015-10-22

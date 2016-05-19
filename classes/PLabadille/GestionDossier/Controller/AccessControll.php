@@ -61,9 +61,9 @@ class AccessControll
                             case 'createFolder':
                                 $module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>' . "\n";
                                 break;
-                            // case 'useFileToAddFolders':
-                            //  $html .='';
-                            //  break;
+                            case 'useFileToAddFolders':
+                                $module2 .= '<li><a href="?objet=dossier&action=importFoldersWithFile">Importer des dossiers via un fichier</a></li>' . "\n";
+                             break;
                             //--------------------
                             //3-module gestion promotion et retraite
                             //--------------------
@@ -128,6 +128,7 @@ class AccessControll
                 $module2 .= '<li><a href="?objet=dossier&action=afficherListeDossier">Afficher liste des militaires</a></li>' . "\n";
                 $module2 .= '<li><a href="?objet=dossier&action=afficherListeDossierSiCreateur">Afficher liste des militaires créés</a></li>' . "\n";
                 $module2 .= '<li><a href="?objet=dossier&action=creerDossier">Créer un dossier</a></li>' . "\n";
+                $module2 .= '<li><a href="?objet=dossier&action=importFoldersWithFile">Importer des dossiers via un fichier</a></li>' . "\n";
                 $module3 .= '<li><a href="?objet=dossier&action=afficherListeEligiblePromotion">Afficher militaires éligible promotion</a></li>' . "\n";
                 $module3 .= '<li><a href="?objet=dossier&action=afficherListeEligibleRetraite">Afficher militaires éligible retraite</a></li>' . "\n";
                 $module3 .= '<li><a href="?objet=dossier&action=afficherListeConditionsEligibilites">Afficher les conditions d\'éligibilités</a></li>' . "\n";
@@ -415,9 +416,11 @@ class AccessControll
                             return 'Vous n\'avez pas les droits requis pour effectuer cette action';
                         }
                         break;
-                    // case 'useFileToAddFolders':
-                    //  $html .='';
-                    //  break;
+                    case 'useFileToAddFolders':
+                        if ( $droits['useFileToAddFolders'] == 0 ){
+                            return 'Vous n\'avez pas les droits requis pour effectuer cette action';
+                        }
+                        break;
                     //--------------------
                     //3-module gestion promotion et retraite
                     //--------------------

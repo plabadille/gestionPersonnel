@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<militaires>
+    <militaire> <!-- 1 groupe par militaire, 1000 groupe maximum par fichier -->
+        <nom></nom>
+        <prenom></prenom>
+        <date_naissance></date_naissance>
+        <genre></genre>
+        <tel1></tel1>
+        <tel2></tel2> <!-- Champ optionnel, doit être présent mais peut être vide -->
+        <email></email>
+        <adresse></adresse>
+        <date_recrutement></date_recrutement>
+    </militaire>
+</militaires>

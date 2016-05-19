@@ -1,0 +1,4 @@
+militaires":[
+    {"nom":"Henry", "prenom":"Toto", "date_naissance":"1991-05-22", "genre":"M", "tel1":"0233664311", "tel2":"02 33 22 52 65", "email":"toto@henry.com", "adresse":"Le pavillon - Caen", "date_recrutement":"2015-10-22"},
+    {"nom":"Lest", "prenom":"Julie", "date_naissance":"1980-03-15", "genre":"F", "tel1":"0682596865", "tel2":"", "email":"julie@lest.com", "adresse":"La maison bleue - Caen", "date_recrutement":"2015-10-22"}
+]}

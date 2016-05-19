@@ -433,11 +433,35 @@ main #formSaisieDossier #boutonOk{
 	color: white;
 	background-color:black;
 }
+
+.tabSample{
+	border: 1px solid black;
+	display:block;
+	max-width: 450px;
+	margin-bottom: 5px;
+}
+
+.tabSample th{
+	text-align: center;
+	padding:6px;
+	background-color:#717751;
+}
+.tabSample td{
+	text-align: left;
+	padding:1px 3px;
+	color: white;
+	background-color:black;
+}
+.tabSample td xmp{
+	font-size:1.1em;
+	margin:0;
+	padding:0;
+}
 @media screen and (min-device-width: 1300px) and (max-device-width: 1500px) {
   	.tab{
 		max-width: 900px;
 	}
-	.tabLogs, #logsContent{
+	.tabLogs, #logsContent, .tabSample{
 		max-width: 1100px;
 	}
 }
@@ -446,7 +470,7 @@ main #formSaisieDossier #boutonOk{
   	.tab{
 		max-width: 1100px;
 	}
-	.tabLogs, #logsContent{
+	.tabLogs, #logsContent, .tabSample{
 		max-width: 1300px;
 	}
 }
@@ -455,13 +479,13 @@ main #formSaisieDossier #boutonOk{
   	.tab{
 		max-width: 1400px;
 	}
-	.tabLogs, #logsContent{
+	.tabLogs, #logsContent, .tabSample{
 		max-width: 1600px;
 	}
 }
 
 @media screen and (min-device-width: 900px) and (max-device-width: 1300px) {
-  	.tabLogs, #logsContent{
+  	.tabLogs, #logsContent, .tabSample{
 		max-width: 700px;
 	}
 }
@@ -525,4 +549,9 @@ main #formSaisieDossier #boutonOk{
 
 #infoAction{
 	color: #C21527!important;
+}
+
+.pads{
+	max-width:800px;
+	padding: 5px;
 }

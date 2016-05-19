@@ -1017,7 +1017,202 @@ class DossierController
         }
     }
     // 2-10 'useFileToAddFolders':
-    #to do
+    public function importFoldersWithFile($info = null, $content = null, $filename = null)
+    {
+        //sécurité
+        $action = 'useFileToAddFolders';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $prez = DossierHtml::viewParsingForm($info, $content, $filename);
+        } else{ //pas ok
+            $prez = HomeHtml::toHtml($error);
+        }
+        $this->response->setPart('contenu', $prez);
+    }
+
+    public function displaySample()
+    {
+        //sécurité
+        $action = 'useFileToAddFolders';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $filename = $this->request->getGetAttribute('filename');
+            //on réccupère le contenu du fichier et on le redécoupe en ligne dans un tableau
+            $path = 'media/samples/';
+            $content = file_get_contents($path.$filename);
+            $content = explode("\n", $content);
+            //on l'affiche
+            self::importFoldersWithFile(null, $content, $filename);
+
+        } else{ //pas ok
+            header("location: index.php");
+            die($error);
+        }
+    }
+
+    public function parseAndAddsFolders()
+    {
+        //sécurité
+        $action = 'useFileToAddFolders';
+        $error = AccessControll::checkRight($action);
+        if ( empty($error) ){ //ok
+            $file = $this->request->getFiles();
+            if (!empty($file['importedFile']['tmp_name'])){ //un fichier est bien présent
+                switch ($file['importedFile']['type']) { //si le type n'est pas accepté on apsse dans le default qui set accepterType à false
+                    case 'text/csv':
+                    $acceptedType = true;
+                    $trueLine = true; //les deux autres ne donnent pas un num de ligne mais sont des tableaux, il faut donc distinguer ce cas pour l'affichage de la ligne/erreur dans la validation
+                    //1- Le cas CSV
+                        if (($handle = fopen($file['importedFile']['tmp_name'], "r")) !== FALSE) {
+                            //1-1-on commence par trouver le séparateur (, ou ;)
+                            $fileHead = fgets($handle);
+                            if (substr_count($fileHead, ',') === 8){
+                                $delimiter = ',';
+                            } elseif (substr_count($fileHead, ';') === 8) {
+                                $delimiter = ';';
+                            } else{ //la modélisation de la table Militaires induit qu'il est obligatoire d'avoir 9 colonnes et donc 8 séparateurs. Ici on a donc une erreur de mise en forme.
+                                echo 'Le fichier n\'est pas correctement mis en forme, veuillez vous référer à l\'exemple proposé';
+                            }
+
+                            //1-2-Maintenant qu'on connait le delimiter, on réccupère les données et on les mets en forme.
+                            $row = 2; //fgetcsv ne prend pas en compte la première ligne
+                            $columnName = explode($delimiter, rtrim($fileHead));
+                            while (($data = fgetcsv($handle, 1000, $delimiter)) !== FALSE)
+                            {
+                                $num = count($data);
+                                if ($num === 9){ //on met en forme les données dans un tableau
+                                    for ($c=0; $c < $num; $c++) {
+                                        $dataAfterParsing[$row][$columnName[$c]] = $data[$c];
+                                    }
+                                } else{ //erreur de mise en forme, on stock les lignes affectés
+                                    $error[] = 'La ligne '.$row.' du fichier importé ne comporte que '.$num.' colonnes, celle-ci n\'a donc pas pu être importée';
+                                }
+                                $row++;
+                            }
+                        }
+                        break;
+
+                    case 'text/xml':
+                    //2- Le cas XML
+                        $acceptedType = true;
+                        $trueLine = false; //ici le numéro des erreurs n'est pas correct puisqu'il démarre à 0 et non à 1
+                        //2-1- On réccupère les donnée à partir du fichier
+                        $handler = fopen($file['importedFile']['tmp_name'], "r");  
+                        $xml = '';                    
+                        while (($data = fgets($handler)) !== FALSE)
+                        {  
+                            $xml .= $data;  
+                        }
+                        fclose($handler);
+                        //2-2-On met en forme les données.
+                        $completeXml = simplexml_load_string($xml);
+                        $array = json_decode(json_encode((array) $completeXml), 1);
+                        $array = array($completeXml->getName() => $array);
+                        $xmlInArray = $array['militaires']['militaire'];
+
+                        foreach ($xmlInArray as $key => $value) {
+                            $num = count($value);
+                            foreach ($value as $col => $str) { //on nettoye les tableaux vides
+                                if (is_array($str)){
+                                    $xmlInArray[$key][$col] = null;
+                                }
+                                if ($num === 9){ //nb de colonnes requises correspondant en base
+                                    $dataAfterParsing[$key][$col] = $xmlInArray[$key][$col];
+                                } else{ //le fichier n'est pas bien mis en forme
+                                    $id = ($trueLine ? $key : $key+1);
+                                    $error[] = 'Le groupe de donnée '.$id.' du fichier importé ne comporte que '.$num.' colonnes, celui-ci n\'a donc pas pu être importée';
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'application/json':
+                    //3-Le cas Json
+                        $acceptedType = true;
+                        $trueLine = false; //ici le numéro des erreurs n'est pas correct puisqu'il démarre à 0 et non à 1
+                        //3-1- On réccupère les données
+                        $handler = fopen($file['importedFile']['tmp_name'], "r");
+                        $json = '';
+                        while (($data = fgets($handler)) !== FALSE) {
+                            $json .= $data;
+                        }
+                        fclose($handler);
+                        //3-2-On met en forme les données
+                        $json = json_decode($json, true);
+
+                        foreach ($json['militaires'] as $key => $col) {
+                            $num = count($col);
+                            if ($num === 9){ //nb de colonnes requises correspondant en base
+                                foreach ($col as $nameCol => $value) {
+                                    $dataAfterParsing[$key][$nameCol] = $json['militaires'][$key][$nameCol];
+                                }
+                            } else{ //le fichier n'est pas bien mis en forme
+                                $id = ($trueLine ? $key : $key+1);
+                                $error[] = 'Le groupe de donnée '.$id.' du fichier importé ne comporte que '.$num.' colonnes, celui-ci n\'a donc pas pu être importée';
+                            }
+                        }
+                        break;
+                    
+                    default: //le type du fichier importé n'est pas correct
+                        $error = 'Le format du fichier n\'est pas valide, veuillez importer un document CSV (, ou ;), XML ou JSON.';
+                        $acceptedType = false;
+                        break;
+                }
+
+                if ($acceptedType === true){
+                    //à ce stade s'il n'y pas eue d'erreur importante, on a un tableau associatif (ligne)=>array()'nomColonneEnBase'=>data
+                    //Les données sont donc déjà parsé qu'importe le format. On a également un tableau d'erreur contenant les lignes mal formatée
+                    //4-1 : Nettoyage des données (on rend impossible l'injection)
+                    $cleaner = DossierForm::cleaningStrategy();
+                    foreach ($dataAfterParsing as $row => $set) {
+                        foreach ($set as $key => $value) {
+                            $dataAfterParsing[$row][$key] = $cleaner->applyStrategies($value);
+                        }
+                    }
+
+                    //4-2 : Validation des données
+                    $type = 'militaireForm';
+                    foreach ($dataAfterParsing as $row => $set) {
+                        $validationErrors = DossierForm::validatingStrategy($set, $type);
+                        $cleanErrors = array_filter($validationErrors); #retire les clés vides
+                        if (!empty($cleanErrors)){
+                            #s'il y a une erreur on rajoute la ligne au tableau d'erreur et on la supprime du tableau de donnée
+                            $displayError = 'Erreurs retournées: ';
+                            foreach ($cleanErrors as $key => $value) {
+                                $displayError .= $key.': '.$value.' ; ';
+                            }
+                            unset($dataAfterParsing[$row]);
+                            $id = ($trueLine ? $row : $row+1);
+                            $error[] = 'Les données de la ligne/groupe '.$id.' n\'ont pas pu être validées, vérifier que son contenu respecte bien les obligations de formatage. '.$displayError;
+                        }
+                    }
+                    
+                    //4-3 : On envoit les lignes correctes complètes pour envois en base
+                    $cleanData = array_filter($dataAfterParsing); #retire les clés vides
+                    if (!empty($cleanData)){ //dans ce cas les données restantes sont correcte, on les importes
+                        $info = DossierManager::addParsingFolderInBase($dataAfterParsing);
+                        $info['error'] = $error;
+                        echo 'ajout:'."\n";
+                        var_dump($info);
+                    } else{ //aucune donnée correcte.
+                        $info = $error;
+                        $info['success'] = 0;
+                    }
+                    //4-4 : On réaffiche la page en indiquant combien de lignes ont été importé et si des lignes comprennent des erreurs (si oui lesquels et quel type d'erreur).
+                    self::importFoldersWithFile($info);
+                } else{ //le type du fichier importé n'est pas supporté
+                    self::importFoldersWithFile($error);
+                }
+            } else{ //aucun fichier reçu
+                $error = 'Aucun fichier n\'a été correctement reçu par le système, veuillez réessayer';
+                self::importFoldersWithFile($error);
+            }   
+        } else{ //erreur de droits
+            $prez = HomeHtml::toHtml($error);
+            $this->response->setPart('contenu', $prez);   
+        }
+    }
 
     // 2-11- 'canArchiveAFolder':
     public function archiverDossier()

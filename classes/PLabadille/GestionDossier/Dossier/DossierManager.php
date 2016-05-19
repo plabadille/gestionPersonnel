@@ -470,6 +470,75 @@ class DossierManager
         }
     }
 
+    public static function addParsingFolderInBase($dataAfterParsing)
+    {
+        $pdo = DB::getInstance()->getPDO();
+        $i = 0;
+        foreach ($dataAfterParsing as $key => $attributs) {
+            $stmt = $pdo->prepare("
+                SELECT *
+                FROM Militaires
+                WHERE nom = :nom AND prenom = :prenom AND date_naissance = :date_naissance AND date_recrutement = :date_recrutement
+            ");
+            $stmt->bindParam(':nom', $attributs['nom']);
+            $stmt->bindParam(':prenom', $attributs['prenom']);
+            $stmt->bindParam(':date_naissance', $attributs['date_naissance']);
+            $stmt->bindParam(':date_recrutement', $attributs['date_recrutement']);
+            
+            $stmt->execute();
+            $result = $stmt->fetch();
+
+            if ($result == false){
+                //requête d'insertion en bdd
+                $stmt = $pdo->prepare("
+                    INSERT INTO Militaires 
+                        (nom, prenom, date_naissance, genre, tel1, tel2, email, adresse, date_recrutement) 
+                    VALUES
+                        (:nom, :prenom, :date_naissance, :genre, :tel1, :tel2, :email, :adresse, :date_recrutement)
+                ");
+                $stmt->bindParam(':nom', $attributs['nom']);
+                $stmt->bindParam(':prenom', $attributs['prenom']);
+                $stmt->bindParam(':date_naissance', $attributs['date_naissance']);
+                $stmt->bindParam(':genre', $attributs['genre']);
+                $stmt->bindParam(':tel1', $attributs['tel1']);
+                $stmt->bindParam(':tel2', $attributs['tel2']);
+                $stmt->bindParam(':email', $attributs['email']);
+                $stmt->bindParam(':adresse', $attributs['adresse']);
+                $stmt->bindParam(':date_recrutement', $attributs['date_recrutement']);
+                
+                $stmt->execute();
+                //lastInsertId retourne l'id de la dernière ligne insérée.
+                $matricule = $pdo->lastInsertId();
+
+                //on indique maintenant que le militaire est actif
+                $stmt = $pdo->prepare("
+                    INSERT INTO Actifs 
+                        (matricule) 
+                    VALUES
+                        (:matricule)
+                ");
+                $stmt->bindParam(':matricule', $matricule);
+                
+                $stmt->execute();
+
+                $i++;
+            } else{
+                $doublonError[] = 'Système anti-doublon : cette entrée (ligne: '.$key.') existe déjà dans la base de donnée, impossible de la mettre à nouveau';
+            }
+        }
+
+        $stmt->closeCursor();
+
+        if (isset($doublonError)){
+            $info['doublonError'] = $doublonError;
+            $info['success'] = $i;
+            return $info;
+        } else{
+            $info['success'] = $i;
+            return $info;
+        }
+    }
+
     // 2-6- 'addElementToAFolder':
     #utilises des fonctions génériques situées tout en haut
     #Permet d'ajouter une affectation en BDD

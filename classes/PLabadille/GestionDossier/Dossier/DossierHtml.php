@@ -389,7 +389,90 @@ EOT;
     #directement en 2-4-
 
     // 2-10 'useFileToAddFolders':
-    #géré par template dans DossierForm
+    public static function viewParsingForm($info = null, $content = null, $filename = null)
+    {
+        if (!is_null($filename) || !is_null($content)){
+            $type = explode('.', $filename);
+            $prezSample = '<h3>Exemple de modélisation de fichier .'.$type['1'].'</h3>'."\n";
+            $prezSample .= '<div id="logsContent"><table class="tabSample">'."\n";
+
+            //affichage de l'en-tête du tableau
+            $prezSample .= '<tr>'."\n".'<th>line</th>'."\n";
+            $prezSample .= '<th>'.$filename.'</th>'."\n".'</tr>'."\n";
+
+            //affichage du contenu
+            $line = 0;
+            foreach ($content as $key => $value) {
+                $prezSample .= '<tr>'."\n".'<td>'.$line.'</td>'."\n";
+                $prezSample .= '<td><xmp>'.$value.'</xmp></td>'."\n".'</tr>'."\n";
+                $line++;
+            }
+            $prezSample .= '</table></div>'."\n";
+        } else{
+            $prezSample = null;
+        }
+        if (!is_null($info)){
+            $prezInfo = '<div id="infoAction">'."\n";
+            if (is_array($info)){ //si $info est un tableau c'est que le système à accepté le type de fichier et qu'il en a bien reçu un.
+                if ($info['success'] === 0){
+                    $prezInfo .= '<p>Aucune ligne n\'a été insérée en base de données.</p>'."\n";
+                } elseif ($info['success'] === 1) {
+                    $prezInfo .= '<p>'.$info['success'].' ligne a été insérée en base de données.</p>'."\n";
+                } else{
+                    $prezInfo .= '<p>'.$info['success'].' lignes ont été insérées en base de données.</p>'."\n";
+                }
+                if(!empty($info['error'])){
+                    $prezInfo .= '<p><b>Erreur de validation/fichier :</b></p>'."\n";
+                    foreach ($info['error'] as $key => $value) {
+                        $prezInfo .= '<p>'.$value.'</p>'."\n";
+                    }
+                }
+                if(!empty($info['error'])){
+                    $prezInfo .= '<p><b>Erreur de doublon :</b></p>'."\n";
+                    foreach ($info['doublonError'] as $key => $value) {
+                        $prezInfo .= '<p>'.$value.'</p>'."\n";
+                    }
+                }
+            } else{ //le système n'a pas reçu le fichier ou n'accepte pas le type du fichier
+                $prezInfo .= '<p>'.$info.'</p>'."\n";
+            }
+            $prezInfo .= '</div>'."\n";
+        } else{
+            $prezInfo = null;
+        }
+        $path = './media/samples/';
+        $html = <<<EOT
+            <h2>Ajouter des dossiers avec un fichier de donnée structurée</h2>
+            <div class="pads">
+                <p>Les fichiers sont ajoutés dans la base à la volée (si certaines entrées sont correctes et d'autres non, les entrées correctes seront tout de même importé). Après l'importation, le système vous retournera les numéros des lignes contenant des erreurs et n'ayant pas été importé le cas échéant, ainsi que le nombre de dossier correctement importé. Veuillez enfin noter que le système vérifie également les doublons.</p>
+            </div>
+
+            {$prezInfo}
+
+            <form id="formSaisieDossier" enctype="multipart/form-data" method="post" action="?objet=dossier&action=parseAndAddsFolders">
+                    <label for="importedFile">Ajouter un fichier de donnée structurée (CSV, XML, JSON)</label>
+                    <input type="file" name="importedFile" />  
+                    <input id="boutonOk" type="submit" value="Envoyer" >
+            </form>
+
+            <h3>Informations sur la forme de modélisation requise:</h3>
+            <div class="pads">
+                <p>Veuillez noter que les dossiers importer par cette méthode doivent respecter les conditions d'ajouts actuelles (concordence des dates, adresse email valide, etc).</p>
+            </div>
+            <ul>
+                <li>Modélisation CSV avec séparateur "," <a href="?objet=dossier&action=displaySample&filename=sample1.csv" alt="afficher l'exemple"><img src="media/img/icons/view.png" alt="Voir le fichier" title="Voir le fichier" /></a> - <a href="{$path}model1.csv" download="model1.csv" alt="Télécharger le fichier"><img src="media/img/icons/download.png" alt="Télécharger le fichier" title="Télercharger le fichier" /></a></li>
+                <li>Modélisation CSV avec séparateur ";" <a href="?objet=dossier&action=displaySample&filename=sample2.csv" alt="afficher l'exemple"><img src="media/img/icons/view.png" alt="Voir le fichier" title="Voir le fichier" /></a> - <a href="{$path}model2.csv" download="model2.csv" alt="Télécharger le fichier"><img src="media/img/icons/download.png" alt="Télécharger le fichier" title="Télercharger le fichier" /></a></li>
+                <li>Modélisation XML <a href="?objet=dossier&action=displaySample&filename=sample.xml" alt="afficher l'exemple"><img src="media/img/icons/view.png" alt="Voir le fichier" title="Voir le fichier" /></a> - <a href="{$path}model.xml" download="model.xml" alt="Télécharger le fichier"><img src="media/img/icons/download.png" alt="Télécharger le fichier" title="Télercharger le fichier" /></a></li>
+                <li>Modélisation JSON <a href="?objet=dossier&action=displaySample&filename=sample.json" alt="afficher l'exemple"><img src="media/img/icons/view.png" alt="Voir le fichier" title="Voir le fichier" /></a> - <a href="{$path}model.json" download="model.json" alt="Télécharger le fichier"><img src="media/img/icons/download.png" alt="Télécharger le fichier" title="Télercharger le fichier" /></a></li>
+            </ul>
+
+            {$prezSample}
+
+
+
+EOT;
+        return $html;
+    }
 
     //--------------------
     //3-module gestion promotion et retraite
