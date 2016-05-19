@@ -427,7 +427,7 @@ EOT;
                         $prezInfo .= '<p>'.$value.'</p>'."\n";
                     }
                 }
-                if(!empty($info['error'])){
+                if(!empty($info['doublonError'])){
                     $prezInfo .= '<p><b>Erreur de doublon :</b></p>'."\n";
                     foreach ($info['doublonError'] as $key => $value) {
                         $prezInfo .= '<p>'.$value.'</p>'."\n";

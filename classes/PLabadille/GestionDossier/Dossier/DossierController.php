@@ -1193,8 +1193,6 @@ class DossierController
                     if (!empty($cleanData)){ //dans ce cas les données restantes sont correcte, on les importes
                         $info = DossierManager::addParsingFolderInBase($dataAfterParsing);
                         $info['error'] = $error;
-                        echo 'ajout:'."\n";
-                        var_dump($info);
                     } else{ //aucune donnée correcte.
                         $info = $error;
                         $info['success'] = 0;

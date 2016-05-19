@@ -235,7 +235,7 @@ class AdministrationManager
         ");
         
         $stmt->bindParam(':id', $attributs['id']);
-        $stmt->bindParam(':pass', $attributs['hash']);
+        $stmt->bindParam(':pass', $attributs['pass']);
         
         $stmt->execute();
         $stmt->closeCursor();
